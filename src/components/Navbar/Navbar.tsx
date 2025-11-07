@@ -11,6 +11,8 @@ import {
   FiBarChart2,
   FiMapPin,
   FiFileText,
+  FiCreditCard,
+  FiPackage,
 } from "react-icons/fi";
 import styles from "./Navbar.module.css";
 
@@ -24,10 +26,16 @@ const Navbar: React.FC = () => {
     { icon: <FiUsers />, label: "Users", href: "/dashboard/users" },
     { icon: <FiFileText />, label: "KYC", href: "/dashboard/kyc" },
     { icon: <FiShoppingCart />, label: "Rentals", href: "/dashboard/rentals" },
+    { icon: <FiPackage />, label: "Packages", href: "/dashboard/packages" },
     {
       icon: <FiBarChart2 />,
       label: "Transactions",
       href: "/dashboard/transactions",
+    },
+    {
+      icon: <FiCreditCard />,
+      label: "Payment Methods",
+      href: "/dashboard/payment-methods",
     },
     { icon: <FiSettings />, label: "Settings", href: "/dashboard/settings" },
   ];
