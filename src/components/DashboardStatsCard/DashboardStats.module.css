@@ -1,22 +1,79 @@
-/* Reusable card style */
+/* Stats Grid Container */
+.topStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Individual Card Wrapper */
 .card {
     background: #121212;
+    border: 1px solid #1a1a1a;
     border-radius: 10px;
-    padding: 20px;
+    padding: 1.5rem;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 1rem;
     transition: all 0.3s ease;
+    min-height: 100px;
 }
 
 .card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 0 10px rgba(71, 178, 22, 0.4);
+    box-shadow: 0 4px 20px rgba(130, 234, 128, 0.2);
+    border-color: #82ea80;
 }
 
-.topStats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
-    gap: 5rem;
-    margin-bottom: 2rem;
+/* Tablet Responsive (1024px and below) */
+@media (max-width: 1024px) {
+    .topStats {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .card {
+        padding: 1.25rem;
+        min-height: 90px;
+    }
+}
+
+/* Tablet Portrait (768px and below) */
+@media (max-width: 768px) {
+    .topStats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+        min-height: 85px;
+        gap: 0.875rem;
+    }
+}
+
+/* Mobile Portrait (480px and below) */
+@media (max-width: 480px) {
+    .topStats {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+
+    .card {
+        padding: 1rem;
+        min-height: 80px;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .topStats {
+        gap: 0.75rem;
+    }
+
+    .card {
+        padding: 0.875rem;
+        min-height: 75px;
+        gap: 0.75rem;
+    }
 }

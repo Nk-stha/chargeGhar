@@ -1,0 +1,855 @@
+.container {
+    background-color: #0f0f0f;
+    color: white;
+    min-height: 100vh;
+    padding: 2rem;
+    font-family: "Poppins", sans-serif;
+    margin-left: 30px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 0.95rem;
+}
+
+.refreshButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #1a1a1a;
+    color: #82ea80;
+    border: 1px solid #333;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.refreshButton:hover {
+    background: #47b216;
+    color: white;
+    border-color: #47b216;
+    transform: translateY(-1px);
+}
+
+.refreshButton:active {
+    transform: translateY(0);
+}
+
+/* Messages */
+.successMessage,
+.errorMessage {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    animation: slideIn 0.3s ease;
+}
+
+.successMessage {
+    background: rgba(71, 178, 22, 0.15);
+    border: 1px solid rgba(71, 178, 22, 0.3);
+    color: #82ea80;
+}
+
+.errorMessage {
+    background: rgba(255, 68, 68, 0.15);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    color: #ff6b6b;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Analytics Section */
+.analyticsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.analyticsCard {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.analyticsCard:hover {
+    border-color: #47b216;
+    transform: translateY(-2px);
+}
+
+.analyticsIcon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.analyticsContent {
+    flex: 1;
+}
+
+.analyticsLabel {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.analyticsValue {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: white;
+}
+
+.analyticsCardSkeleton {
+    background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 12px;
+    height: 100px;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Filters */
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filterButton {
+    background: transparent;
+    border: 1px solid #333;
+    color: white;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.filterButton:hover {
+    background: #47b216;
+    border-color: #47b216;
+    color: white;
+}
+
+.filterButton.active {
+    background: #47b216;
+    border-color: #47b216;
+    color: white;
+}
+
+/* Table Section */
+.tableWrapper {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 15px;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+.tableHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.tableHeader h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: white;
+}
+
+.tableCount {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.table th {
+    color: #aaa;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background-color: #222;
+}
+
+.referenceCell {
+    font-family: monospace;
+    color: #82ea80;
+    font-weight: 500;
+}
+
+.amountCell {
+    font-weight: 600;
+    color: white;
+}
+
+.feeCell {
+    color: #ff6b6b;
+}
+
+.netAmountCell {
+    font-weight: 600;
+    color: #82ea80;
+    font-size: 1.05rem;
+}
+
+.dateCell {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.paymentMethodBadge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    background: rgba(130, 234, 128, 0.1);
+    border: 1px solid rgba(130, 234, 128, 0.3);
+    border-radius: 6px;
+    color: #82ea80;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.statusBadge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border: 1px solid;
+}
+
+.actionButton {
+    background: transparent;
+    border: 1px solid #333;
+    color: #82ea80;
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.actionButton:hover {
+    background: #47b216;
+    border-color: #47b216;
+    color: white;
+}
+
+/* Loading & Empty States */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #2a2a2a;
+    border-top-color: #47b216;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: #666;
+}
+
+.emptyIcon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modalContent {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+}
+
+.processModalContent {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 600px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.modalHeader h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+}
+
+.closeButton {
+    background: transparent;
+    border: 1px solid #333;
+    color: #aaa;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 1.2rem;
+}
+
+.closeButton:hover {
+    background: #ff4444;
+    border-color: #ff4444;
+    color: white;
+}
+
+.modalBody {
+    padding: 1.5rem;
+}
+
+.detailSection {
+    margin-bottom: 2rem;
+}
+
+.detailSection:last-child {
+    margin-bottom: 0;
+}
+
+.detailSection h3 {
+    color: #82ea80;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.detailGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.detailItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.detailItem label {
+    color: #aaa;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.detailItem span {
+    color: white;
+    font-size: 0.95rem;
+}
+
+.highlightText {
+    color: #82ea80 !important;
+    font-weight: 600;
+}
+
+.amountText {
+    color: white !important;
+    font-weight: 600;
+    font-size: 1.1rem !important;
+}
+
+.feeText {
+    color: #ff6b6b !important;
+    font-weight: 500;
+}
+
+.netAmountText {
+    color: #82ea80 !important;
+    font-weight: 700;
+    font-size: 1.2rem !important;
+}
+
+.accountDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.adminNotesDisplay {
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #ccc;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.modalFooter {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid #2a2a2a;
+    justify-content: flex-end;
+}
+
+.processButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.approveButton {
+    background: #47b216;
+    color: white;
+}
+
+.approveButton:hover {
+    background: #3a8f13;
+    transform: translateY(-1px);
+}
+
+.rejectButton {
+    background: #ff4444;
+    color: white;
+}
+
+.rejectButton:hover {
+    background: #dd2222;
+    transform: translateY(-1px);
+}
+
+/* Process Modal */
+.processInfo {
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.processInfo p {
+    color: #ccc;
+    margin-bottom: 1rem;
+}
+
+.processInfoDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.processInfoDetails span {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.processInfoDetails strong {
+    color: white;
+}
+
+.formGroup {
+    margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+    display: block;
+    color: #aaa;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.required {
+    color: #ff4444;
+}
+
+.textarea {
+    width: 100%;
+    background: #0f0f0f;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: white;
+    font-family: "Poppins", sans-serif;
+    font-size: 0.95rem;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.textarea:focus {
+    outline: none;
+    border-color: #47b216;
+}
+
+.textarea::placeholder {
+    color: #666;
+}
+
+.cancelButton {
+    background: transparent;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.cancelButton:hover:not(:disabled) {
+    background: #2a2a2a;
+    color: white;
+}
+
+.cancelButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.confirmButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.confirmButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.confirmApprove {
+    background: #47b216;
+    color: white;
+}
+
+.confirmApprove:hover:not(:disabled) {
+    background: #3a8f13;
+}
+
+.confirmReject {
+    background: #ff4444;
+    color: white;
+}
+
+.confirmReject:hover:not(:disabled) {
+    background: #dd2222;
+}
+
+.buttonSpinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+        margin-left: 20px;
+    }
+
+    .analyticsGrid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        margin-left: 0;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .refreshButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .analyticsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .analyticsCard {
+        padding: 1rem;
+    }
+
+    .analyticsValue {
+        font-size: 1.5rem;
+    }
+
+    .filters {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 0.5rem;
+    }
+
+    .filterButton {
+        white-space: nowrap;
+    }
+
+    .tableWrapper {
+        padding: 1rem;
+    }
+
+    .tableContainer {
+        overflow-x: scroll;
+    }
+
+    .modalContent,
+    .processModalContent {
+        max-width: 100%;
+        max-height: 95vh;
+    }
+
+    .modalHeader {
+        padding: 1rem;
+    }
+
+    .modalHeader h2 {
+        font-size: 1.2rem;
+    }
+
+    .modalBody {
+        padding: 1rem;
+    }
+
+    .detailGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .modalFooter {
+        flex-direction: column;
+        padding: 1rem;
+    }
+
+    .processButton,
+    .confirmButton {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 0.75rem;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .analyticsIcon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+
+    .analyticsLabel {
+        font-size: 0.75rem;
+    }
+
+    .analyticsValue {
+        font-size: 1.3rem;
+    }
+
+    .tableWrapper {
+        padding: 0.75rem;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+
+    .modalHeader h2 {
+        font-size: 1.1rem;
+    }
+
+    .detailSection h3 {
+        font-size: 1rem;
+    }
+}
