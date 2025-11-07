@@ -1,0 +1,69 @@
+.dashboardPage {
+    display: flex;
+    background-color: #0b0b0b;
+    min-height: 100vh;
+    font-family: "Poppins", sans-serif;
+    color: #fff;
+    padding: 5rem;
+}
+
+/* Main container beside sidebar */
+.dashboardContainer {
+    flex: 1;
+    padding: 2rem 3rem;
+}
+
+/* Header */
+.header {
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+}
+
+.header p {
+    color: #ccc;
+    font-size: 1rem;
+}
+
+.adminName {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+/* Revenue Chart full width */
+.revenueSection {
+    background: #121212;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Two column sections (Popular Packages + Recent Transactions etc.) */
+.twoColumn {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Bottom section stacked vertically */
+.bottomSection {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Responsive tweaks */
+@media (max-width: 1024px) {
+    .twoColumn {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboardContainer {
+        padding: 1rem;
+    }
+}

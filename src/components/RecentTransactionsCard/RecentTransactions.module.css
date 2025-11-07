@@ -1,0 +1,74 @@
+.card {
+    background: #121212;
+    border-radius: 10px;
+    padding: 1.5rem;
+    color: #fff;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 0;
+}
+
+.subtitle {
+    color: #82ea80;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.subtitle:hover {
+    color: #9fff9b;
+}
+
+.tableContainer {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 12px;
+    font-size: 0.9rem;
+}
+
+.table th {
+    background: #1a1a1a;
+    color: #ccc;
+    font-weight: 500;
+}
+
+.table tr:nth-child(even) {
+    background: #151515;
+}
+
+.statusPaid {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+.statusFailed {
+    color: #ff4c4c;
+    font-weight: 600;
+}
+
+.loading,
+.error {
+    padding: 1rem;
+    color: #888;
+    text-align: center;
+}

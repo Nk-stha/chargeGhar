@@ -1,0 +1,99 @@
+.container {
+    background-color: #0b0b0b;
+    color: white;
+    min-height: 100vh;
+    padding: 3rem 5rem;
+}
+
+.title {
+    font-size: 1.8rem;
+    color: #82ea80;
+    margin-bottom: 1.5rem;
+}
+
+.backBtn {
+    background: none;
+    border: none;
+    color: #82ea80;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+
+.card {
+    background-color: #111;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 30rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.row label {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.row span,
+.row input,
+.row select {
+    color: white;
+    background-color: #1a1a1a;
+    border: none;
+    padding: 0.5rem 0.8rem;
+    border-radius: 6px;
+    min-width: 250px;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.active {
+    background-color: rgba(71, 178, 22, 0.2);
+    color: #7df77b;
+}
+
+.inactive {
+    background-color: rgba(255, 85, 85, 0.2);
+    color: #ff5555;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.editBtn,
+.saveBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.editBtn {
+    background-color: #47b216;
+    color: white;
+}
+
+.saveBtn {
+    background-color: #56d61f;
+    color: white;
+}

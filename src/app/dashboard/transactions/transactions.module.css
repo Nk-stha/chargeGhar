@@ -1,0 +1,152 @@
+.container {
+    background-color: #0f0f0f;
+    color: white;
+    min-height: 100vh;
+    padding: 5rem;
+    font-family: "Poppins", sans-serif;
+    margin-left: 30px;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin-bottom: 2rem;
+}
+
+.subtitle {
+    color: #ccc;
+    margin-bottom: 2rem;
+}
+
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.filterButton {
+    background: transparent;
+    border: 1px solid #333;
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filterButton:hover {
+    background: rgb(18, 213, 18);
+}
+
+.active {
+    background: rgb(20, 209, 20);
+    color: black;
+}
+
+/* ✅ SORT DROPDOWN SECTION */
+.sortWrapper {
+    position: relative;
+    margin-left: auto;
+}
+
+.sortButton {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #aaa;
+    background: transparent;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 0.4rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sortButton:hover {
+    color: white;
+    border-color: #555;
+}
+
+.dropdown {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    width: 140px;
+    z-index: 10;
+    overflow: hidden;
+}
+
+.dropdownItem {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #ccc;
+}
+
+.dropdownItem:hover {
+    background: #2a2a2a;
+    color: white;
+}
+
+.selected {
+    color: rgb(21, 192, 21);
+}
+
+/* ✅ TABLE SECTION */
+.tableWrapper {
+    background: #1a1a1a;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+}
+
+.tableHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.csvButton {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: transparent;
+    color: #aaa;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.csvButton:hover {
+    color: white;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid #333;
+}
+
+.table th {
+    color: #aaa;
+    font-weight: 500;
+}
+
+.statusDot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+}

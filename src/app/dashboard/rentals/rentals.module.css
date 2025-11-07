@@ -1,0 +1,160 @@
+.container {
+  color: #fff;
+  background-color: #0b0b0b;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 5rem;
+  margin-left: 3rem;
+  margin-top: 2rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #82ea80;
+}
+
+.subtitle {
+  color: #aaa;
+  margin-bottom: 1.5rem;
+}
+
+.tabs {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0 2rem;
+}
+
+.tab {
+  background: transparent;
+  border: none;
+  color: #b0b0b0;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab:hover {
+  color: #fff;
+}
+
+.activeTab {
+  background-color: #1a1a1a;
+  color: #43ff64;
+}
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.sortBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #ccc;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.sortBtn:hover,
+.exportBtn:hover {
+  color: white;
+  transition: color 0.2s ease;
+}
+
+.icon {
+  font-size: 1.1rem;
+}
+
+.card {
+  background-color: #141414;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.exportBtn:hover {
+  color: #fff;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #ddd;
+  font-size: 0.9rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #333;
+  color: #999;
+  font-weight: 500;
+}
+
+.table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #222;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: capitalize;
+}
+
+.status::before {
+  content: "•";
+  font-size: 1.2rem;
+}
+
+.active::before {
+  color: #43ff64;
+}
+
+.overdue::before {
+  color: #ff4040;
+}
+
+.completed::before {
+  color: #aaa;
+}
+
+.refunded::before {
+  color: #ffb84d;
+}

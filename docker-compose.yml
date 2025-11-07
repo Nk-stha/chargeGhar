@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  chargeghar:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+networks:
+  default:
+    name: shared-chargeghar
+    external: true

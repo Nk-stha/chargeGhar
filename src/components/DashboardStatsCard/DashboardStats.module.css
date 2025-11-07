@@ -1,0 +1,22 @@
+/* Reusable card style */
+.card {
+    background: #121212;
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 10px rgba(71, 178, 22, 0.4);
+}
+
+.topStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5rem, 1fr));
+    gap: 5rem;
+    margin-bottom: 2rem;
+}

@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Remove default margin and padding */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Make sure the body and html take up the full height of the viewport */
+html,
+body {
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    /* Prevent horizontal scrolling */
+}
+
+/* Set a consistent background for the page */
+body {
+    font-family: "Poppins", sans-serif;
+    background-color: #0b0b0b;
+}

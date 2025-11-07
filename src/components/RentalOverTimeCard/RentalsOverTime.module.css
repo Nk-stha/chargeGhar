@@ -1,0 +1,58 @@
+.card {
+    background: #121212;
+    border-radius: 10px;
+    padding: 1.5rem;
+    color: #fff;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    color: #fff;
+    margin: 0;
+}
+
+.toggle {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.toggleBtn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #aaa;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggleBtn:hover {
+    border-color: #82ea80;
+    color: #82ea80;
+}
+
+.active {
+    background: #82ea80;
+    color: #000;
+    border-color: #82ea80;
+}
+
+.chartContainer {
+    width: 100%;
+    height: 300px;
+}
+
+.loading,
+.error {
+    text-align: center;
+    color: #888;
+    padding: 2rem;
+}

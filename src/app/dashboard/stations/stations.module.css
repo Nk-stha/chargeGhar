@@ -1,0 +1,217 @@
+.container {
+    color: #fff;
+    background-color: #0b0b0b;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 5rem;
+    margin-left: 3rem;
+    margin-top: 2rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+}
+
+.subtitle {
+    color: #aaa;
+    margin-bottom: 1.5rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin-bottom: 2rem;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* ---------- Search Box ---------- */
+.searchBox {
+    display: flex;
+    align-items: center;
+    background-color: #141414;
+    border-radius: 6px;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #2a2a2a;
+    width: 260px;
+    transition: border 0.3s ease, background-color 0.3s ease;
+}
+
+.searchBox:focus-within {
+    border-color: #47b216;
+    background-color: #191919;
+}
+
+.searchIcon {
+    color: #888;
+    margin-right: 8px;
+}
+
+.searchBox input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #fff;
+    width: 100%;
+    font-size: 0.9rem;
+}
+
+
+.addButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #47b216;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.55rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.addButton:hover {
+    background-color: #5ee65b;
+    transform: translateY(-1px);
+}
+
+/* ---------- Table Styles ---------- */
+.tableContainer {
+    overflow-x: auto;
+    border-radius: 8px;
+    background-color: #111;
+    border: 1px solid #1e1e1e;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.table th,
+.table td {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.table th {
+    background-color: #151515;
+    color: #aaa;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #47b216;
+}
+
+.table tr {
+    transition: background-color 0.2s ease;
+}
+
+.table tr:nth-child(even) {
+    background-color: #161616;
+}
+
+.table tr:hover {
+    background-color: #1d1d1d;
+}
+
+/* ---------- Status Labels ---------- */
+.status {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-block;
+}
+
+.active {
+    background-color: rgba(71, 178, 22, 0.15);
+    color: #82ea80;
+}
+
+.offline {
+    background-color: rgba(255, 107, 107, 0.15);
+    color: #ff6b6b;
+}
+
+.maintenance {
+    background-color: rgba(255, 196, 56, 0.15);
+    color: #ffc438;
+}
+
+/* ---------- Utilization Bar ---------- */
+.utilizationBar {
+    background-color: #1f1f1f;
+    height: 6px;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 6px;
+    width: 110px;
+}
+
+.utilizationFill {
+    background-color: #47b216;
+    height: 100%;
+    transition: width 0.4s ease;
+}
+
+.utilizationText {
+    font-size: 0.8rem;
+    color: #bbb;
+}
+
+/* ---------- Action Buttons ---------- */
+.editButton,
+.deleteButton {
+    border: none;
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-right: 10px;
+    transition: all 0.2s ease;
+}
+
+.editButton:hover {
+    color: #5ee65b;
+    transform: scale(1.1);
+}
+
+.deleteButton:hover {
+    color: #ff6b6b;
+    transform: scale(1.1);
+}
+
+/* ---------- No Results ---------- */
+.noResults {
+    text-align: center;
+    padding: 2rem 0;
+    color: #888;
+}
+
+.clickableRow {
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.clickableRow:hover {
+    background-color: #1a1a1a;
+}
