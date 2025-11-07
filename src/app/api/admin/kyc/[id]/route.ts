@@ -5,9 +5,11 @@ import FormData from 'form-data';
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
+
     const authorization = req.headers.get('Authorization');
     const csrfToken = req.headers.get('X-CSRFTOKEN') || '';
 
@@ -33,7 +35,7 @@ export async function PATCH(
     }
 
     const response = await axios.patch(
-      `${process.env.BASE_URL}/admin/kyc/submissions/${params.id}`,
+      `${process.env.BASE_URL}/admin/kyc/submissions/${id}`,
       formData,
       {
         headers: {
