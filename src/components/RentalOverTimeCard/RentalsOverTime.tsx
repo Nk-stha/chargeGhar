@@ -66,16 +66,21 @@ const RentalOverTime: React.FC = () => {
             <div className={styles.chartContainer}>
                 <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={rentalsData} barSize={20}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#222" />
-                        <XAxis dataKey="date" stroke="#aaa" />
-                        <YAxis stroke="#aaa" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                        <XAxis dataKey="date" stroke="#1a1a1a" />
+                        <YAxis stroke="#1a1a1a" />
                         <Tooltip
                             contentStyle={{
-                                backgroundColor: "#1a1a1a",
-                                border: "none",
-                                borderRadius: "6px",
+                                backgroundColor: "#0f0f0f",
+                                border: "1px solid #333",
+                                borderRadius: "8px",
+                                color: "#e0e0e0",
+                                fontSize: "0.85rem",
                             }}
+                            cursor={{ fill: "rgba(130, 234, 128, 0.08)" }}
+                            labelStyle={{ color: "#82ea80" }}
                         />
+
                         <Bar dataKey="rentals" fill="#82ea80" radius={[5, 5, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
