@@ -21,6 +21,7 @@ import {
   FiBarChart2,
   FiDollarSign,
   FiRotateCcw,
+  FiShoppingBag,
 } from "react-icons/fi";
 import styles from "./Navbar.module.css";
 
@@ -49,6 +50,7 @@ const Navbar: React.FC = () => {
     { icon: <FiMapPin />, label: "Station", href: "/dashboard/stations" },
     { icon: <FiUsers />, label: "Users", href: "/dashboard/users" },
     { icon: <FiFileText />, label: "KYC", href: "/dashboard/kyc" },
+    { icon: <FiShoppingBag />, label: "Rentals", href: "/dashboard/rentals" },
     {
       icon: <FiGift />,
       label: "Promotion",
@@ -69,6 +71,11 @@ const Navbar: React.FC = () => {
       subItems: [
         {
           icon: <FiActivity />,
+          label: "Admin Logs",
+          href: "/dashboard/admin-logs",
+        },
+        {
+          icon: <FiFileText />,
           label: "System Logs",
           href: "/dashboard/system-logs",
         },

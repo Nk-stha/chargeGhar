@@ -11,47 +11,55 @@ import RentalOverTime from "../../components/RentalOverTimeCard/RentalsOverTime"
 import StationUtilizationChart from "../../components/StationUtilizationChart";
 import MonitorRentals from "../../components/MonitorRentalsCard/MonitorRentalsCard";
 import RecentUpdates from "../../components/RecentUpdates/RecentUpdates";
+import SystemHealth from "../../components/SystemHealth/SystemHealth";
 
 const Dashboard: React.FC = () => {
-    return (
-        <div className={styles.dashboardPage}>
-            <Navbar />
-            <div className={styles.dashboardContainer}>
-                <header className={styles.header}>
-                    <h1>Dashboard</h1>
-                    <p>Welcome back, <span className={styles.adminName}>Admin 👋</span></p>
-                </header>
+  return (
+    <div className={styles.dashboardPage}>
+      <Navbar />
+      <div className={styles.dashboardContainer}>
+        <header className={styles.header}>
+          <h1>Dashboard</h1>
+          <p>
+            Welcome back, <span className={styles.adminName}>Admin 👋</span>
+          </p>
+        </header>
 
-                {/* Top Statistics Row */}
-                <section className={styles.topStats}>
-                    <DashboardStats />
-                </section>
+        {/* Top Statistics Row */}
+        <section className={styles.topStats}>
+          <DashboardStats />
+        </section>
 
-                {/* Revenue Section */}
-                <section className={styles.revenueSection}>
-                    <RevenueChart />
-                </section>
+        {/* System Health */}
+        <section className={styles.systemHealthSection}>
+          <SystemHealth />
+        </section>
 
-                {/* Popular Packages + Recent Transactions side by side */}
-                <section className={styles.twoColumn}>
-                    <PopularPackages />
-                    <RecentTransactions />
-                </section>
+        {/* Revenue Section */}
+        <section className={styles.revenueSection}>
+          <RevenueChart />
+        </section>
 
-                {/* Rental Over Time + Station Utilization side by side */}
-                <section className={styles.twoColumn}>
-                    <RentalOverTime />
-                    <StationUtilizationChart />
-                </section>
+        {/* Popular Packages + Recent Transactions side by side */}
+        <section className={styles.twoColumn}>
+          <PopularPackages />
+          <RecentTransactions />
+        </section>
 
-                {/* Monitor Rentals and Recent Updates stacked */}
-                <section className={styles.bottomSection}>
-                    <MonitorRentals />
-                    <RecentUpdates />
-                </section>
-            </div>
-        </div>
-    );
+        {/* Rental Over Time + Station Utilization side by side */}
+        <section className={styles.twoColumn}>
+          <RentalOverTime />
+          <StationUtilizationChart />
+        </section>
+
+        {/* Monitor Rentals and Recent Updates stacked */}
+        <section className={styles.bottomSection}>
+          <MonitorRentals />
+          <RecentUpdates />
+        </section>
+      </div>
+    </div>
+  );
 };
 
 export default Dashboard;

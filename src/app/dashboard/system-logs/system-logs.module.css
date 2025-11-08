@@ -1,99 +1,66 @@
-.systemLogsPage {
-    display: flex;
-    min-height: 100vh;
-    background: #0a0a0a;
-}
-
 .container {
-    flex: 1;
-    margin-left: 80px;
-    padding: 2rem;
-    max-width: calc(100% - 80px);
+    padding: 30px;
+    min-height: 100vh;
+    background-color: #0b0b0b;
+    color: #e0e0e0;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    gap: 20px;
 }
 
 .header h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #fff;
-    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: #82ea80;
+    margin: 0 0 8px 0;
 }
 
 .subtitle {
-    font-size: 0.95rem;
+    font-size: 14px;
     color: #888;
-    margin-top: 0.3rem;
+    margin: 0;
 }
 
 .headerActions {
     display: flex;
-    gap: 0.75rem;
+    gap: 16px;
     align-items: center;
 }
 
-.autoRefreshBtn {
+.refreshButton {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1rem;
+    gap: 8px;
     background: #1a1a1a;
+    color: #e0e0e0;
     border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    color: #888;
-    font-size: 0.9rem;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.autoRefreshBtn:hover {
-    background: #202020;
-    border-color: #333;
-}
-
-.autoRefreshBtn.active {
-    background: #47b216;
+.refreshButton:hover:not(:disabled) {
+    background: #2a2a2a;
     border-color: #47b216;
-    color: #fff;
+    color: #47b216;
+    transform: translateY(-1px);
 }
 
-.autoRefreshBtn.active:hover {
-    background: #3a9112;
-}
-
-.refreshBtn {
-    padding: 0.6rem;
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    color: #82ea80;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.refreshBtn:hover {
-    background: #202020;
-    border-color: #82ea80;
-    transform: rotate(180deg);
-}
-
-.refreshBtn:disabled {
+.refreshButton:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
 .spinning {
-    animation: spin 2s linear infinite;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -105,477 +72,526 @@
     }
 }
 
-.controls {
+.autoRefreshLabel {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #e0e0e0;
+    cursor: pointer;
+    user-select: none;
 }
 
-.searchContainer {
-    position: relative;
+.autoRefreshLabel input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #47b216;
+}
+
+.errorBanner {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #dc3545;
+    font-size: 14px;
+}
+
+.errorBanner button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.errorBanner button:hover {
+    background: #c82333;
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 10px 16px;
+    gap: 10px;
     flex: 1;
-    min-width: 250px;
-    max-width: 500px;
+    max-width: 600px;
+    transition: border-color 0.2s;
+}
+
+.searchBox:focus-within {
+    border-color: #47b216;
 }
 
 .searchIcon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #666;
-    pointer-events: none;
+    color: #888;
+    font-size: 18px;
 }
 
 .searchInput {
-    width: 100%;
-    padding: 0.75rem 2.5rem 0.75rem 2.75rem;
-    background: #121212;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-.searchInput:focus {
-    outline: none;
-    border-color: #82ea80;
-    box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
-}
-
-.clearBtn {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    padding: 0.4rem;
-    background: transparent;
+    background: none;
     border: none;
-    color: #666;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    outline: none;
+    color: #e0e0e0;
+    font-size: 14px;
+    width: 100%;
 }
 
-.clearBtn:hover {
-    background: #1a1a1a;
-    color: #fff;
+.searchInput::placeholder {
+    color: #666;
 }
 
 .filterToggle {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.25rem;
-    background: #121212;
+    gap: 8px;
+    background: #1a1a1a;
+    color: #e0e0e0;
     border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.95rem;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .filterToggle:hover {
-    background: #1a1a1a;
-    border-color: #82ea80;
+    background: #2a2a2a;
+    border-color: #47b216;
+    color: #47b216;
 }
 
-.filterPanel {
-    background: #121212;
+.filtersPanel {
+    background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 8px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-    animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
 .filterGroup {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 12px;
 }
 
 .filterGroup label {
-    font-size: 0.9rem;
-    color: #888;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
 }
 
-.filterSelect {
-    padding: 0.75rem;
-    background: #1a1a1a;
+.levelFilters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.levelButton {
+    padding: 8px 16px;
+    background: #0f0f0f;
     border: 1px solid #2a2a2a;
     border-radius: 6px;
-    color: #fff;
-    font-size: 0.95rem;
+    color: #e0e0e0;
     cursor: pointer;
-    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
 }
 
-.filterSelect:focus {
-    outline: none;
-    border-color: #82ea80;
+.levelButton:hover {
+    background: #2a2a2a;
+    border-color: #3a3a3a;
+}
+
+.levelButton.active {
+    background: #47b216;
+    border-color: #47b216;
+    color: white;
 }
 
 .statsBar {
     display: flex;
-    gap: 2rem;
-    padding: 1rem 1.5rem;
-    background: #121212;
+    gap: 30px;
+    padding: 16px 20px;
+    background: #1a1a1a;
     border: 1px solid #2a2a2a;
     border-radius: 8px;
-    margin-bottom: 1.5rem;
-    flex-wrap: wrap;
+    margin-bottom: 20px;
 }
 
 .stat {
     display: flex;
+    gap: 8px;
     align-items: center;
-    gap: 0.5rem;
 }
 
 .statLabel {
-    font-size: 0.85rem;
+    font-size: 13px;
     color: #888;
 }
 
 .statValue {
-    font-size: 1rem;
+    font-size: 14px;
     font-weight: 600;
-    color: #82ea80;
+    color: #47b216;
 }
 
-.loadingContainer,
-.errorContainer,
-.emptyContainer {
+.loadingContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
-    text-align: center;
+    padding: 80px 20px;
     color: #888;
 }
 
 .spinner {
+    color: #47b216;
     animation: spin 1s linear infinite;
-    color: #82ea80;
-    margin-bottom: 1rem;
 }
 
-.errorContainer {
-    color: #ffc107;
-}
-
-.retryBtn {
-    margin-top: 1rem;
-    padding: 0.75rem 1.5rem;
-    background: #47b216;
-    border: none;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.retryBtn:hover {
-    background: #3a9112;
-    transform: translateY(-2px);
+.loadingContainer p {
+    margin-top: 16px;
+    font-size: 14px;
 }
 
 .logsContainer {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 12px;
+    margin-bottom: 24px;
 }
 
 .logCard {
-    background: #121212;
+    background: #1a1a1a;
     border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    padding: 1.5rem;
-    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: 16px 20px;
+    transition: all 0.2s ease;
 }
 
 .logCard:hover {
-    border-color: #82ea80;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(130, 234, 128, 0.1);
+    border-color: #3a3a3a;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .logHeader {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    gap: 1rem;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 16px;
 }
 
-.logTitle {
+.logLevel {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 8px;
 }
 
-.iconContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #1a1a1a;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    flex-shrink: 0;
+.logLevel span {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
 }
 
-.successIcon {
-    color: #82ea80;
-    font-size: 1.4rem;
+.iconInfo {
+    color: #17a2b8;
+    font-size: 18px;
 }
 
-.warningIcon {
+.iconWarning {
     color: #ffc107;
-    font-size: 1.4rem;
+    font-size: 18px;
 }
 
-.infoIcon {
-    color: #47b216;
-    font-size: 1.4rem;
+.iconError {
+    color: #dc3545;
+    font-size: 18px;
 }
 
-.logTitle h3 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #fff;
-    margin: 0;
+.levelInfo {
+    background: rgba(23, 162, 184, 0.1);
+    color: #17a2b8;
 }
 
-.targetModel {
-    font-size: 0.8rem;
-    color: #666;
-    font-weight: 400;
+.levelWarning {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+.levelError {
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.levelDebug {
+    background: rgba(108, 117, 125, 0.1);
+    color: #6c757d;
 }
 
 .logMeta {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.timeAgo {
-    font-size: 0.9rem;
-    color: #82ea80;
-    font-weight: 500;
-}
-
-.timestamp {
-    font-size: 0.75rem;
-    color: #666;
-}
-
-.logBody {
-    margin: 1rem 0;
-}
-
-.description {
-    font-size: 0.95rem;
-    color: #ccc;
-    line-height: 1.5;
-    margin: 0 0 1rem 0;
-}
-
-.changesContainer {
-    background: #1a1a1a;
-    border-radius: 8px;
-    padding: 1rem;
-    margin-top: 1rem;
-}
-
-.changesContainer h4 {
-    font-size: 0.85rem;
+.logSource,
+.logModule {
+    font-size: 12px;
+    padding: 4px 8px;
+    background: #0f0f0f;
+    border-radius: 4px;
     color: #888;
+}
+
+.logTimestamp {
+    font-size: 12px;
+    color: #666;
+    font-family: "Courier New", monospace;
+}
+
+.logMessage {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #e0e0e0;
+    margin-bottom: 12px;
+}
+
+.expandButton {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    color: #47b216;
+    border: 1px solid #2a2a2a;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
     font-weight: 500;
-    margin: 0 0 0.75rem 0;
+    transition: all 0.2s ease;
+}
+
+.expandButton:hover {
+    background: rgba(71, 178, 22, 0.1);
+    border-color: #47b216;
+}
+
+.logDetails {
+    margin-top: 12px;
+    padding: 16px;
+    background: #0f0f0f;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+}
+
+.detailItem {
+    margin-bottom: 12px;
+    font-size: 13px;
+}
+
+.detailItem:last-child {
+    margin-bottom: 0;
+}
+
+.detailItem strong {
+    display: block;
+    color: #888;
+    margin-bottom: 4px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.changes {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 0.75rem;
+.detailItem span {
+    color: #e0e0e0;
 }
 
-.changeItem {
+.detailItem pre {
+    background: #000;
+    padding: 12px;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 12px;
+    color: #e0e0e0;
+    margin: 0;
+    border: 1px solid #1a1a1a;
+}
+
+.noLogs {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: #666;
+    text-align: center;
 }
 
-.changeKey {
-    font-size: 0.8rem;
+.noLogs svg {
+    color: #3a3a3a;
+    margin-bottom: 16px;
+}
+
+.noLogs p {
+    font-size: 16px;
+    margin: 0 0 8px 0;
+}
+
+.noLogsHint {
+    font-size: 14px !important;
+    color: #888 !important;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.pageButton {
+    padding: 10px 24px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #e0e0e0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+    background: #2a2a2a;
+    border-color: #47b216;
+    color: #47b216;
+}
+
+.pageButton:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pageInfo {
+    font-size: 14px;
     color: #888;
     font-weight: 500;
-}
-
-.changeValue {
-    font-size: 0.9rem;
-    color: #fff;
-    word-break: break-word;
-}
-
-.logFooter {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 1rem;
-    border-top: 1px solid #2a2a2a;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.adminInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.adminName {
-    font-size: 0.9rem;
-    color: #82ea80;
-    font-weight: 500;
-}
-
-.adminEmail {
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.technicalInfo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.ipAddress {
-    font-size: 0.85rem;
-    color: #666;
-    font-family: 'Courier New', monospace;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
     .container {
-        margin-left: 60px;
-        max-width: calc(100% - 60px);
-        padding: 1.5rem;
+        padding: 20px;
+    }
+
+    .statsBar {
+        flex-wrap: wrap;
+        gap: 20px;
     }
 }
 
 @media (max-width: 768px) {
-    .container {
-        margin-left: 0;
-        max-width: 100%;
-        padding: 1rem;
-    }
-
     .header {
         flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .header h1 {
-        font-size: 1.5rem;
+        align-items: stretch;
     }
 
     .headerActions {
+        flex-direction: column;
         width: 100%;
-        justify-content: space-between;
     }
 
-    .searchContainer {
-        max-width: 100%;
+    .refreshButton,
+    .autoRefreshLabel {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .searchBox {
+        max-width: none;
+    }
+
+    .filterToggle {
+        width: 100%;
+        justify-content: center;
     }
 
     .statsBar {
         flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .stat {
-        justify-content: space-between;
-        width: 100%;
-    }
-
-    .logCard {
-        padding: 1rem;
+        gap: 12px;
     }
 
     .logHeader {
         flex-direction: column;
+        align-items: flex-start;
     }
 
     .logMeta {
-        align-items: flex-start;
+        width: 100%;
     }
 
-    .changes {
-        grid-template-columns: 1fr;
+    .pagination {
+        flex-wrap: wrap;
+        gap: 12px;
     }
 
-    .logFooter {
-        flex-direction: column;
-        align-items: flex-start;
+    .pageButton {
+        flex: 1;
+        min-width: 100px;
     }
 }
 
 @media (max-width: 480px) {
     .container {
-        padding: 0.75rem;
+        padding: 16px;
     }
 
     .header h1 {
-        font-size: 1.25rem;
+        font-size: 24px;
     }
 
-    .autoRefreshBtn {
-        font-size: 0.8rem;
-        padding: 0.5rem 0.75rem;
+    .levelFilters {
+        flex-direction: column;
+    }
+
+    .levelButton {
+        width: 100%;
+        text-align: center;
     }
 
     .logCard {
-        padding: 0.75rem;
-    }
-
-    .iconContainer {
-        width: 40px;
-        height: 40px;
-    }
-
-    .successIcon,
-    .warningIcon,
-    .infoIcon {
-        font-size: 1.2rem;
+        padding: 12px 16px;
     }
 }

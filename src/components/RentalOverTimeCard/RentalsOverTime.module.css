@@ -4,55 +4,370 @@
     padding: 1.5rem;
     color: #fff;
     width: 100%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.titleSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .card h2 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
     color: #fff;
+    margin: 0;
+    font-weight: 600;
+}
+
+.totalRentals {
+    font-size: 14px;
+    color: #888;
     margin: 0;
 }
 
 .toggle {
     display: flex;
-    gap: 0.5rem;
+    gap: 8px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    padding: 4px;
 }
 
 .toggleBtn {
     background: transparent;
-    border: 1px solid #333;
-    color: #aaa;
-    padding: 5px 12px;
+    border: none;
+    color: #888;
+    padding: 8px 16px;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .toggleBtn:hover {
-    border-color: #82ea80;
     color: #82ea80;
 }
 
-.active {
-    background: #82ea80;
-    color: #000;
-    border-color: #82ea80;
+.toggleBtn.active {
+    background: #47b216;
+    color: #fff;
 }
 
 .chartContainer {
     width: 100%;
     height: 300px;
+    margin-bottom: 1rem;
 }
 
-.loading,
-.error {
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+    color: #82ea80;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #1a1a1a;
+    border-top: 4px solid #47b216;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Error State */
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+}
+
+.errorText {
+    color: #dc3545;
+    font-size: 16px;
+    margin: 0;
+}
+
+.retryButton {
+    background: #47b216;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.retryButton:hover {
+    background: #3a9012;
+}
+
+/* No Data State */
+.noData {
     text-align: center;
     color: #888;
-    padding: 2rem;
+    padding: 3rem;
+    font-size: 16px;
+}
+
+/* Custom Tooltip */
+.customTooltip {
+    background: #0b0b0b;
+    border: 1px solid #47b216;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.tooltipLabel {
+    color: #82ea80;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    font-size: 14px;
+}
+
+.tooltipContent {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.tooltipContent p {
+    margin: 0;
+    font-size: 13px;
+}
+
+/* Summary Stats */
+.summaryContainer {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.summaryItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.summaryLabel {
+    font-size: 12px;
+    color: #888;
+}
+
+.summaryValue {
+    font-size: 16px;
+    color: #82ea80;
+    font-weight: 600;
+}
+
+/* Date Range Info */
+.dateRange {
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+}
+
+/* Responsive Design */
+
+/* Tablet (1024px and below) */
+@media (max-width: 1024px) {
+    .card {
+        padding: 1.25rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .toggle {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .chartContainer {
+        height: 280px;
+    }
+}
+
+/* Tablet Portrait and Mobile Landscape (768px and below) */
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem;
+    }
+
+    .card h2 {
+        font-size: 1.1rem;
+    }
+
+    .totalRentals {
+        font-size: 13px;
+    }
+
+    .toggleBtn {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
+    .chartContainer {
+        height: 260px;
+    }
+
+    .summaryContainer {
+        gap: 1rem;
+    }
+
+    .summaryValue {
+        font-size: 14px;
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .noData {
+        padding: 2rem;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .card {
+        padding: 0.875rem;
+    }
+
+    .card h2 {
+        font-size: 1rem;
+    }
+
+    .totalRentals {
+        font-size: 12px;
+    }
+
+    .header {
+        margin-bottom: 1rem;
+    }
+
+    .toggle {
+        padding: 3px;
+        gap: 4px;
+    }
+
+    .toggleBtn {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .chartContainer {
+        height: 240px;
+        margin-bottom: 0.75rem;
+    }
+
+    .summaryContainer {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .summaryLabel {
+        font-size: 11px;
+    }
+
+    .summaryValue {
+        font-size: 13px;
+    }
+
+    .dateRange {
+        padding: 0.5rem;
+        font-size: 11px;
+    }
+
+    .spinner {
+        width: 35px;
+        height: 35px;
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .noData {
+        padding: 1.5rem;
+        font-size: 14px;
+    }
+
+    .errorText {
+        font-size: 14px;
+    }
+
+    .retryButton {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .card {
+        padding: 0.75rem;
+    }
+
+    .card h2 {
+        font-size: 0.95rem;
+    }
+
+    .toggleBtn {
+        padding: 5px 8px;
+        font-size: 11px;
+    }
+
+    .chartContainer {
+        height: 220px;
+    }
+
+    .summaryContainer {
+        padding: 0.5rem;
+    }
+
+    .summaryValue {
+        font-size: 12px;
+    }
+
+    .dateRange {
+        padding: 0.5rem;
+        font-size: 10px;
+    }
 }

@@ -121,7 +121,7 @@ const RecentUpdates: React.FC = () => {
   };
 
   const handleSystemLogsClick = () => {
-    router.push("/dashboard/system-logs");
+    router.push("/dashboard/admin-logs");
   };
 
   if (loading) {

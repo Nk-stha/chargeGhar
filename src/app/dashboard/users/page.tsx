@@ -12,6 +12,7 @@ import {
   FiChevronUp,
 } from "react-icons/fi";
 import AddAdminModal from "./addadmin/AddAdminModal";
+import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfileModal";
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
 
 interface User {
@@ -52,6 +53,8 @@ export default function UsersPage() {
   const [sortKey, setSortKey] = useState<keyof User>("id");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [showSortMenu, setShowSortMenu] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedProfileId, setSelectedProfileId] = useState<string>("");
 
   const sortOptions: { key: keyof User; label: string }[] = [
     { key: "id", label: "ID" },
@@ -73,6 +76,24 @@ export default function UsersPage() {
       setSortDir("asc");
     }
     setShowSortMenu(false);
+  };
+
+  const handleAdminClick = (profileId: string) => {
+    setSelectedProfileId(profileId);
+    setShowProfileModal(true);
+  };
+
+  const handleCloseProfileModal = () => {
+    setShowProfileModal(false);
+    setSelectedProfileId("");
+  };
+
+  const handleProfileUpdate = () => {
+    refetchProfiles();
+  };
+
+  const handleProfileDelete = () => {
+    refetchProfiles();
   };
 
   const displayedUsers = useMemo((): User[] => {
@@ -178,7 +199,12 @@ export default function UsersPage() {
               </tr>
             ) : (
               admins.map((admin: AdminProfile) => (
-                <tr key={admin.id}>
+                <tr
+                  key={admin.id}
+                  onClick={() => handleAdminClick(admin.id)}
+                  style={{ cursor: "pointer" }}
+                  className={styles.clickableRow}
+                >
                   <td>{admin.id.slice(0, 8)}...</td>
                   <td>{admin.username}</td>
                   <td>{admin.email}</td>
@@ -186,7 +212,7 @@ export default function UsersPage() {
                     <span
                       style={{
                         textTransform: "capitalize",
-                        color: admin.is_super_admin ? "#32cd32" : "#ccc",
+                        color: admin.is_super_admin ? "#82ea80" : "#ccc",
                       }}
                     >
                       {admin.role.replace("_", " ")}
@@ -205,9 +231,9 @@ export default function UsersPage() {
                   </td>
                   <td>{new Date(admin.created_at).toLocaleDateString()}</td>
                   <td>{admin.created_by_username}</td>
-                  <td>
-                    <button className={styles.deleteBtn} title="Delete admin">
-                      <FiTrash2 />
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <button className={styles.deleteBtn} title="Manage admin">
+                      <FiShield />
                     </button>
                   </td>
                 </tr>
@@ -446,6 +472,16 @@ export default function UsersPage() {
             refetchProfiles();
             setShowModal(false);
           }}
+        />
+      )}
+
+      {showProfileModal && (
+        <AdminProfileModal
+          isOpen={showProfileModal}
+          onClose={handleCloseProfileModal}
+          profileId={selectedProfileId}
+          onUpdate={handleProfileUpdate}
+          onDelete={handleProfileDelete}
         />
       )}
     </main>

@@ -129,3 +129,19 @@
 .icon {
     font-size: 1rem;
 }
+
+/* Clickable Row Styles */
+.clickableRow {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.clickableRow:hover {
+    background-color: #1a1a1a;
+    border-left: 2px solid #82ea80;
+}
+
+.clickableRow:focus {
+    outline: 2px solid #82ea80;
+    outline-offset: -2px;
+}
