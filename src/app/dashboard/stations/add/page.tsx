@@ -13,6 +13,7 @@ import styles from "./add.module.css";
 import stationsService from "../../../../lib/api/stations.service";
 import ImageUpload from "../../../../components/StationManagement/ImageUpload";
 import AmenitySelector from "../../../../components/StationManagement/AmenitySelector";
+import LocationPicker from "../../../../components/StationManagement/LocationPicker";
 import {
   CreateStationInput,
   StationStatus,
@@ -408,17 +409,15 @@ const AddStationPage: React.FC = () => {
               </div>
             </div>
 
-            <div className={styles.mapContainer}>
-              <iframe
-                title="Station Location Map"
-                width="100%"
-                height="100%"
-                style={{ border: 0, borderRadius: "10px" }}
-                loading="lazy"
-                allowFullScreen
-                src={`https://www.google.com/maps?q=${formData.latitude || 27.7172},${formData.longitude || 85.324}&z=14&output=embed`}
-              />
-            </div>
+            <LocationPicker
+              latitude={formData.latitude || 27.7172}
+              longitude={formData.longitude || 85.324}
+              onLocationChange={(lat, lng) => {
+                handleInputChange("latitude", lat);
+                handleInputChange("longitude", lng);
+              }}
+              height="400px"
+            />
 
             <div className={styles.infoBox}>
               <FiMapPin />
