@@ -2,318 +2,428 @@
     color: #fff;
     background-color: #0b0b0b;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 5rem;
+    padding: 2rem 3rem;
     margin-left: 3rem;
     margin-top: 2rem;
 }
 
+.header {
+    margin-bottom: 2rem;
+}
 
 .title {
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.titleIcon {
+    font-size: 1.75rem;
 }
 
 .subtitle {
     color: #aaa;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.settingsLayout {
+    display: flex;
+    gap: 2rem;
+    min-height: calc(100vh - 200px);
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background: #141414;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #1a1a1a;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebarHeader {
     margin-bottom: 1.5rem;
-}
-
-.section {
-    background-color: #111;
-    padding: 1rem 1.5rem;
-    margin-bottom: 1.5rem;
-    border-radius: 10px;
-}
-
-.sectionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.sectionHeader h2 {
-    font-size: 1.2rem;
-    color: #82ea80;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.headerActions {
-    display: flex;
-    gap: 0.8rem;
-}
-
-.addButton {
-    background-color: #47b216;
-    border: none;
-    color: #fff;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.addButton:hover {
-    background-color: #56d61f;
-}
-
-/* Table Styling */
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th,
-.table td {
-    padding: 10px 12px;
+    padding-bottom: 1rem;
     border-bottom: 1px solid #222;
+}
+
+.sidebarHeader h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin: 0;
+}
+
+.sidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.navItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #ddd;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.navItem:hover {
+    background: #1a1a1a;
+    border-color: #82ea80;
+    transform: translateX(4px);
+}
+
+.navItem.active {
+    background: #1a1a1a;
+    border-color: #82ea80;
+    box-shadow: 0 0 0 2px rgba(130, 234, 128, 0.1);
+}
+
+.navIcon {
+    font-size: 1.5rem;
+    color: #82ea80;
+    margin-top: 0.1rem;
+}
+
+.navContent {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.navLabel {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.navDescription {
+    font-size: 0.8rem;
+    color: #999;
+    line-height: 1.4;
+}
+
+/* Main Content */
+.mainContent {
+    flex: 1;
+    min-width: 0;
+}
+
+.welcomeCard {
+    background: #141414;
+    border-radius: 12px;
+    padding: 3rem;
+    border: 1px solid #1a1a1a;
+    text-align: center;
+}
+
+.welcomeIcon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(130, 234, 128, 0.1);
+    border: 2px solid #82ea80;
+    border-radius: 50%;
+    font-size: 2.5rem;
+    color: #82ea80;
+}
+
+.welcomeCard h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin-bottom: 0.75rem;
+}
+
+.welcomeCard > p {
+    color: #aaa;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.quickLinks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.quickLinkCard {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s ease;
     text-align: left;
 }
 
-.table th {
-    color: #aaa;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    background-color: #1a1a1a;
+.quickLinkCard:hover {
+    background: #222;
+    border-color: #82ea80;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(130, 234, 128, 0.1);
 }
 
-.table tr:nth-child(even) {
-    background-color: #151515;
-}
-
-.status {
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-}
-
-/* Buttons */
-.deleteBtn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-right: 6px;
+.quickLinkIcon {
+    font-size: 2rem;
     color: #82ea80;
-    font-size: 1rem;
+    flex-shrink: 0;
 }
 
-.deleteBtn {
-    color: #ff5555;
-}
-
-.profileSection {
-    background-color: #111;
-    padding: 1.5rem;
-    border-radius: 10px;
-}
-
-.profileContainer {
-    display: flex;
-    gap: 1.5rem;
-    margin-top: 1rem;
-}
-
-.changePassBtn {
-    background-color: #47b216;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
-
-.authSection {
-    margin-top: 1rem;
-    background-color: #1a1a1a;
-    padding: 0.8rem;
-    border-radius: 6px;
-}
-
-/* profile */
-.profileSection {
-    background-color: #111;
-    padding: 2rem;
-    border-radius: 12px;
-    color: #fff;
-}
-
-.profileTitle {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #7df77b;
-    margin-bottom: 1.2rem;
-}
-
-.profileContainer {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-/* Left Card */
-.leftCard {
+.quickLinkContent {
     flex: 1;
-    background-color: #151515;
-    padding: 1.5rem;
-    border-radius: 10px;
-    min-width: 300px;
 }
 
-.profileTop {
+.quickLinkContent h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.quickLinkContent p {
+    font-size: 0.875rem;
+    color: #999;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .container {
+        padding: 2rem 1.5rem;
+        margin-left: 0;
+        margin-top: 1rem;
+    }
+
+    .settingsLayout {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        position: relative;
+        top: 0;
+    }
+
+    .quickLinks {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .titleIcon {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.875rem;
+    }
+
+    .welcomeCard {
+        padding: 2rem 1.5rem;
+    }
+
+    .welcomeIcon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    .welcomeCard h2 {
+        font-size: 1.5rem;
+    }
+
+    .welcomeCard > p {
+        font-size: 0.9rem;
+    }
+
+    .navItem,
+    .quickLinkCard {
+        padding: 1rem;
+    }
+
+    .navIcon,
+    .quickLinkIcon {
+        font-size: 1.25rem;
+    }
+}
+
+/* Tabs Styles */
+.tabsContainer {
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #1a1a1a;
+}
+
+.tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #2a2a2a #141414;
+}
+
+.tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.tabs::-webkit-scrollbar-track {
+    background: #141414;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+
+.tab {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin-bottom: 1rem;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: #aaa;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    position: relative;
+    min-width: fit-content;
 }
 
-.avatar {
-    background-color: #0b0b0b;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
+.tab:hover {
+    background: rgba(130, 234, 128, 0.05);
+    color: #82ea80;
+}
+
+.tab.tabActive {
+    color: #82ea80;
+    border-bottom-color: #82ea80;
+    background: rgba(130, 234, 128, 0.08);
+}
+
+.tabIcon {
+    font-size: 1.3rem;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-.profileIcon {
-    font-size: 2rem;
-    color: #47b216;
-}
-
-.profileHeader h3 {
-    margin: 0;
-    font-size: 1.1rem;
-}
-
-.editProfileBtn {
-    background-color: #47b216;
-    color: #fff;
-    border: none;
-    padding: 0.4rem 0.7rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
+.tabContent {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    transition: background 0.2s ease;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-align: left;
 }
 
-.editProfileBtn:hover {
-    background-color: #58d61f;
-}
-
-.profileDetails {
-    background-color: #0b0b0b;
-    padding: 1rem;
-    border-radius: 8px;
-}
-
-.profileRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #222;
-    color: #ccc;
-}
-
-.profileRow:last-child {
-    border-bottom: none;
-}
-
-.inlineEdit {
-    background: none;
-    border: none;
-    color: #47b216;
-    cursor: pointer;
-}
-
-/* Right Card */
-.rightCard {
-    flex: 1;
-    background-color: #151515;
-    padding: 1.5rem;
-    border-radius: 10px;
-    min-width: 300px;
-}
-
-.authTitle {
-    font-size: 1.1rem;
-    color: #7df77b;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 1rem;
-}
-
-.changePassBtn {
-    background-color: #47b216;
-    color: white;
-    border: none;
-    padding: 0.6rem;
-    border-radius: 8px;
-    width: 100%;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.changePassBtn:hover {
-    background-color: #56d61f;
-}
-
-.authBox {
-    background-color: #1a1a1a;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-}
-
-.authBox h4 {
-    color: #82ea80;
-    margin-bottom: 6px;
-}
-
-.authBox p {
-    color: #ccc;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-}
-
-.bold {
-    color: #fff;
+.tabLabel {
+    font-size: 0.95rem;
     font-weight: 600;
+    color: inherit;
 }
 
-.deactivate {
-    display: flex;
-    gap: 1rem;
-    background-color: rgba(255, 107, 107, 0.2);
-    color: #ff6b6b;
-    font-size: 0.85rem;
-    cursor: pointer;
-    border-radius: 70px;
+.tabDescription {
+    font-size: 0.75rem;
+    color: #999;
+    font-weight: 400;
 }
 
-.active {
-    display: flex;
-    gap: 1rem;
-    background-color: rgba(71, 178, 22, 0.2);
-    color: #7df77b;
-    font-size: 0.85rem;
-    cursor: pointer;
-    border-radius: 70px;
+.tab.tabActive .tabDescription {
+    color: #b8f5b8;
+}
+
+.tabPanel {
+    min-height: 400px;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem 0.75rem;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .welcomeCard {
+        padding: 1.5rem 1rem;
+    }
+
+    .quickLinkCard {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .quickLinkContent h3 {
+        font-size: 1rem;
+    }
+
+    .quickLinkContent p {
+        font-size: 0.8rem;
+    }
+
+    .tab {
+        padding: 0.75rem 1rem;
+        gap: 0.5rem;
+    }
+
+    .tabIcon {
+        font-size: 1.1rem;
+    }
+
+    .tabLabel {
+        font-size: 0.85rem;
+    }
+
+    .tabDescription {
+        font-size: 0.7rem;
+    }
 }

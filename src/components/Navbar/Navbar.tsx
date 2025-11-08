@@ -22,6 +22,8 @@ import {
   FiDollarSign,
   FiRotateCcw,
   FiShoppingBag,
+  FiAlertCircle,
+  FiImage,
 } from "react-icons/fi";
 import styles from "./Navbar.module.css";
 
@@ -51,6 +53,22 @@ const Navbar: React.FC = () => {
     { icon: <FiUsers />, label: "Users", href: "/dashboard/users" },
     { icon: <FiFileText />, label: "KYC", href: "/dashboard/kyc" },
     { icon: <FiShoppingBag />, label: "Rentals", href: "/dashboard/rentals" },
+    {
+      icon: <FiAlertCircle />,
+      label: "Issues",
+      subItems: [
+        {
+          icon: <FiAlertCircle />,
+          label: "Rental Issues",
+          href: "/dashboard/issues/rental-issues",
+        },
+        {
+          icon: <FiAlertCircle />,
+          label: "Station Issues",
+          href: "/dashboard/issues/station-issues",
+        },
+      ],
+    },
     {
       icon: <FiGift />,
       label: "Promotion",
@@ -102,7 +120,27 @@ const Navbar: React.FC = () => {
         },
       ],
     },
-    { icon: <FiSettings />, label: "Settings", href: "/dashboard/settings" },
+    {
+      icon: <FiSettings />,
+      label: "Settings",
+      subItems: [
+        {
+          icon: <FiImage />,
+          label: "Content",
+          href: "/dashboard/settings/content-management",
+        },
+        {
+          icon: <FiImage />,
+          label: "Media Library",
+          href: "/dashboard/settings/media-library",
+        },
+        {
+          icon: <FiSettings />,
+          label: "Config",
+          href: "/dashboard/settings/config",
+        },
+      ],
+    },
   ];
 
   // Check if current path matches any submenu item and auto-expand parent

@@ -15,6 +15,8 @@ import {
   FiX,
   FiAlertCircle,
 } from "react-icons/fi";
+</text>
+<new_text>
 import { userService } from "../../../lib/api/user.service";
 import AddAdminModal from "./addadmin/AddAdminModal";
 import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfileModal";
@@ -72,9 +74,7 @@ export default function UsersPage() {
   // Update Status Modal
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusUser, setStatusUser] = useState<User | null>(null);
-  const [newStatus, setNewStatus] = useState<"ACTIVE" | "BANNED" | "INACTIVE">(
-    "ACTIVE",
-  );
+  const [newStatus, setNewStatus] = useState<"ACTIVE" | "BANNED" | "INACTIVE">("ACTIVE");
   const [statusReason, setStatusReason] = useState("");
   const [statusLoading, setStatusLoading] = useState(false);
   const [statusError, setStatusError] = useState("");
@@ -152,11 +152,7 @@ export default function UsersPage() {
     try {
       setBalanceLoading(true);
       setBalanceError("");
-      await userService.addBalance(
-        selectedUser.id,
-        balanceAmount,
-        balanceReason,
-      );
+      await userService.addBalance(selectedUser.id, balanceAmount, balanceReason);
       alert("Balance added successfully!");
       handleCloseAddBalance();
       refetchUsers();
@@ -565,6 +561,7 @@ export default function UsersPage() {
                   <td>
                     <div style={{ display: "flex", gap: "0.5rem" }}>
                       <button
+                        className={styles.actionBtn}
                         onClick={() => handleOpenAddBalance(user)}
                         title="Add Balance"
                         style={{
@@ -580,11 +577,18 @@ export default function UsersPage() {
                           fontSize: "0.85rem",
                           transition: "all 0.2s",
                         }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(130, 234, 128, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(130, 234, 128, 0.1)";
+                        }}
                       >
                         <FiDollarSign size={14} />
                         Add Balance
                       </button>
                       <button
+                        className={styles.actionBtn}
                         onClick={() => handleOpenStatusModal(user)}
                         title="Update Status"
                         style={{
@@ -599,6 +603,12 @@ export default function UsersPage() {
                           gap: "0.3rem",
                           fontSize: "0.85rem",
                           transition: "all 0.2s",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "rgba(255, 165, 0, 0.2)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "rgba(255, 165, 0, 0.1)";
                         }}
                       >
                         <FiUserCheck size={14} />
@@ -691,17 +701,10 @@ export default function UsersPage() {
               </button>
             </div>
 
-            <form
-              onSubmit={handleSubmitAddBalance}
-              style={{ padding: "1.5rem" }}
-            >
+            <form onSubmit={handleSubmitAddBalance} style={{ padding: "1.5rem" }}>
               <div style={{ marginBottom: "1rem" }}>
                 <p style={{ color: "#aaa", margin: "0 0 1rem 0" }}>
-                  User:{" "}
-                  <strong style={{ color: "#fff" }}>
-                    {selectedUser.username}
-                  </strong>{" "}
-                  (ID: {selectedUser.id})
+                  User: <strong style={{ color: "#fff" }}>{selectedUser.username}</strong> (ID: {selectedUser.id})
                 </p>
               </div>
 
@@ -898,17 +901,10 @@ export default function UsersPage() {
             <form onSubmit={handleSubmitStatus} style={{ padding: "1.5rem" }}>
               <div style={{ marginBottom: "1rem" }}>
                 <p style={{ color: "#aaa", margin: "0 0 1rem 0" }}>
-                  User:{" "}
-                  <strong style={{ color: "#fff" }}>
-                    {statusUser.username}
-                  </strong>{" "}
-                  (ID: {statusUser.id})
+                  User: <strong style={{ color: "#fff" }}>{statusUser.username}</strong> (ID: {statusUser.id})
                 </p>
                 <p style={{ color: "#aaa", margin: 0 }}>
-                  Current Status:{" "}
-                  <strong style={{ color: "#82ea80" }}>
-                    {statusUser.status}
-                  </strong>
+                  Current Status: <strong style={{ color: "#82ea80" }}>{statusUser.status}</strong>
                 </p>
               </div>
 
@@ -946,11 +942,7 @@ export default function UsersPage() {
                 </label>
                 <select
                   value={newStatus}
-                  onChange={(e) =>
-                    setNewStatus(
-                      e.target.value as "ACTIVE" | "BANNED" | "INACTIVE",
-                    )
-                  }
+                  onChange={(e) => setNewStatus(e.target.value as "ACTIVE" | "BANNED" | "INACTIVE")}
                   style={{
                     width: "100%",
                     padding: "0.75rem",

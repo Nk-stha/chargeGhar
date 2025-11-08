@@ -23,7 +23,6 @@ const MonitorRentalsCard: React.FC = () => {
     try {
       setError(null);
       const response = await rentalsService.getRentals({
-        status: "ACTIVE",
         page: 1,
         page_size: 5,
       });
@@ -34,7 +33,7 @@ const MonitorRentalsCard: React.FC = () => {
         setError("Failed to fetch rentals");
       }
     } catch (err: any) {
-      console.error("Error fetching active rentals:", err);
+      console.error("Error fetching recent rentals:", err);
       setError("Unable to load rentals data");
     } finally {
       setLoading(false);
@@ -83,11 +82,11 @@ const MonitorRentalsCard: React.FC = () => {
       <div className={styles.card}>
         <div className={styles.header}>
           <h2>Monitor Rentals</h2>
-          <span className={styles.subtitle}>Live Overview</span>
+          <span className={styles.subtitle}>Recent Activity</span>
         </div>
         <div className={styles.loadingContainer}>
           <div className={styles.spinner} />
-          <p>Loading active rentals...</p>
+          <p>Loading recent rentals...</p>
         </div>
       </div>
     );
@@ -98,7 +97,7 @@ const MonitorRentalsCard: React.FC = () => {
       <div className={styles.card}>
         <div className={styles.header}>
           <h2>Monitor Rentals</h2>
-          <span className={styles.subtitle}>Live Overview</span>
+          <span className={styles.subtitle}>Recent Activity</span>
         </div>
         <div className={styles.errorContainer}>
           <FiAlertCircle className={styles.errorIcon} />
@@ -117,7 +116,7 @@ const MonitorRentalsCard: React.FC = () => {
         <div className={styles.header}>
           <div className={styles.headerLeft}>
             <h2>Monitor Rentals</h2>
-            <span className={styles.subtitle}>Live Overview</span>
+            <span className={styles.subtitle}>Recent Activity</span>
           </div>
           <button
             onClick={handleRefresh}
@@ -129,7 +128,7 @@ const MonitorRentalsCard: React.FC = () => {
         </div>
         <div className={styles.noData}>
           <FiZap className={styles.noDataIcon} />
-          <p>No active rentals at the moment</p>
+          <p>No recent rentals at the moment</p>
         </div>
       </div>
     );
@@ -141,7 +140,7 @@ const MonitorRentalsCard: React.FC = () => {
         <div className={styles.headerLeft}>
           <h2>Monitor Rentals</h2>
           <span className={styles.subtitle}>
-            {rentals.length} Active Rental{rentals.length !== 1 ? "s" : ""}
+            Recent {rentals.length} Rental{rentals.length !== 1 ? "s" : ""}
           </span>
         </div>
         <div className={styles.headerRight}>
