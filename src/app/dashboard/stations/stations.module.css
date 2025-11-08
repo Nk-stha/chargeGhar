@@ -49,7 +49,9 @@
     padding: 0.45rem 0.75rem;
     border: 1px solid #2a2a2a;
     width: 260px;
-    transition: border 0.3s ease, background-color 0.3s ease;
+    transition:
+        border 0.3s ease,
+        background-color 0.3s ease;
 }
 
 .searchBox:focus-within {
@@ -70,7 +72,6 @@
     width: 100%;
     font-size: 0.9rem;
 }
-
 
 .addButton {
     display: flex;
@@ -97,6 +98,376 @@
     border-radius: 8px;
     background-color: #111;
     border: 1px solid #1e1e1e;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background-color: #1a1a1a;
+}
+
+.table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #82ea80;
+    font-size: 0.9rem;
+    border-bottom: 2px solid #2a2a2a;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #1e1e1e;
+    transition: background-color 0.2s ease;
+}
+
+.clickableRow {
+    cursor: pointer;
+}
+
+.table tbody tr:hover {
+    background-color: #161616;
+}
+
+.table td {
+    padding: 1rem;
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.icon {
+    color: #47b216;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status.online {
+    background-color: rgba(71, 178, 22, 0.2);
+    color: #47b216;
+}
+
+.status.offline {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+}
+
+.status.maintenance {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.utilizationBar {
+    width: 100px;
+    height: 8px;
+    background-color: #222;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.utilizationFill {
+    height: 100%;
+    background: linear-gradient(90deg, #47b216, #82ea80);
+    transition: width 0.3s ease;
+}
+
+.utilizationText {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+}
+
+.editButton,
+.deleteButton {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.editButton {
+    background-color: #1a4d2e;
+    color: #82ea80;
+}
+
+.editButton:hover {
+    background-color: #47b216;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.deleteButton {
+    background-color: #3d1a1a;
+    color: #ff6b6b;
+}
+
+.deleteButton:hover {
+    background-color: #dc3545;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.noResults {
+    text-align: center;
+    padding: 3rem !important;
+    color: #666;
+    font-style: italic;
+}
+
+/* Modal Styles */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid #2a2a2a;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.modalHeader h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.closeButton:hover:not(:disabled) {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.closeButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.closeButton svg {
+    font-size: 20px;
+}
+
+.modalBody {
+    padding: 24px;
+    text-align: center;
+}
+
+.warningIcon {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(220, 53, 69, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+
+.warningIcon svg {
+    font-size: 32px;
+    color: #dc3545;
+}
+
+.modalBody p {
+    color: #ccc;
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.modalBody p strong {
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.warningText {
+    font-size: 13px !important;
+    color: #888 !important;
+}
+
+.errorBox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    border-radius: 6px;
+    margin-top: 16px;
+    color: #dc3545;
+    font-size: 13px;
+    text-align: left;
+}
+
+.errorBox svg {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.modalFooter {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #2a2a2a;
+}
+
+.cancelButton,
+.deleteConfirmButton {
+    flex: 1;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.cancelButton {
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+.cancelButton:hover:not(:disabled) {
+    background-color: #3a3a3a;
+    transform: translateY(-1px);
+}
+
+.deleteConfirmButton {
+    background-color: #dc3545;
+    color: white;
+}
+
+.deleteConfirmButton:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+}
+
+.cancelButton:disabled,
+.deleteConfirmButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 2rem 1rem;
+        margin-left: 0;
+    }
+
+    .headerActions {
+        flex-direction: column;
+        width: 100%;
+        gap: 12px;
+    }
+
+    .searchBox {
+        width: 100%;
+    }
+
+    .addButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .modal {
+        width: 95%;
+        margin: 0 10px;
+    }
+
+    .modalFooter {
+        flex-direction: column;
+    }
+
+    .cancelButton,
+    .deleteConfirmButton {
+        width: 100%;
+    }
 }
 
 .table {
