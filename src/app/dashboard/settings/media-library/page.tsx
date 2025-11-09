@@ -17,6 +17,8 @@ import {
   FiUser,
   FiCopy,
   FiCheck,
+  FiTrash2,
+  FiX,
 } from "react-icons/fi";
 import {
   mediaService,
@@ -46,6 +48,13 @@ export default function MediaLibraryPage() {
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [usersMap, setUsersMap] = useState<Map<string, User>>(new Map());
   const [loadingUsers, setLoadingUsers] = useState<boolean>(false);
+  const [deleteModal, setDeleteModal] = useState<{
+    show: boolean;
+    mediaId: string | null;
+    mediaName: string | null;
+  }>({ show: false, mediaId: null, mediaName: null });
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchMedia = useCallback(
     async (
@@ -258,6 +267,47 @@ export default function MediaLibraryPage() {
     return `User #${userId}`;
   };
 
+  const handleDeleteClick = (mediaId: string, mediaName: string) => {
+    setDeleteModal({ show: true, mediaId, mediaName });
+    setDeleteError(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteModal.mediaId) return;
+
+    setDeleting(true);
+    setDeleteError(null);
+
+    try {
+      const response = await mediaService.deleteMedia(deleteModal.mediaId);
+
+      if (response.success) {
+        // Refresh media list
+        await fetchMedia(
+          activeTab === "ALL" ? undefined : activeTab,
+          currentPage,
+          userIdFilter,
+        );
+        // Close modal
+        setDeleteModal({ show: false, mediaId: null, mediaName: null });
+      } else {
+        setDeleteError("Failed to delete media file");
+      }
+    } catch (err: any) {
+      console.error("Error deleting media:", err);
+      setDeleteError(
+        err.response?.data?.message || "Failed to delete media file",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteModal({ show: false, mediaId: null, mediaName: null });
+    setDeleteError(null);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.headerSection}>
@@ -418,21 +468,32 @@ export default function MediaLibraryPage() {
                     <div className={styles.metaDate}>
                       {mediaService.formatDateTime(media.created_at, false)}
                     </div>
-                    <button
-                      onClick={() => handleCopyUrl(media.file_url, media.id)}
-                      className={styles.copyBtn}
-                      title="Copy URL"
-                    >
-                      {copiedUrl === media.id ? (
-                        <>
-                          <FiCheck /> Copied!
-                        </>
-                      ) : (
-                        <>
-                          <FiCopy /> Copy URL
-                        </>
-                      )}
-                    </button>
+                    <div className={styles.cardActions}>
+                      <button
+                        onClick={() => handleCopyUrl(media.file_url, media.id)}
+                        className={styles.copyBtn}
+                        title="Copy URL"
+                      >
+                        {copiedUrl === media.id ? (
+                          <>
+                            <FiCheck /> Copied!
+                          </>
+                        ) : (
+                          <>
+                            <FiCopy /> Copy URL
+                          </>
+                        )}
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleDeleteClick(media.id, media.original_name)
+                        }
+                        className={styles.deleteBtn}
+                        title="Delete Media"
+                      >
+                        <FiTrash2 />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -463,6 +524,59 @@ export default function MediaLibraryPage() {
           </>
         )}
       </section>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.show && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h3>Confirm Delete</h3>
+              <button
+                className={styles.closeButton}
+                onClick={handleDeleteCancel}
+                disabled={deleting}
+              >
+                <FiX />
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <div className={styles.warningIcon}>
+                <FiAlertCircle />
+              </div>
+              <p>
+                Are you sure you want to delete{" "}
+                <strong>{deleteModal.mediaName}</strong>?
+              </p>
+              <p className={styles.warningText}>
+                This action cannot be undone. The media file will be permanently
+                removed from the cloud storage.
+              </p>
+              {deleteError && (
+                <div className={styles.errorBox}>
+                  <FiAlertCircle />
+                  <span>{deleteError}</span>
+                </div>
+              )}
+            </div>
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.cancelButton}
+                onClick={handleDeleteCancel}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.deleteConfirmButton}
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+              >
+                {deleting ? "Deleting..." : "Delete Media"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -36,6 +36,16 @@ export interface UploadMediaResponse {
   data: Media;
 }
 
+// Delete Response
+export interface DeleteMediaResponse {
+  success: boolean;
+  message: string;
+  data: {
+    upload_id: string;
+    message: string;
+  };
+}
+
 /**
  * Media Service
  * Handles all API calls related to media uploads (images, videos, documents)
@@ -95,6 +105,16 @@ class MediaService {
     );
 
     return Promise.all(uploadPromises);
+  }
+
+  /**
+   * Delete media upload by ID
+   */
+  async deleteMedia(uploadId: string): Promise<DeleteMediaResponse> {
+    const response = await instance.delete<DeleteMediaResponse>(
+      `${this.baseUrl}/${uploadId}`,
+    );
+    return response.data;
   }
 
   /**

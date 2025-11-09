@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./stations.module.css";
 import { useRouter } from "next/navigation";
 import {
@@ -11,6 +11,9 @@ import {
   FiPlus,
   FiAlertCircle,
   FiX,
+  FiRefreshCw,
+  FiToggleLeft,
+  FiToggleRight,
 } from "react-icons/fi";
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
 import stationsService from "../../../lib/api/stations.service";
@@ -27,6 +30,8 @@ const StationsPage: React.FC = () => {
   }>({ show: false, station: null });
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const stations: Station[] = stationsData?.results || [];
 
@@ -90,6 +95,30 @@ const StationsPage: React.FC = () => {
     router.push(`/dashboard/stations/add`);
   };
 
+  const handleManualRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetchStations();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetchStations]);
+
+  const toggleAutoRefresh = () => {
+    setAutoRefresh(!autoRefresh);
+  };
+
+  // Auto-refresh effect
+  useEffect(() => {
+    if (!autoRefresh) return;
+
+    const intervalId = setInterval(() => {
+      refetchStations();
+    }, 30000); // Refresh every 30 seconds
+
+    return () => clearInterval(intervalId);
+  }, [autoRefresh, refetchStations]);
+
   if (loading) return <div className={styles.container}>Loading...</div>;
   if (error) return <div className={styles.container}>{error}</div>;
 
@@ -113,9 +142,27 @@ const StationsPage: React.FC = () => {
               />
             </div>
 
-            <button className={styles.addButton} onClick={handleAdd}>
-              <FiPlus /> Add Station
-            </button>
+            <div className={styles.actionButtons}>
+              <button
+                className={styles.refreshButton}
+                onClick={handleManualRefresh}
+                disabled={refreshing || loading}
+                title="Refresh"
+              >
+                <FiRefreshCw className={refreshing ? styles.spinning : ""} />
+              </button>
+              <button
+                className={`${styles.autoRefreshButton} ${autoRefresh ? styles.active : ""}`}
+                onClick={toggleAutoRefresh}
+                title={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+              >
+                {autoRefresh ? <FiToggleRight /> : <FiToggleLeft />}
+                {autoRefresh ? "Auto" : "Manual"}
+              </button>
+              <button className={styles.addButton} onClick={handleAdd}>
+                <FiPlus /> Add Station
+              </button>
+            </div>
           </div>
         </div>
 
