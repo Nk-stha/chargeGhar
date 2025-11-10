@@ -176,7 +176,61 @@
     outline-offset: -2px;
 }
 
-/*mobile responsive*/
+/* ---------- Responsive Styles ---------- */
+
+/* Tablets and small laptops */
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+        margin-left: 0.5rem;
+    }
+
+    .title {
+        font-size: 1.7rem;
+    }
+
+    .controls {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .addButtonWrapper {
+        justify-content: center;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.6rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablets and large phones */
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+    .addButtonWrapper {
+        justify-content: center;
+    }
+
+    .tableContainer {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 600px;
+    }
+}
+
+/* Small phones */
 @media (max-width: 480px) {
     .container {
         padding: 1rem;
