@@ -8,6 +8,7 @@
     flex-direction: column;
 }
 
+/* ---------- Typography ---------- */
 .title {
     font-size: 2rem;
     font-weight: 600;
@@ -19,6 +20,7 @@
     margin-bottom: 1.5rem;
 }
 
+/* ---------- Add Button ---------- */
 .addButtonWrapper {
     display: flex;
     justify-content: flex-end;
@@ -33,8 +35,15 @@
     border-radius: 9999px;
     border: none;
     cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.addButton:hover {
+    background-color: #46e246;
+    transform: translateY(-1px);
+}
+
+/* ---------- Card ---------- */
 .card {
     background-color: #121212;
     border: 1px solid #2a2a2a;
@@ -62,6 +71,7 @@
     color: #8c8c8c;
 }
 
+/* ---------- Table ---------- */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -83,6 +93,7 @@
     border-top: 1px solid #2a2a2a;
 }
 
+/* ---------- Status Styles ---------- */
 .statusActive {
     color: #00ff99;
     font-weight: 500;
@@ -93,19 +104,14 @@
     font-weight: 500;
 }
 
-.deleteBtn {
-    background: transparent;
-    border: none;
-    color: #ff4d4d;
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
+/* ---------- Controls ---------- */
 .controls {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 1rem 0;
+    flex-wrap: wrap;
+    gap: 0.8rem;
 }
 
 .search {
@@ -115,6 +121,11 @@
     border: 1px solid #2a2a2a;
     background-color: transparent;
     color: #fff;
+    transition: border 0.3s ease;
+}
+
+.search:focus {
+    border-color: #47b216;
 }
 
 .sortBtn {
@@ -123,13 +134,33 @@
     color: #ccc;
     font-size: 0.9rem;
     cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.sortBtn:hover {
+    color: #82ea80;
 }
 
 .icon {
     font-size: 1rem;
 }
 
-/* Clickable Row Styles */
+/* ---------- Buttons ---------- */
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.deleteBtn:hover {
+    transform: scale(1.1);
+    color: #ff6666;
+}
+
+/* ---------- Clickable Row ---------- */
 .clickableRow {
     cursor: pointer;
     transition: all 0.2s ease;
@@ -143,4 +174,41 @@
 .clickableRow:focus {
     outline: 2px solid #82ea80;
     outline-offset: -2px;
+}
+
+/*mobile responsive*/
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+        margin: 0;
+    }
+
+    .title {
+        font-size: 1.4rem;
+        text-align: center;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .addButton {
+        width: 100%;
+        padding: 0.6rem;
+    }
+
+    .table {
+        font-size: 0.8rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
 }
