@@ -6,10 +6,10 @@ import {
   FiFileText,
   FiSearch,
   FiEye,
-  FiCheckCircle,
-  FiXCircle,
   FiFilter,
   FiRefreshCw,
+  FiEdit,
+  FiSave,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 
@@ -50,8 +50,10 @@ export default function KYCPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [showModal, setShowModal] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState<KYCSubmission | null>(null);
-  const [modalMode, setModalMode] = useState<"view" | "approve" | "reject">("view");
+  const [selectedSubmission, setSelectedSubmission] =
+    useState<KYCSubmission | null>(null);
+  const [modalMode, setModalMode] = useState<"view" | "edit">("view");
+  const [editStatus, setEditStatus] = useState<string>("");
   const [rejectionReason, setRejectionReason] = useState("");
   const [processing, setProcessing] = useState(false);
 
@@ -68,7 +70,9 @@ export default function KYCPage() {
       }
     } catch (err: any) {
       console.error("Error fetching KYC submissions:", err);
-      setError(err.response?.data?.message || "Failed to fetch KYC submissions");
+      setError(
+        err.response?.data?.message || "Failed to fetch KYC submissions",
+      );
     } finally {
       setLoading(false);
     }
@@ -84,25 +88,24 @@ export default function KYCPage() {
     setShowModal(true);
   };
 
-  const handleApproveClick = (submission: KYCSubmission) => {
+  const handleEditClick = (submission: KYCSubmission) => {
     setSelectedSubmission(submission);
-    setModalMode("approve");
-    setRejectionReason("");
-    setShowModal(true);
-  };
-
-  const handleRejectClick = (submission: KYCSubmission) => {
-    setSelectedSubmission(submission);
-    setModalMode("reject");
-    setRejectionReason("");
+    setModalMode("edit");
+    setEditStatus(submission.status);
+    setRejectionReason(submission.rejection_reason || "");
     setShowModal(true);
   };
 
   const handleStatusUpdate = async () => {
     if (!selectedSubmission) return;
 
-    if (modalMode === "reject" && !rejectionReason.trim()) {
-      alert("Please provide a rejection reason");
+    if (editStatus === "REJECTED" && !rejectionReason.trim()) {
+      alert("Please provide a rejection reason when status is REJECTED");
+      return;
+    }
+
+    if (!editStatus) {
+      alert("Please select a status");
       return;
     }
 
@@ -111,9 +114,10 @@ export default function KYCPage() {
       const response = await axiosInstance.patch(
         `/api/admin/kyc/${selectedSubmission.id}`,
         {
-          status: modalMode === "approve" ? "APPROVED" : "REJECTED",
-          rejection_reason: modalMode === "reject" ? rejectionReason : undefined,
-        }
+          status: editStatus,
+          rejection_reason:
+            editStatus === "REJECTED" ? rejectionReason : undefined,
+        },
       );
 
       if (response.data.success) {
@@ -121,6 +125,7 @@ export default function KYCPage() {
         setShowModal(false);
         setSelectedSubmission(null);
         setRejectionReason("");
+        setEditStatus("");
       } else {
         alert("Failed to update KYC status");
       }
@@ -148,12 +153,20 @@ export default function KYCPage() {
           sub.username.toLowerCase().includes(q) ||
           sub.email.toLowerCase().includes(q) ||
           sub.document_number.toLowerCase().includes(q) ||
-          sub.document_type.toLowerCase().includes(q)
+          sub.document_type.toLowerCase().includes(q),
       );
     }
 
     return list;
   }, [submissions, search, statusFilter]);
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedSubmission(null);
+    setModalMode("view");
+    setEditStatus("");
+    setRejectionReason("");
+  };
 
   if (loading) {
     return (
@@ -284,7 +297,9 @@ export default function KYCPage() {
                         <div className={styles.userName}>
                           {submission.username}
                         </div>
-                        <div className={styles.userEmail}>{submission.email}</div>
+                        <div className={styles.userEmail}>
+                          {submission.email}
+                        </div>
                       </div>
                     </td>
                     <td>
@@ -299,8 +314,8 @@ export default function KYCPage() {
                           submission.status === "APPROVED"
                             ? styles.statusApproved
                             : submission.status === "REJECTED"
-                            ? styles.statusRejected
-                            : styles.statusPending
+                              ? styles.statusRejected
+                              : styles.statusPending
                         }`}
                       >
                         {submission.status}
@@ -319,24 +334,13 @@ export default function KYCPage() {
                         >
                           <FiEye />
                         </button>
-                        {submission.status === "PENDING" && (
-                          <>
-                            <button
-                              className={styles.approveBtn}
-                              onClick={() => handleApproveClick(submission)}
-                              title="Approve"
-                            >
-                              <FiCheckCircle />
-                            </button>
-                            <button
-                              className={styles.rejectBtn}
-                              onClick={() => handleRejectClick(submission)}
-                              title="Reject"
-                            >
-                              <FiXCircle />
-                            </button>
-                          </>
-                        )}
+                        <button
+                          className={styles.editBtn}
+                          onClick={() => handleEditClick(submission)}
+                          title="Edit KYC status"
+                        >
+                          <FiEdit />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -349,20 +353,15 @@ export default function KYCPage() {
 
       {/* Modal */}
       {showModal && selectedSubmission && (
-        <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+        <div className={styles.modalOverlay} onClick={closeModal}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h2>
                 {modalMode === "view"
                   ? "KYC Submission Details"
-                  : modalMode === "approve"
-                  ? "Approve KYC Submission"
-                  : "Reject KYC Submission"}
+                  : "Edit KYC Status"}
               </h2>
-              <button
-                className={styles.modalClose}
-                onClick={() => setShowModal(false)}
-              >
+              <button className={styles.modalClose} onClick={closeModal}>
                 ×
               </button>
             </div>
@@ -376,6 +375,14 @@ export default function KYCPage() {
                       {selectedSubmission.username} ({selectedSubmission.email})
                     </span>
                   </div>
+                  {selectedSubmission.phone_number && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Phone:</span>
+                      <span className={styles.detailValue}>
+                        {selectedSubmission.phone_number}
+                      </span>
+                    </div>
+                  )}
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Document Type:</span>
                     <span className={styles.detailValue}>
@@ -395,13 +402,37 @@ export default function KYCPage() {
                         selectedSubmission.status === "APPROVED"
                           ? styles.statusApproved
                           : selectedSubmission.status === "REJECTED"
-                          ? styles.statusRejected
-                          : styles.statusPending
+                            ? styles.statusRejected
+                            : styles.statusPending
                       }`}
                     >
                       {selectedSubmission.status}
                     </span>
                   </div>
+                  <div className={styles.detailRow}>
+                    <span className={styles.detailLabel}>Submitted:</span>
+                    <span className={styles.detailValue}>
+                      {new Date(selectedSubmission.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  {selectedSubmission.verified_by_username && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Verified By:</span>
+                      <span className={styles.detailValue}>
+                        {selectedSubmission.verified_by_username}
+                      </span>
+                    </div>
+                  )}
+                  {selectedSubmission.verified_at && (
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>Verified At:</span>
+                      <span className={styles.detailValue}>
+                        {new Date(
+                          selectedSubmission.verified_at,
+                        ).toLocaleString()}
+                      </span>
+                    </div>
+                  )}
                   {selectedSubmission.rejection_reason && (
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>
@@ -440,26 +471,74 @@ export default function KYCPage() {
                 </>
               ) : (
                 <>
-                  <p className={styles.confirmText}>
-                    {modalMode === "approve"
-                      ? `Are you sure you want to approve the KYC submission for ${selectedSubmission.username}?`
-                      : `Are you sure you want to reject the KYC submission for ${selectedSubmission.username}?`}
-                  </p>
-                  {modalMode === "reject" && (
-                    <div className={styles.formGroup}>
-                      <label htmlFor="rejectionReason">
-                        Rejection Reason <span style={{ color: "#ff4444" }}>*</span>
-                      </label>
-                      <textarea
-                        id="rejectionReason"
-                        className={styles.textarea}
-                        placeholder="Please provide a reason for rejection..."
-                        value={rejectionReason}
-                        onChange={(e) => setRejectionReason(e.target.value)}
-                        rows={4}
-                      />
+                  <div className={styles.editForm}>
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>User:</span>
+                      <span className={styles.detailValue}>
+                        {selectedSubmission.username} (
+                        {selectedSubmission.email})
+                      </span>
                     </div>
-                  )}
+                    <div className={styles.detailRow}>
+                      <span className={styles.detailLabel}>
+                        Current Status:
+                      </span>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          selectedSubmission.status === "APPROVED"
+                            ? styles.statusApproved
+                            : selectedSubmission.status === "REJECTED"
+                              ? styles.statusRejected
+                              : styles.statusPending
+                        }`}
+                      >
+                        {selectedSubmission.status}
+                      </span>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label htmlFor="statusSelect">
+                        New Status <span style={{ color: "#ff4444" }}>*</span>
+                      </label>
+                      <select
+                        id="statusSelect"
+                        className={styles.selectInput}
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                      >
+                        <option value="">Select Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="APPROVED">Approved</option>
+                        <option value="REJECTED">Rejected</option>
+                      </select>
+                    </div>
+
+                    {editStatus === "REJECTED" && (
+                      <div className={styles.formGroup}>
+                        <label htmlFor="rejectionReason">
+                          Rejection Reason{" "}
+                          <span style={{ color: "#ff4444" }}>*</span>
+                        </label>
+                        <textarea
+                          id="rejectionReason"
+                          className={styles.textarea}
+                          placeholder="Please provide a reason for rejection..."
+                          value={rejectionReason}
+                          onChange={(e) => setRejectionReason(e.target.value)}
+                          rows={4}
+                        />
+                      </div>
+                    )}
+
+                    {editStatus && editStatus !== selectedSubmission.status && (
+                      <div className={styles.changeNotice}>
+                        <p>
+                          <strong>Status Change:</strong>{" "}
+                          {selectedSubmission.status} → {editStatus}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
             </div>
@@ -469,65 +548,42 @@ export default function KYCPage() {
                 <>
                   <button
                     className={styles.modalBtnSecondary}
-                    onClick={() => setShowModal(false)}
+                    onClick={closeModal}
                   >
                     Close
                   </button>
-                  {selectedSubmission.status === "PENDING" && (
-                    <>
-                      <button
-                        className={styles.modalBtnApprove}
-                        onClick={() => {
-                          setModalMode("approve");
-                        }}
-                      >
-                        <FiCheckCircle /> Approve
-                      </button>
-                      <button
-                        className={styles.modalBtnReject}
-                        onClick={() => {
-                          setModalMode("reject");
-                        }}
-                      >
-                        <FiXCircle /> Reject
-                      </button>
-                    </>
-                  )}
+                  <button
+                    className={styles.modalBtnPrimary}
+                    onClick={() => {
+                      setModalMode("edit");
+                      setEditStatus(selectedSubmission.status);
+                    }}
+                  >
+                    <FiEdit /> Edit Status
+                  </button>
                 </>
               ) : (
                 <>
                   <button
                     className={styles.modalBtnSecondary}
-                    onClick={() => setShowModal(false)}
+                    onClick={closeModal}
                     disabled={processing}
                   >
                     Cancel
                   </button>
                   <button
-                    className={
-                      modalMode === "approve"
-                        ? styles.modalBtnApprove
-                        : styles.modalBtnReject
-                    }
+                    className={styles.modalBtnPrimary}
                     onClick={handleStatusUpdate}
-                    disabled={processing}
+                    disabled={processing || !editStatus}
                   >
                     {processing ? (
                       <>
                         <FiRefreshCw className={styles.spinIcon} />
-                        Processing...
+                        Saving...
                       </>
                     ) : (
                       <>
-                        {modalMode === "approve" ? (
-                          <>
-                            <FiCheckCircle /> Confirm Approval
-                          </>
-                        ) : (
-                          <>
-                            <FiXCircle /> Confirm Rejection
-                          </>
-                        )}
+                        <FiSave /> Save Changes
                       </>
                     )}
                   </button>

@@ -1,0 +1,278 @@
+.card {
+    width: 100%;
+    background: #141414;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid #1a1a1a;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0 15px rgba(130, 234, 128, 0.1);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.headerLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.card h2 {
+    color: #82ea80;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+.chartContainer {
+    width: 100%;
+    height: 320px;
+    position: relative;
+}
+
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    gap: 1rem;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2a2a2a;
+    border-top-color: #82ea80;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loadingContainer p {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+/* Error State */
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    gap: 1rem;
+    text-align: center;
+}
+
+.errorIcon {
+    font-size: 3rem;
+    color: #ff4040;
+}
+
+.errorText {
+    color: #ddd;
+    font-size: 1rem;
+    margin: 0;
+}
+
+.retryButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+    background: #222;
+    border-color: #82ea80;
+}
+
+/* No Data State */
+.noData {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 320px;
+    gap: 1rem;
+    color: #888;
+}
+
+.noDataIcon {
+    font-size: 3rem;
+    color: #666;
+}
+
+.noData p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Refresh Button */
+.refreshButton {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 0.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.refreshButton:hover {
+    background: #1a1a1a;
+    color: #82ea80;
+    border-color: #82ea80;
+}
+
+.refreshButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+/* Legend Styling */
+.legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #222;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.legendColor {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.legendLabel {
+    color: #aaa;
+}
+
+.legendValue {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .card {
+        padding: 1.25rem;
+    }
+
+    .chartContainer {
+        height: 280px;
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .noData {
+        height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        padding: 1rem;
+    }
+
+    .card h2 {
+        font-size: 1.1rem;
+    }
+
+    .subtitle {
+        font-size: 0.8rem;
+    }
+
+    .chartContainer {
+        height: 250px;
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .noData {
+        height: 250px;
+    }
+
+    .legend {
+        gap: 0.75rem;
+    }
+
+    .legendItem {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 0.875rem;
+    }
+
+    .card h2 {
+        font-size: 1rem;
+    }
+
+    .chartContainer {
+        height: 220px;
+    }
+
+    .loadingContainer,
+    .errorContainer,
+    .noData {
+        height: 220px;
+    }
+
+    .errorIcon,
+    .noDataIcon {
+        font-size: 2.5rem;
+    }
+}

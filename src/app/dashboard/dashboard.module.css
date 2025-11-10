@@ -1,16 +1,41 @@
+/* Dashboard Layout */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #0a0a0a;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 70px;
+    padding-top: 60px;
+    width: calc(100% - 70px);
+    transition:
+        margin-left 0.3s ease,
+        width 0.3s ease;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Dashboard Page */
 .dashboardPage {
     display: flex;
     background-color: #0b0b0b;
     min-height: 100vh;
     font-family: "Poppins", sans-serif;
     color: #fff;
-    padding: 5rem;
 }
 
 /* Main container beside sidebar */
 .dashboardContainer {
     flex: 1;
     padding: 2rem 3rem;
+    max-width: 100%;
 }
 
 /* Header */
@@ -22,16 +47,26 @@
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
+    margin: 0 0 0.5rem 0;
 }
 
 .header p {
     color: #ccc;
     font-size: 1rem;
+    margin: 0;
 }
 
 .adminName {
     color: #82ea80;
     font-weight: 600;
+}
+
+/* Top Statistics Section */
+.topStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 /* Revenue Chart full width */
@@ -40,6 +75,7 @@
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    border: 1px solid #1a1a1a;
 }
 
 /* Two column sections (Popular Packages + Recent Transactions etc.) */
@@ -57,13 +93,135 @@
     gap: 1.5rem;
 }
 
-/* Responsive tweaks */
+/* Tablet Responsive (1024px and below) */
 @media (max-width: 1024px) {
-    .twoColumn {
-        grid-template-columns: 1fr;
+    .main {
+        margin-left: 60px;
+        width: calc(100% - 60px);
     }
 
     .dashboardContainer {
+        padding: 1.5rem 2rem;
+    }
+
+    .header h1 {
+        font-size: 1.75rem;
+    }
+
+    .topStats {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .twoColumn {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .revenueSection {
+        padding: 1.25rem;
+    }
+}
+
+/* Tablet Portrait and Mobile Landscape (768px and below) */
+@media (max-width: 768px) {
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 60px;
+    }
+
+    .dashboardContainer {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .header {
+        margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .header p {
+        font-size: 0.9rem;
+    }
+
+    .topStats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .twoColumn {
+        gap: 1rem;
+    }
+
+    .revenueSection {
         padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bottomSection {
+        gap: 1rem;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .dashboardContainer {
+        padding: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .header p {
+        font-size: 0.85rem;
+    }
+
+    .topStats {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+
+    .revenueSection {
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .twoColumn {
+        gap: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .bottomSection {
+        gap: 0.875rem;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .dashboardContainer {
+        padding: 0.75rem;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+    }
+
+    .header p {
+        font-size: 0.8rem;
+    }
+
+    .topStats {
+        gap: 0.75rem;
+    }
+
+    .revenueSection,
+    .twoColumn,
+    .bottomSection {
+        margin-bottom: 0.75rem;
+        gap: 0.75rem;
     }
 }

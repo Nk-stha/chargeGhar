@@ -2,24 +2,30 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./profile.module.css";
-import { FiUser } from "react-icons/fi";
-import instance from "../../../lib/axios";
-
-interface AdminProfile {
-  id: string;
-  role: string;
-  is_active: boolean;
-  is_super_admin: boolean;
-  created_at: string;
-  updated_at: string;
-  username: string;
-  email: string;
-  created_by_username: string;
-}
+import {
+  FiUser,
+  FiMail,
+  FiShield,
+  FiCalendar,
+  FiRefreshCw,
+  FiAlertCircle,
+  FiUsers,
+  FiMapPin,
+  FiFileText,
+  FiBarChart2,
+  FiDollarSign,
+  FiCheck,
+  FiX,
+} from "react-icons/fi";
+import {
+  adminMeService,
+  CurrentAdminProfile,
+  AdminPermissions,
+} from "../../../lib/api/adminMe.service";
 
 export default function ProfilePage() {
-  const [profile, setProfile] = useState<AdminProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<CurrentAdminProfile | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -31,85 +37,49 @@ export default function ProfilePage() {
       setLoading(true);
       setError(null);
 
-      // Get token and decode to find current user ID
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("No authentication token found");
-        return;
-      }
+      const response = await adminMeService.getCurrentProfile();
 
-      // Decode JWT to get user_id
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentUserId = payload.user_id;
-
-      // Fetch all admin profiles
-      const response = await instance.get("/api/admin/profiles");
-
-      if (response.data.success) {
-        const profiles: AdminProfile[] = response.data.data;
-
-        // Find current admin's profile by matching user_id with id
-        // Note: The backend may use different ID formats, so we'll try to find by username or email
-        // For now, we'll take the first profile if we can't match
-        const currentProfile =
-          profiles.find((p) => p.id === currentUserId) || profiles[0];
-
-        if (currentProfile) {
-          setProfile(currentProfile);
-        } else {
-          setError("Profile not found");
-        }
+      if (response.success) {
+        setProfile(response.data);
       } else {
         setError("Failed to fetch profile data");
       }
     } catch (err: any) {
       console.error("Error fetching profile:", err);
-      setError(err.response?.data?.message || "Failed to load profile data");
+      setError(
+        err.response?.data?.message ||
+          "Unable to load profile. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    try {
-      return new Date(dateString).toLocaleString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
-  const getTimeSince = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      const now = new Date();
-      const diffMs = now.getTime() - date.getTime();
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) return "Today";
-      if (diffDays === 1) return "1 day ago";
-      if (diffDays < 30) return `${diffDays} days ago`;
-      if (diffDays < 365) {
-        const months = Math.floor(diffDays / 30);
-        return months === 1 ? "1 month ago" : `${months} months ago`;
-      }
-      const years = Math.floor(diffDays / 365);
-      return years === 1 ? "1 year ago" : `${years} years ago`;
-    } catch {
-      return "—";
-    }
+  const getPermissionIcon = (key: keyof AdminPermissions) => {
+    const icons: Record<keyof AdminPermissions, React.ReactNode> = {
+      can_manage_users: <FiUsers />,
+      can_manage_stations: <FiMapPin />,
+      can_manage_content: <FiFileText />,
+      can_view_analytics: <FiBarChart2 />,
+      can_manage_finances: <FiDollarSign />,
+      can_manage_admins: <FiShield />,
+    };
+    return icons[key] || <FiCheck />;
   };
 
   if (loading) {
     return (
       <div className={styles.container}>
-        <h1 className={styles.title}>Profile</h1>
-        <p className={styles.subtitle}>Loading your profile...</p>
+        <div className={styles.header}>
+          <h1 className={styles.title}>My Profile</h1>
+          <p className={styles.subtitle}>
+            View your account information and permissions
+          </p>
+        </div>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner} />
+          <p>Loading your profile...</p>
+        </div>
       </div>
     );
   }
@@ -117,10 +87,19 @@ export default function ProfilePage() {
   if (error) {
     return (
       <div className={styles.container}>
-        <h1 className={styles.title}>Profile</h1>
-        <p className={styles.subtitle} style={{ color: "#ff4444" }}>
-          {error}
-        </p>
+        <div className={styles.header}>
+          <h1 className={styles.title}>My Profile</h1>
+          <p className={styles.subtitle}>
+            View your account information and permissions
+          </p>
+        </div>
+        <div className={styles.errorContainer}>
+          <FiAlertCircle className={styles.errorIcon} />
+          <p className={styles.errorText}>{error}</p>
+          <button onClick={fetchProfile} className={styles.retryBtn}>
+            <FiRefreshCw /> Try Again
+          </button>
+        </div>
       </div>
     );
   }
@@ -128,110 +107,211 @@ export default function ProfilePage() {
   if (!profile) {
     return (
       <div className={styles.container}>
-        <h1 className={styles.title}>Profile</h1>
-        <p className={styles.subtitle}>No profile data available</p>
+        <div className={styles.header}>
+          <h1 className={styles.title}>My Profile</h1>
+          <p className={styles.subtitle}>
+            View your account information and permissions
+          </p>
+        </div>
+        <div className={styles.errorContainer}>
+          <p className={styles.errorText}>No profile data available</p>
+        </div>
       </div>
     );
   }
 
+  const enabledPermissionsCount = adminMeService.countEnabledPermissions(
+    profile.permissions,
+  );
+  const totalPermissions = Object.keys(profile.permissions).length;
+
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Profile</h1>
-      <p className={styles.subtitle}>Manage your profile.</p>
-
-      {/* Profile Header */}
-      <div className={styles.profileHeader}>
-        <div className={styles.avatar}>
-          <FiUser className={styles.avatarIcon} />
+      {/* Header */}
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>My Profile</h1>
+          <p className={styles.subtitle}>
+            View your account information and permissions
+          </p>
         </div>
-        <div className={styles.profileNameCard}>
-          <span className={styles.profileName}>{profile.username}</span>
-          <span className={styles.profileRole}>
-            User Role: {profile.role.replace("_", " ").toUpperCase()}
-            {profile.is_super_admin && " (Super Admin)"}
-          </span>
-        </div>
+        <button
+          onClick={fetchProfile}
+          className={styles.refreshBtn}
+          title="Refresh profile"
+        >
+          <FiRefreshCw />
+        </button>
       </div>
 
-      {/* Main Content */}
-      <div className={styles.profileContent}>
-        {/* Left Card */}
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Admin Profile</h3>
-
-          <div className={styles.formGroup}>
-            <label>User ID:</label>
-            <input type="text" value={profile.id} disabled />
+      {/* Profile Card */}
+      <div className={styles.profileCard}>
+        <div className={styles.profileHeader}>
+          <div className={styles.avatar}>
+            <FiUser />
           </div>
-
-          <div className={styles.formGroup}>
-            <label>Username:</label>
-            <input type="text" value={profile.username} disabled />
+          <div className={styles.profileInfo}>
+            <h2 className={styles.username}>{profile.username}</h2>
+            <p className={styles.email}>{profile.email}</p>
           </div>
-
-          <div className={styles.formGroup}>
-            <label>Email:</label>
-            <input type="email" value={profile.email} disabled />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Role:</label>
-            <input
-              type="text"
-              value={profile.role.replace("_", " ").toUpperCase()}
-              disabled
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Status:</label>
-            <input
-              type="text"
-              value={profile.is_active ? "Active" : "Inactive"}
-              disabled
+          <div className={styles.badges}>
+            <span
+              className={styles.roleBadge}
               style={{
-                color: profile.is_active ? "#32cd32" : "#ff4444",
+                color: adminMeService.getRoleColor(
+                  profile.role,
+                  profile.is_super_admin,
+                ),
               }}
-            />
-          </div>
-
-          <div className={styles.formGroup}>
-            <label>Created By:</label>
-            <input type="text" value={profile.created_by_username} disabled />
-          </div>
-        </div>
-
-        {/* Right Card */}
-        <div className={styles.card}>
-          <h3 className={styles.cardTitle}>Account Information</h3>
-
-          <div className={styles.infoSection}>
-            <h4>Account Created</h4>
-            <p>{formatDate(profile.created_at)}</p>
-            <p className={styles.subInfo}>{getTimeSince(profile.created_at)}</p>
-          </div>
-
-          <div className={styles.infoSection}>
-            <h4>Last Updated</h4>
-            <p>{formatDate(profile.updated_at)}</p>
-            <p className={styles.subInfo}>{getTimeSince(profile.updated_at)}</p>
-          </div>
-
-          <div className={styles.infoSection}>
-            <h4>Account Type</h4>
-            <p style={{ color: profile.is_super_admin ? "#32cd32" : "#ccc" }}>
-              {profile.is_super_admin ? "Super Administrator" : "Administrator"}
-            </p>
+            >
+              <FiShield />
+              {adminMeService.getRoleLabel(profile.role)}
+            </span>
+            <span
+              className={`${styles.statusBadge} ${profile.is_active ? styles.statusActive : styles.statusInactive}`}
+            >
+              {adminMeService.getStatusLabel(profile.is_active)}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Info Message */}
-      <div className={styles.infoMessage}>
-        <span>
-          ℹ️ Profile information is managed by super administrators. Contact
-          your administrator if you need to update your details.
-        </span>
+      {/* Content Grid */}
+      <div className={styles.contentGrid}>
+        {/* Account Information Card */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h3 className={styles.cardTitle}>
+              <FiUser className={styles.cardIcon} />
+              Account Information
+            </h3>
+          </div>
+          <div className={styles.cardContent}>
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiUser className={styles.infoIcon} />
+                User ID
+              </div>
+              <div className={styles.infoValue}>{profile.user_id}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiUser className={styles.infoIcon} />
+                Username
+              </div>
+              <div className={styles.infoValue}>{profile.username}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiMail className={styles.infoIcon} />
+                Email Address
+              </div>
+              <div className={styles.infoValue}>{profile.email}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiShield className={styles.infoIcon} />
+                Role
+              </div>
+              <div
+                className={styles.infoValue}
+                style={{
+                  color: adminMeService.getRoleColor(
+                    profile.role,
+                    profile.is_super_admin,
+                  ),
+                }}
+              >
+                {adminMeService.getRoleLabel(profile.role)}
+              </div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiCalendar className={styles.infoIcon} />
+                Account Created
+              </div>
+              <div className={styles.infoValue}>
+                {adminMeService.formatDateTime(profile.created_at)}
+                <span className={styles.infoSubtext}>
+                  {adminMeService.getTimeSince(profile.created_at)}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>
+                <FiShield className={styles.infoIcon} />
+                Account Status
+              </div>
+              <div
+                className={styles.infoValue}
+                style={{
+                  color: adminMeService.getStatusColor(profile.is_active),
+                }}
+              >
+                {adminMeService.getStatusLabel(profile.is_active)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Permissions Card */}
+        <div className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h3 className={styles.cardTitle}>
+              <FiShield className={styles.cardIcon} />
+              Permissions
+            </h3>
+            <span className={styles.permissionCount}>
+              {enabledPermissionsCount} / {totalPermissions}
+            </span>
+          </div>
+          <div className={styles.cardContent}>
+            <div className={styles.permissionsGrid}>
+              {(
+                Object.keys(profile.permissions) as (keyof AdminPermissions)[]
+              ).map((key) => {
+                const hasPermission = profile.permissions[key];
+                return (
+                  <div
+                    key={key}
+                    className={`${styles.permissionItem} ${hasPermission ? styles.permissionEnabled : styles.permissionDisabled}`}
+                  >
+                    <div className={styles.permissionIcon}>
+                      {getPermissionIcon(key)}
+                    </div>
+                    <div className={styles.permissionInfo}>
+                      <span className={styles.permissionLabel}>
+                        {adminMeService.getPermissionLabel(key)}
+                      </span>
+                      <span className={styles.permissionStatus}>
+                        {hasPermission ? <FiCheck /> : <FiX />}
+                        {hasPermission ? "Granted" : "Denied"}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Banner */}
+      <div className={styles.infoBanner}>
+        <FiAlertCircle className={styles.infoBannerIcon} />
+        <div className={styles.infoBannerContent}>
+          <p className={styles.infoBannerTitle}>Profile Management</p>
+          <p className={styles.infoBannerText}>
+            Your profile information and permissions are managed by super
+            administrators. If you need to update your details or require
+            additional permissions, please contact your system administrator.
+          </p>
+        </div>
       </div>
     </div>
   );

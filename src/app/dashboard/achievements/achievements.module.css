@@ -1,0 +1,628 @@
+.achievementsPage {
+    display: flex;
+    min-height: 100vh;
+    background: #0a0a0a;
+}
+
+.container {
+    flex: 1;
+    margin-left: 70px;
+    padding: 2rem 3rem;
+    max-width: calc(100% - 70px);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0;
+}
+
+.addButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #47b216;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.addButton:hover {
+    background: #3a9112;
+    transform: translateY(-2px);
+}
+
+.addButton:active {
+    transform: translateY(0);
+}
+
+.successBanner,
+.errorBanner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    animation: slideDown 0.3s ease;
+}
+
+.successBanner {
+    background: rgba(130, 234, 128, 0.1);
+    border: 1px solid #82ea80;
+    color: #82ea80;
+}
+
+.errorBanner {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background: #121212;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(130, 234, 128, 0.2);
+    border-color: #82ea80;
+}
+
+.statIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+    color: #82ea80;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover .statIcon {
+    background: #47b216;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.statContent {
+    flex: 1;
+}
+
+.statLabel {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.searchContainer {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    max-width: 500px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #82ea80;
+    box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
+}
+
+.filterSelect {
+    padding: 0.75rem 1rem;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 150px;
+}
+
+.filterSelect:focus {
+    outline: none;
+    border-color: #82ea80;
+}
+
+.refreshBtn {
+    padding: 0.75rem;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    width: 48px;
+}
+
+.refreshBtn:hover {
+    background: #1a1a1a;
+    border-color: #82ea80;
+    transform: rotate(180deg);
+}
+
+.loadingContainer,
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #888;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #82ea80;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.clearSearch {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clearSearch:hover {
+    background: #47b216;
+    color: #fff;
+    border-color: #47b216;
+}
+
+.achievementsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.achievementCard {
+    background: #121212;
+    border: 1px solid #1a1a1a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.achievementCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(130, 234, 128, 0.15);
+    border-color: #2a2a2a;
+}
+
+.achievementHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.achievementIcon {
+    font-size: 3rem;
+    filter: drop-shadow(0 2px 8px rgba(130, 234, 128, 0.3));
+}
+
+.rarityCommon {
+    padding: 0.375rem 0.75rem;
+    background: rgba(136, 136, 136, 0.1);
+    border: 1px solid #666;
+    border-radius: 6px;
+    color: #888;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rarityRare {
+    padding: 0.375rem 0.75rem;
+    background: rgba(52, 152, 219, 0.1);
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    color: #3498db;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rarityEpic {
+    padding: 0.375rem 0.75rem;
+    background: rgba(155, 89, 182, 0.1);
+    border: 1px solid #9b59b6;
+    border-radius: 6px;
+    color: #9b59b6;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rarityLegendary {
+    padding: 0.375rem 0.75rem;
+    background: rgba(241, 196, 15, 0.1);
+    border: 1px solid #f1c40f;
+    border-radius: 6px;
+    color: #f1c40f;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.achievementName {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.achievementDescription {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.achievementCriteria {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.criteriaIcon {
+    color: #82ea80;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.achievementReward {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(130, 234, 128, 0.05);
+    border: 1px solid rgba(130, 234, 128, 0.2);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #82ea80;
+    font-weight: 600;
+}
+
+.rewardIcon {
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.achievementStats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.progressBar {
+    width: 100%;
+    height: 8px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, #47b216, #82ea80);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progressText {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+}
+
+.unlockCount {
+    color: #888;
+}
+
+.unlockPercent {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+.achievementActions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+}
+
+.editBtn,
+.viewBtn {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    background: #1a1a1a;
+    color: #82ea80;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.editBtn:hover {
+    background: #82ea80;
+    color: #121212;
+    border-color: #82ea80;
+}
+
+.viewBtn:hover {
+    background: #2a2a2a;
+    color: #fff;
+    border-color: #47b216;
+}
+
+/* Tablet Responsive (1024px and below) */
+@media (max-width: 1024px) {
+    .container {
+        margin-left: 60px;
+        max-width: calc(100% - 60px);
+        padding: 1.5rem 2rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .statIcon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.7rem;
+    }
+
+    .statValue {
+        font-size: 1.65rem;
+    }
+
+    .achievementsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.25rem;
+    }
+}
+
+/* Mobile (768px and below) */
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .addButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .statIcon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+    }
+
+    .statValue {
+        font-size: 1.5rem;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .searchContainer {
+        max-width: 100%;
+    }
+
+    .filterSelect,
+    .refreshBtn {
+        width: 100%;
+    }
+
+    .refreshBtn {
+        width: 100%;
+    }
+
+    .achievementsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Mobile Portrait (480px and below) */
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+
+    .statCard {
+        padding: 1rem;
+    }
+
+    .statIcon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    .statValue {
+        font-size: 1.4rem;
+    }
+
+    .achievementCard {
+        padding: 1rem;
+    }
+
+    .achievementIcon {
+        font-size: 2.5rem;
+    }
+
+    .achievementName {
+        font-size: 1.1rem;
+    }
+
+    .achievementActions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}

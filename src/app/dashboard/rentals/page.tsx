@@ -1,170 +1,435 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import styles from "./rentals.module.css";
-import { FiFilter, FiDownload, FiShoppingBag } from "react-icons/fi";
+import {
+  FiFilter,
+  FiDownload,
+  FiShoppingBag,
+  FiSearch,
+  FiRefreshCw,
+  FiChevronLeft,
+  FiChevronRight,
+  FiAlertCircle,
+} from "react-icons/fi";
+import { rentalsService } from "../../../lib/api/rentals.service";
+import {
+  RentalListItem,
+  RentalStatus,
+  PaymentStatus,
+} from "../../../types/rentals.types";
+import RentalDetailModal from "../../../components/RentalDetailModal/RentalDetailModal";
 
-const rentalData = [
-  { id: "R001", user: "U001", station: "Gwarko, Lalitpur", package: "30 Min/s", start: "03:00 PM", end: "-----", amount: "-----", status: "Active" },
-  { id: "R002", user: "U002", station: "City Square Mall, Samakhushi", package: "30 Min/s", start: "02:45 PM", end: "-----", amount: "-----", status: "Overdue" },
-  { id: "R003", user: "U003", station: "New Road, Sundhara", package: "1 Day/s", start: "02:17 PM", end: "-----", amount: "-----", status: "Active" },
-  { id: "R004", user: "U004", station: "Paknajol, Chhetrapati", package: "1 Hr/s", start: "12:00 PM", end: "Null", amount: "Null", status: "Refunded" },
-  { id: "R005", user: "U005", station: "DDC, Lainchor", package: "1 Hr/s", start: "08:00 AM", end: "09:00 AM", amount: "Rs 100", status: "Completed" },
+const statusTabs: (RentalStatus | "ALL")[] = [
+  "ALL",
+  "ACTIVE",
+  "PENDING",
+  "COMPLETED",
+  "OVERDUE",
+  "CANCELLED",
 ];
 
-type Rental = {
-  id: string;
-  user: string;
-  station: string;
-  package: string;
-  start: string;
-  end: string;
-  amount: string;
-  status: string;
-};
-
-const tabs = ["All", "Active", "Overdue", "Completed", "Refunded"] as const;
-type Tab = typeof tabs[number];
-
 export default function RentalsPage() {
-  const [originalData, setOriginalData] = useState<Rental[]>(rentalData);
-  const [filteredData, setFilteredData] = useState<Rental[]>(rentalData);
-  const [activeTab, setActiveTab] = useState<Tab>("All");
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [rentals, setRentals] = useState<RentalListItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<RentalStatus | "ALL">("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [pageSize] = useState<number>(20);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedRentalId, setSelectedRentalId] = useState<string>("");
 
-  // 🔹 TAB FILTER FUNCTIONALITY
-  const handleTabClick = (tab: Tab) => {
+  const fetchRentals = useCallback(
+    async (
+      status?: RentalStatus | "ALL",
+      page: number = 1,
+      search?: string,
+    ) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const filters: any = {
+          page,
+          page_size: pageSize,
+        };
+
+        if (status && status !== "ALL") {
+          filters.status = status;
+        }
+
+        if (search && search.trim()) {
+          filters.search = search.trim();
+        }
+
+        const response = await rentalsService.getRentals(filters);
+
+        if (response.success) {
+          setRentals(response.data.results);
+          setTotalPages(response.data.pagination.total_pages);
+          setTotalCount(response.data.pagination.total_count);
+          setCurrentPage(response.data.pagination.current_page);
+        } else {
+          setError("Failed to fetch rentals");
+        }
+      } catch (err: any) {
+        console.error("Error fetching rentals:", err);
+        setError("Unable to load rentals. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [pageSize],
+  );
+
+  useEffect(() => {
+    fetchRentals(
+      activeTab === "ALL" ? undefined : activeTab,
+      currentPage,
+      searchQuery,
+    );
+  }, [activeTab, currentPage, searchQuery, fetchRentals]);
+
+  const handleTabClick = (tab: RentalStatus | "ALL") => {
     setActiveTab(tab);
-    if (tab === "All") {
-      setFilteredData(originalData);
-    } else {
-      const filtered = originalData.filter((rental) => rental.status === tab);
-      setFilteredData(filtered);
+    setCurrentPage(1);
+    setSearchQuery("");
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setCurrentPage(1);
+    fetchRentals(activeTab === "ALL" ? undefined : activeTab, 1, searchQuery);
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleRefresh = () => {
+    fetchRentals(
+      activeTab === "ALL" ? undefined : activeTab,
+      currentPage,
+      searchQuery,
+    );
+  };
+
+  const handleExportCSV = () => {
+    if (rentals.length === 0) {
+      alert("No data to export");
+      return;
+    }
+    const timestamp = new Date().toISOString().split("T")[0];
+    rentalsService.downloadCSV(rentals, `rentals_${timestamp}.csv`);
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
     }
   };
 
-  // 🔹 SORT FUNCTIONALITY
-  const handleSort = () => {
-    const sortedData = [...filteredData].sort((a, b) => {
-      const valA = a.station.toLowerCase();
-      const valB = b.station.toLowerCase();
-      return sortOrder === "asc"
-        ? valA.localeCompare(valB)
-        : valB.localeCompare(valA);
-    });
-    setFilteredData(sortedData);
-    setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
   };
 
-  // 🔹 EXPORT CSV FUNCTIONALITY
-  const handleExportCSV = () => {
-    const headers = [
-      "Rental ID",
-      "User",
-      "Station Name",
-      "Package",
-      "Start Time",
-      "End Time",
-      "Amount",
-      "Status",
-    ];
-    const csvRows = [
-      headers.join(","),
-      ...filteredData.map((r) =>
-        [
-          r.id,
-          r.user,
-          r.station,
-          r.package,
-          r.start,
-          r.end,
-          r.amount,
-          r.status,
-        ].join(",")
-      ),
-    ];
-    const csvContent = "data:text/csv;charset=utf-8," + csvRows.join("\n");
-    const link = document.createElement("a");
-    link.href = encodeURI(csvContent);
-    link.download = "rentals.csv";
-    link.click();
+  const getStatusClass = (status: RentalStatus): string => {
+    switch (status) {
+      case "ACTIVE":
+        return styles.active;
+      case "COMPLETED":
+        return styles.completed;
+      case "PENDING":
+        return styles.pending;
+      case "CANCELLED":
+        return styles.cancelled;
+      case "OVERDUE":
+        return styles.overdue;
+      default:
+        return "";
+    }
+  };
+
+  const getPaymentStatusClass = (status: PaymentStatus): string => {
+    switch (status) {
+      case "PAID":
+        return styles.paid;
+      case "PENDING":
+        return styles.paymentPending;
+      case "FAILED":
+        return styles.failed;
+      case "REFUNDED":
+        return styles.refunded;
+      default:
+        return "";
+    }
+  };
+
+  const handleRowClick = (rentalId: string) => {
+    setSelectedRentalId(rentalId);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRentalId("");
   };
 
   return (
-    <main className={styles.container}>
-      <h1 className={styles.title}>Rentals</h1>
-      <p className={styles.subtitle}>
-        View and manage all the rental history and packages.
-      </p>
-
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        {tabs.map((tab) => (
+    <>
+      <main className={styles.container}>
+        <div className={styles.headerSection}>
+          <div>
+            <h1 className={styles.title}>Rentals Management</h1>
+            <p className={styles.subtitle}>
+              View and manage all rental transactions
+              {totalCount > 0 && ` (${totalCount} total)`}
+            </p>
+          </div>
           <button
-            key={tab}
-            className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
-              }`}
-            onClick={() => handleTabClick(tab)}
+            onClick={handleRefresh}
+            className={styles.refreshBtn}
+            disabled={loading}
+            title="Refresh data"
           >
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      {/* Controls */}
-      <div className={styles.controls}>
-        <button className={styles.sortBtn} onClick={handleSort}>
-          <FiFilter className={styles.icon} /> Sort By Station
-        </button>
-      </div>
-
-      {/* Table Card */}
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2 className={styles.cardTitle}>
-            <FiShoppingBag className={styles.icon} /> Rentals
-          </h2>
-          <button className={styles.exportBtn} onClick={handleExportCSV}>
-            <FiDownload /> Export as CSV
+            <FiRefreshCw className={loading ? styles.spinning : ""} />
           </button>
         </div>
 
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Rental ID</th>
-              <th>User</th>
-              <th>Station Name</th>
-              <th>Package</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Amount (Rs)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((rental) => (
-              <tr key={rental.id}>
-                <td>{rental.id}</td>
-                <td>{rental.user}</td>
-                <td>{rental.station}</td>
-                <td>{rental.package}</td>
-                <td>{rental.start}</td>
-                <td>{rental.end}</td>
-                <td>{rental.amount}</td>
-                <td>
-                  <span
-                    className={`${styles.status} ${styles[rental.status.toLowerCase()]
-                      }`}
+        {/* Search Bar */}
+        <form onSubmit={handleSearch} className={styles.searchForm}>
+          <div className={styles.searchContainer}>
+            <FiSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search by rental code, user name, or phone..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className={styles.searchInput}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
+                className={styles.clearSearch}
+              >
+                ×
+              </button>
+            )}
+          </div>
+          <button type="submit" className={styles.searchBtn} disabled={loading}>
+            Search
+          </button>
+        </form>
+
+        {/* Tabs */}
+        <div className={styles.tabs}>
+          {statusTabs.map((tab) => (
+            <button
+              key={tab}
+              className={`${styles.tab} ${
+                activeTab === tab ? styles.activeTab : ""
+              }`}
+              onClick={() => handleTabClick(tab)}
+              disabled={loading}
+            >
+              {tab === "ALL" ? "All" : rentalsService.getStatusLabel(tab)}
+            </button>
+          ))}
+        </div>
+
+        {/* Table Card */}
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>
+              <FiShoppingBag className={styles.icon} /> Rentals
+            </h2>
+            <button
+              className={styles.exportBtn}
+              onClick={handleExportCSV}
+              disabled={loading || rentals.length === 0}
+            >
+              <FiDownload /> Export CSV
+            </button>
+          </div>
+
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner} />
+              <p>Loading rentals...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.errorContainer}>
+              <FiAlertCircle className={styles.errorIcon} />
+              <p className={styles.errorText}>{error}</p>
+              <button onClick={handleRefresh} className={styles.retryButton}>
+                <FiRefreshCw /> Retry
+              </button>
+            </div>
+          ) : rentals.length === 0 ? (
+            <div className={styles.noData}>
+              <FiShoppingBag className={styles.noDataIcon} />
+              <p>No rentals found</p>
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
+                  className={styles.clearFiltersBtn}
+                >
+                  Clear Search
+                </button>
+              )}
+            </div>
+          ) : (
+            <>
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Rental Code</th>
+                      <th>User</th>
+                      <th>Station</th>
+                      <th>Return Station</th>
+                      <th>Package</th>
+                      <th>Due Date</th>
+                      <th>Amount</th>
+                      <th>Payment</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rentals.map((rental) => (
+                      <tr
+                        key={rental.id}
+                        onClick={() => handleRowClick(rental.id)}
+                        className={styles.clickableRow}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            handleRowClick(rental.id);
+                          }
+                        }}
+                      >
+                        <td>
+                          <span className={styles.rentalCode}>
+                            {rental.rental_code}
+                          </span>
+                        </td>
+                        <td>
+                          <div className={styles.userInfo}>
+                            <span className={styles.username}>
+                              {rental.username}
+                            </span>
+                            {rental.user_phone && (
+                              <span className={styles.phone}>
+                                {rental.user_phone}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.stationInfo}>
+                            <span>{rental.station_name}</span>
+                            <span className={styles.stationSerial}>
+                              {rental.station_serial}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.stationInfo}>
+                            <span>{rental.return_station_name}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.packageInfo}>
+                            <span>{rental.package_name}</span>
+                            <span className={styles.duration}>
+                              {rentalsService.formatDuration(
+                                rental.package_duration,
+                              )}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={styles.date}>
+                            {rentalsService.formatDateTime(rental.due_at)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.amount}>
+                            {rentalsService.formatAmount(rental.amount_paid)}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.paymentStatus} ${getPaymentStatusClass(
+                              rental.payment_status,
+                            )}`}
+                          >
+                            {rentalsService.getPaymentStatusLabel(
+                              rental.payment_status,
+                            )}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={`${styles.status} ${getStatusClass(
+                              rental.status,
+                            )}`}
+                          >
+                            {rentalsService.getStatusLabel(rental.status)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className={styles.pagination}>
+                  <button
+                    onClick={handlePreviousPage}
+                    disabled={currentPage === 1 || loading}
+                    className={styles.paginationBtn}
                   >
-                    {rental.status}
+                    <FiChevronLeft /> Previous
+                  </button>
+                  <span className={styles.pageInfo}>
+                    Page {currentPage} of {totalPages}
                   </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-    </main>
+                  <button
+                    onClick={handleNextPage}
+                    disabled={currentPage === totalPages || loading}
+                    className={styles.paginationBtn}
+                  >
+                    Next <FiChevronRight />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+      </main>
+
+      {/* Rental Detail Modal */}
+      <RentalDetailModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        rentalId={selectedRentalId}
+      />
+    </>
   );
 }

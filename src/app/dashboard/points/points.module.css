@@ -1,0 +1,583 @@
+.pointsPage {
+    display: flex;
+    min-height: 100vh;
+    background: #0a0a0a;
+}
+
+.container {
+    flex: 1;
+    margin-left: 70px;
+    padding: 2rem 3rem;
+    max-width: calc(100% - 70px);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0;
+}
+
+.addButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #47b216;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.addButton:hover {
+    background: #3a9112;
+    transform: translateY(-2px);
+}
+
+.addButton:active {
+    transform: translateY(0);
+}
+
+.successBanner,
+.errorBanner {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    animation: slideDown 0.3s ease;
+}
+
+.successBanner {
+    background: rgba(130, 234, 128, 0.1);
+    border: 1px solid #82ea80;
+    color: #82ea80;
+}
+
+.errorBanner {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background: #121212;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(130, 234, 128, 0.2);
+    border-color: #82ea80;
+}
+
+.statIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+    color: #82ea80;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover .statIcon {
+    background: #47b216;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.statContent {
+    flex: 1;
+}
+
+.statLabel {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+}
+
+.statValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.searchContainer {
+    position: relative;
+    flex: 1;
+    min-width: 250px;
+    max-width: 500px;
+}
+
+.searchIcon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: #82ea80;
+    box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
+}
+
+.refreshBtn {
+    padding: 0.75rem;
+    background: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.refreshBtn:hover {
+    background: #1a1a1a;
+    border-color: #82ea80;
+    transform: rotate(180deg);
+}
+
+.card {
+    background: #121212;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 1.5rem;
+}
+
+.cardHeader {
+    margin-bottom: 1.5rem;
+}
+
+.cardTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.icon {
+    color: #82ea80;
+    font-size: 1.2rem;
+}
+
+.cardSubText {
+    font-size: 0.9rem;
+    color: #888;
+    margin: 0;
+}
+
+.loadingContainer,
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #888;
+}
+
+.spinner {
+    animation: spin 1s linear infinite;
+    color: #82ea80;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.emptyIcon {
+    font-size: 3rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
+
+.clearSearch {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clearSearch:hover {
+    background: #47b216;
+    color: #fff;
+    border-color: #47b216;
+}
+
+.tableWrapper {
+    overflow-x: auto;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead tr {
+    background: #1a1a1a;
+}
+
+.table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #1a1a1a;
+    transition: background 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: #1a1a1a;
+}
+
+.table td {
+    padding: 1rem;
+    color: #ccc;
+    font-size: 0.95rem;
+}
+
+.couponCode {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    font-family: "Courier New", monospace;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.pointsValue {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+.username {
+    color: #82ea80;
+    font-weight: 600;
+}
+
+.pointsEarned {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: rgba(130, 234, 128, 0.1);
+    border: 1px solid #82ea80;
+    border-radius: 6px;
+    color: #82ea80;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.pointsRedeemed {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid #ff6b6b;
+    border-radius: 6px;
+    color: #ff6b6b;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.transactionType {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.description {
+    color: #aaa;
+}
+
+.date {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.editBtn,
+.deleteBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    background: transparent;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.editBtn:hover {
+    background: #82ea80;
+    color: #121212;
+    border-color: #82ea80;
+}
+
+.deleteBtn {
+    color: #ff6b6b;
+}
+
+.deleteBtn:hover {
+    background: #ff6b6b;
+    color: #fff;
+    border-color: #ff6b6b;
+}
+
+.deleteBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Tablet Responsive (1024px and below) */
+@media (max-width: 1024px) {
+    .container {
+        margin-left: 60px;
+        max-width: calc(100% - 60px);
+        padding: 1.5rem 2rem;
+    }
+
+    .title {
+        font-size: 1.75rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.25rem;
+    }
+
+    .statIcon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.7rem;
+    }
+
+    .statValue {
+        font-size: 1.65rem;
+    }
+}
+
+/* Mobile (768px and below) */
+@media (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .addButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .searchContainer {
+        max-width: 100%;
+    }
+
+    .refreshBtn {
+        width: 100%;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .statIcon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.6rem;
+    }
+
+    .statValue {
+        font-size: 1.5rem;
+    }
+
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.75rem 0.5rem;
+    }
+}
+
+/* Mobile Portrait (480px and below) */
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+
+    .statCard {
+        padding: 1rem;
+    }
+
+    .statIcon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+
+    .statValue {
+        font-size: 1.4rem;
+    }
+
+    .tableWrapper {
+        overflow-x: scroll;
+    }
+
+    .table {
+        min-width: 700px;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.625rem 0.375rem;
+        font-size: 0.8rem;
+    }
+}

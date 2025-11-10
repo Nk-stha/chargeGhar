@@ -16,6 +16,12 @@
 .subtitle {
     font-size: 0.9rem;
     color: #82ea80;
+    transition: all 0.3s ease;
+}
+
+.subtitle:hover {
+    color: #47b216;
+    text-decoration: underline;
 }
 
 .list {
@@ -83,7 +89,8 @@
 }
 
 .loading,
-.error {
+.error,
+.noData {
     text-align: center;
     color: #888;
     padding: 2rem;

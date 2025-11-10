@@ -40,6 +40,7 @@ export const DashboardDataProvider: React.FC<{ children: ReactNode }> = ({
   const fetchDashboardData = async () => {
     try {
       const response = await instance.get("/api/admin/dashboard");
+      // console.log(response);
       if (response.data.success) {
         setDashboardData(response.data.data);
       } else {
