@@ -57,30 +57,6 @@ const RentalOverTime: React.FC = () => {
     setPeriod(newPeriod);
   };
 
-<<<<<<< HEAD
-            <div className={styles.chartContainer}>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={rentalsData} barSize={20}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
-                        <XAxis dataKey="date" stroke="#1a1a1a" />
-                        <YAxis stroke="#1a1a1a" />
-                        <Tooltip
-                            contentStyle={{
-                                backgroundColor: "#0f0f0f",
-                                border: "1px solid #333",
-                                borderRadius: "8px",
-                                color: "#e0e0e0",
-                                fontSize: "0.85rem",
-                            }}
-                            cursor={{ fill: "rgba(130, 234, 128, 0.08)" }}
-                            labelStyle={{ color: "#82ea80" }}
-                        />
-
-                        <Bar dataKey="rentals" fill="#82ea80" radius={[5, 5, 0, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-=======
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -93,7 +69,6 @@ const RentalOverTime: React.FC = () => {
               </p>
             ))}
           </div>
->>>>>>> 4c9b8e4282d85e451d8f0a7c2f38dcb7bf6477cf
         </div>
       );
     }

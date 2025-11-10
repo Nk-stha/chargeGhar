@@ -154,7 +154,7 @@
     margin-bottom: 0.75rem;
 }
 
-.welcomeCard > p {
+.welcomeCard>p {
     color: #aaa;
     font-size: 1rem;
     margin-bottom: 2rem;
@@ -268,7 +268,7 @@
         font-size: 1.5rem;
     }
 
-    .welcomeCard > p {
+    .welcomeCard>p {
         font-size: 0.9rem;
     }
 
@@ -363,7 +363,6 @@
     font-weight: 400;
 }
 
-<<<<<<< HEAD
 .active {
     display: flex;
     gap: 1rem;
@@ -504,7 +503,7 @@
 .container form::-webkit-scrollbar-thumb:hover {
     background: #47b216;
 }
-=======
+
 .tab.tabActive .tabDescription {
     color: #b8f5b8;
 }
@@ -519,6 +518,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -569,4 +569,3 @@
         font-size: 0.7rem;
     }
 }
->>>>>>> 4c9b8e4282d85e451d8f0a7c2f38dcb7bf6477cf

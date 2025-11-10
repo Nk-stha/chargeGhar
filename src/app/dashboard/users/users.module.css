@@ -1,12 +1,11 @@
 .container {
     color: #fff;
     background-color: #0b0b0b;
+    margin-left: 1rem;
+    padding: 2rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 5rem;
-    margin-left: 3rem;
-    margin-top: 2rem;
 }
 
 .title {
