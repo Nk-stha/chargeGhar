@@ -21,12 +21,13 @@ class StationsService {
    * Get list of all stations with optional filters
    */
   async getStations(
-    filters?: StationFilters
+    filters?: StationFilters,
   ): Promise<ApiResponse<StationsListResponse>> {
     const params = new URLSearchParams();
 
     if (filters?.page) params.append("page", filters.page.toString());
-    if (filters?.page_size) params.append("page_size", filters.page_size.toString());
+    if (filters?.page_size)
+      params.append("page_size", filters.page_size.toString());
     if (filters?.search) params.append("search", filters.search);
     if (filters?.status) params.append("status", filters.status);
     if (filters?.is_maintenance !== undefined)
@@ -46,8 +47,33 @@ class StationsService {
    */
   async getStation(stationSn: string): Promise<ApiResponse<StationDetail>> {
     const response = await instance.get<ApiResponse<StationDetail>>(
-      `${this.baseUrl}/${stationSn}`
+      `${this.baseUrl}/${stationSn}`,
     );
+
+    // Calculate derived fields from slots and powerbanks data
+    if (response.data.data) {
+      const station = response.data.data;
+
+      // Calculate available and occupied slots from slots array
+      const availableSlots =
+        station.slots?.filter((slot) => slot.status === "AVAILABLE").length ||
+        0;
+      const occupiedSlots =
+        station.slots?.filter((slot) => slot.status === "OCCUPIED").length || 0;
+
+      // Calculate powerbank statistics
+      const totalPowerbanks = station.powerbanks?.length || 0;
+      const availablePowerbanks =
+        station.powerbanks?.filter((pb) => pb.status === "AVAILABLE").length ||
+        0;
+
+      // Add calculated fields to response
+      (response.data.data as any).available_slots = availableSlots;
+      (response.data.data as any).occupied_slots = occupiedSlots;
+      (response.data.data as any).total_powerbanks = totalPowerbanks;
+      (response.data.data as any).available_powerbanks = availablePowerbanks;
+    }
+
     return response.data;
   }
 
@@ -55,7 +81,7 @@ class StationsService {
    * Create new station
    */
   async createStation(
-    data: CreateStationInput
+    data: CreateStationInput,
   ): Promise<ApiResponse<StationDetail>> {
     const requestBody = {
       station_name: data.station_name,
@@ -70,7 +96,7 @@ class StationsService {
       is_maintenance: data.is_maintenance,
       hardware_info: data.hardware_info || {},
       amenity_ids: data.amenity_ids || [],
-      media_ids: data.media_ids || [],
+      media_uploads: data.media_uploads || [],
     };
 
     const response = await instance.post<ApiResponse<StationDetail>>(
@@ -80,7 +106,7 @@ class StationsService {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
     return response.data;
   }
@@ -90,7 +116,7 @@ class StationsService {
    */
   async updateStation(
     stationSn: string,
-    data: UpdateStationInput
+    data: UpdateStationInput,
   ): Promise<ApiResponse<Station>> {
     const formData = new FormData();
 
@@ -100,20 +126,34 @@ class StationsService {
       formData.append("latitude", data.latitude.toString());
     if (data.longitude !== undefined)
       formData.append("longitude", data.longitude.toString());
-    if (data.address !== undefined)
-      formData.append("address", data.address);
-    if (data.landmark !== undefined)
-      formData.append("landmark", data.landmark);
-    if (data.status !== undefined)
-      formData.append("status", data.status);
+    if (data.address !== undefined) formData.append("address", data.address);
+    if (data.landmark !== undefined) formData.append("landmark", data.landmark);
+    if (data.status !== undefined) formData.append("status", data.status);
     if (data.is_maintenance !== undefined)
       formData.append("is_maintenance", data.is_maintenance.toString());
     if (data.hardware_info !== undefined)
       formData.append("hardware_info", JSON.stringify(data.hardware_info));
-    if (data.amenity_ids !== undefined)
-      formData.append("amenity_ids", JSON.stringify(data.amenity_ids));
-    if (data.media_ids !== undefined)
-      formData.append("media_ids", JSON.stringify(data.media_ids));
+
+    // Append array items individually for proper FormData handling
+    if (data.amenity_ids !== undefined) {
+      if (data.amenity_ids.length > 0) {
+        data.amenity_ids.forEach((id) => {
+          formData.append("amenity_ids", id);
+        });
+      } else {
+        // Send empty array as JSON string to clear amenities
+        formData.append("amenity_ids", "[]");
+      }
+    }
+
+    if (data.media_uploads !== undefined) {
+      if (data.media_uploads.length > 0) {
+        formData.append("media_uploads", JSON.stringify(data.media_uploads));
+      } else {
+        // Send empty array as JSON string to clear media
+        formData.append("media_uploads", "[]");
+      }
+    }
 
     const response = await instance.patch<ApiResponse<Station>>(
       `${this.baseUrl}/${stationSn}`,
@@ -122,7 +162,7 @@ class StationsService {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     return response.data;
   }
@@ -131,10 +171,10 @@ class StationsService {
    * Delete station (soft delete)
    */
   async deleteStation(
-    stationSn: string
+    stationSn: string,
   ): Promise<ApiResponse<{ message: string }>> {
     const response = await instance.delete<ApiResponse<{ message: string }>>(
-      `${this.baseUrl}/${stationSn}`
+      `${this.baseUrl}/${stationSn}`,
     );
     return response.data;
   }
@@ -143,7 +183,7 @@ class StationsService {
    * Get online stations only (helper method)
    */
   async getOnlineStations(
-    filters?: Omit<StationFilters, "status">
+    filters?: Omit<StationFilters, "status">,
   ): Promise<ApiResponse<StationsListResponse>> {
     return this.getStations({ ...filters, status: "ONLINE" });
   }
@@ -152,7 +192,7 @@ class StationsService {
    * Get offline stations only (helper method)
    */
   async getOfflineStations(
-    filters?: Omit<StationFilters, "status">
+    filters?: Omit<StationFilters, "status">,
   ): Promise<ApiResponse<StationsListResponse>> {
     return this.getStations({ ...filters, status: "OFFLINE" });
   }
@@ -161,7 +201,7 @@ class StationsService {
    * Get stations in maintenance (helper method)
    */
   async getMaintenanceStations(
-    filters?: Omit<StationFilters, "is_maintenance">
+    filters?: Omit<StationFilters, "is_maintenance">,
   ): Promise<ApiResponse<StationsListResponse>> {
     return this.getStations({ ...filters, is_maintenance: true });
   }
@@ -171,7 +211,7 @@ class StationsService {
    */
   async searchStations(
     query: string,
-    filters?: Omit<StationFilters, "search">
+    filters?: Omit<StationFilters, "search">,
   ): Promise<ApiResponse<StationsListResponse>> {
     return this.getStations({ ...filters, search: query });
   }
@@ -186,12 +226,18 @@ class StationsService {
     const errors: string[] = [];
 
     // Validate station name
-    if (data.station_name !== undefined && data.station_name.trim().length < 3) {
+    if (
+      data.station_name !== undefined &&
+      data.station_name.trim().length < 3
+    ) {
       errors.push("Station name must be at least 3 characters long");
     }
 
     // Validate serial number
-    if (data.serial_number !== undefined && data.serial_number.trim().length === 0) {
+    if (
+      data.serial_number !== undefined &&
+      data.serial_number.trim().length === 0
+    ) {
       errors.push("Serial number is required");
     }
 
@@ -236,10 +282,18 @@ class StationsService {
   /**
    * Calculate station utilization percentage
    */
-  calculateUtilization(station: Station): number {
+  calculateUtilization(station: Station | StationDetail): number {
     if (station.total_slots === 0) return 0;
+
+    // Calculate from slots if available_slots is not present
+    const availableSlots =
+      station.available_slots !== undefined
+        ? station.available_slots
+        : station.slots?.filter((slot) => slot.status === "AVAILABLE").length ||
+          0;
+
     return Math.round(
-      ((station.total_slots - station.available_slots) / station.total_slots) * 100
+      ((station.total_slots - availableSlots) / station.total_slots) * 100,
     );
   }
 
@@ -279,7 +333,8 @@ class StationsService {
 
     const lastHeartbeat = new Date(station.last_heartbeat);
     const now = new Date();
-    const hoursSinceHeartbeat = (now.getTime() - lastHeartbeat.getTime()) / (1000 * 60 * 60);
+    const hoursSinceHeartbeat =
+      (now.getTime() - lastHeartbeat.getTime()) / (1000 * 60 * 60);
 
     // If no heartbeat in 24 hours, needs maintenance
     return hoursSinceHeartbeat > 24;

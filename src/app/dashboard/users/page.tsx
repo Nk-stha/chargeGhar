@@ -53,6 +53,7 @@ export default function UsersPage() {
     refetchProfiles,
     refetchUsers,
   } = useDashboardData();
+  const [activeTab, setActiveTab] = useState<"admin" | "users">("admin");
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<keyof User>("id");
@@ -262,356 +263,392 @@ export default function UsersPage() {
         </p>
       </header>
 
-      <div className={styles.addButtonWrapper}>
-        <button className={styles.addButton} onClick={() => setShowModal(true)}>
-          + Add Admin
-        </button>
+      {/* Tab Navigation */}
+      <div className={styles.tabContainer}>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === "admin" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("admin")}
+          >
+            <FiShield className={styles.tabIcon} />
+            <span className={styles.tabText}>Admin Users</span>
+            <span className={styles.tabBadge}>{admins.length}</span>
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === "users" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("users")}
+          >
+            <FiUsers className={styles.tabIcon} />
+            <span className={styles.tabText}>Regular Users</span>
+            <span className={styles.tabBadge}>{users.length}</span>
+          </button>
+        </div>
+        {activeTab === "admin" && (
+          <div className={styles.addButtonWrapper}>
+            <button
+              className={styles.addButton}
+              onClick={() => setShowModal(true)}
+            >
+              + Add Admin
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Admin Users Table */}
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div className={styles.cardTitle}>
-            <FiShield className={styles.icon} /> Admin Users
+      {activeTab === "admin" && (
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardTitle}>
+              <FiShield className={styles.icon} /> Admin Users
+            </div>
+            <p className={styles.cardSubText}>
+              Manage admins and their permissions
+            </p>
           </div>
-          <p className={styles.cardSubText}>
-            Manage admins and their permissions
-          </p>
-        </div>
 
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Status</th>
-              <th>Created Date</th>
-              <th>Created By</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {admins.length === 0 ? (
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td
-                  colSpan={8}
-                  style={{
-                    textAlign: "center",
-                    padding: "2rem",
-                    color: "#888",
-                  }}
-                >
-                  No admins found
-                </td>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+                <th></th>
               </tr>
-            ) : (
-              admins.map((admin: AdminProfile) => (
-                <tr
-                  key={admin.id}
-                  onClick={() => handleAdminClick(admin.id)}
-                  style={{ cursor: "pointer" }}
-                  className={styles.clickableRow}
-                >
-                  <td>{admin.id.slice(0, 8)}...</td>
-                  <td>{admin.username}</td>
-                  <td>{admin.email}</td>
-                  <td>
-                    <span
-                      style={{
-                        textTransform: "capitalize",
-                        color: admin.is_super_admin ? "#82ea80" : "#ccc",
-                      }}
-                    >
-                      {admin.role.replace("_", " ")}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={
-                        admin.is_active
-                          ? styles.statusActive
-                          : styles.statusInactive
-                      }
-                    >
-                      {admin.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                  <td>{new Date(admin.created_at).toLocaleDateString()}</td>
-                  <td>{admin.created_by_username}</td>
-                  <td onClick={(e) => e.stopPropagation()}>
-                    <button className={styles.deleteBtn} title="Manage admin">
-                      <FiShield />
-                    </button>
+            </thead>
+            <tbody>
+              {admins.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      textAlign: "center",
+                      padding: "2rem",
+                      color: "#888",
+                    }}
+                  >
+                    No admins found
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
+              ) : (
+                admins.map((admin: AdminProfile) => (
+                  <tr
+                    key={admin.id}
+                    onClick={() => handleAdminClick(admin.id)}
+                    style={{ cursor: "pointer" }}
+                    className={styles.clickableRow}
+                  >
+                    <td>{admin.id.slice(0, 8)}...</td>
+                    <td>{admin.username}</td>
+                    <td>{admin.email}</td>
+                    <td>
+                      <span
+                        style={{
+                          textTransform: "capitalize",
+                          color: admin.is_super_admin ? "#82ea80" : "#ccc",
+                        }}
+                      >
+                        {admin.role.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          admin.is_active
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }
+                      >
+                        {admin.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td>{new Date(admin.created_at).toLocaleDateString()}</td>
+                    <td>{admin.created_by_username}</td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <button className={styles.deleteBtn} title="Manage admin">
+                        <FiShield />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       {/* USER CONTROLS */}
-      <div className={styles.controls}>
-        {/* SEARCH */}
-        <div style={{ position: "relative", width: "240px" }}>
-          <FiSearch
-            style={{
-              position: "absolute",
-              left: "0.75rem",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "#777",
-              fontSize: "1rem",
-            }}
-          />
-          <input
-            className={styles.search}
-            placeholder="Search users..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{
-              paddingLeft: "2.5rem",
-              paddingRight: search ? "2rem" : "1rem",
-            }}
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
+      {activeTab === "users" && (
+        <div className={styles.controls}>
+          {/* SEARCH */}
+          <div style={{ position: "relative", width: "240px" }}>
+            <FiSearch
               style={{
                 position: "absolute",
-                right: "0.75rem",
+                left: "0.75rem",
                 top: "50%",
                 transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                color: "#aaa",
-                fontSize: "1.2rem",
-                cursor: "pointer",
-                padding: 0,
+                color: "#777",
+                fontSize: "1rem",
               }}
-              title="Clear search"
-            >
-              ×
-            </button>
-          )}
-        </div>
-
-        {/* SORT BY BUTTON */}
-        <div style={{ position: "relative" }}>
-          <button
-            className={styles.sortBtn}
-            onClick={() => setShowSortMenu((s) => !s)}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              padding: "0.5rem 1rem",
-            }}
-          >
-            <FiArrowDown style={{ fontSize: "1rem" }} />
-            Sort By
-            <FiChevronDown
-              style={{ fontSize: "0.8rem", marginLeft: "0.25rem" }}
             />
-          </button>
-
-          {/* SORT OPTIONS */}
-          {showSortMenu && (
-            <div
+            <input
+              className={styles.search}
+              placeholder="Search users..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                background: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                borderRadius: "8px",
-                minWidth: "180px",
-                zIndex: 10,
-                marginTop: "0.5rem",
-                boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
-                overflow: "hidden",
+                paddingLeft: "2.5rem",
+                paddingRight: search ? "2rem" : "1rem",
+              }}
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                style={{
+                  position: "absolute",
+                  right: "0.75rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "#aaa",
+                  fontSize: "1.2rem",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+                title="Clear search"
+              >
+                ×
+              </button>
+            )}
+          </div>
+
+          {/* SORT BY BUTTON */}
+          <div style={{ position: "relative" }}>
+            <button
+              className={styles.sortBtn}
+              onClick={() => setShowSortMenu((s) => !s)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.5rem 1rem",
               }}
             >
-              {sortOptions.map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => handleSortSelect(opt.key)}
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    textAlign: "left",
-                    background: sortKey === opt.key ? "#333" : "transparent",
-                    color: sortKey === opt.key ? "#fff" : "#ccc",
-                    border: "none",
-                    fontSize: "0.9rem",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    transition: "all 0.2s",
-                  }}
-                  onMouseEnter={(e) => {
-                    if (sortKey !== opt.key) {
-                      e.currentTarget.style.backgroundColor = "#2a2a2a";
-                      e.currentTarget.style.color = "#32cd32";
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (sortKey !== opt.key) {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                      e.currentTarget.style.color = "#ccc";
-                    }
-                  }}
-                >
-                  <span>{opt.label}</span>
-                  {sortKey === opt.key && (
-                    <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                      {sortDir === "asc" ? <FiChevronUp /> : <FiChevronDown />}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+              <FiArrowDown style={{ fontSize: "1rem" }} />
+              Sort By
+              <FiChevronDown
+                style={{ fontSize: "0.8rem", marginLeft: "0.25rem" }}
+              />
+            </button>
+
+            {/* SORT OPTIONS */}
+            {showSortMenu && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "100%",
+                  right: 0,
+                  background: "#1a1a1a",
+                  border: "1px solid #2a2a2a",
+                  borderRadius: "8px",
+                  minWidth: "180px",
+                  zIndex: 10,
+                  marginTop: "0.5rem",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                  overflow: "hidden",
+                }}
+              >
+                {sortOptions.map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => handleSortSelect(opt.key)}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem 1rem",
+                      textAlign: "left",
+                      background: sortKey === opt.key ? "#333" : "transparent",
+                      color: sortKey === opt.key ? "#fff" : "#ccc",
+                      border: "none",
+                      fontSize: "0.9rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      transition: "all 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (sortKey !== opt.key) {
+                        e.currentTarget.style.backgroundColor = "#2a2a2a";
+                        e.currentTarget.style.color = "#32cd32";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (sortKey !== opt.key) {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                        e.currentTarget.style.color = "#ccc";
+                      }
+                    }}
+                  >
+                    <span>{opt.label}</span>
+                    {sortKey === opt.key && (
+                      <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
+                        {sortDir === "asc" ? (
+                          <FiChevronUp />
+                        ) : (
+                          <FiChevronDown />
+                        )}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Users Table */}
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div className={styles.cardTitle}>
-            <FiUsers className={styles.icon} /> Users
+      {activeTab === "users" && (
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardTitle}>
+              <FiUsers className={styles.icon} /> Users
+            </div>
+            <p className={styles.cardSubText}>Manage users</p>
           </div>
-          <p className={styles.cardSubText}>Manage users</p>
-        </div>
 
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Username</th>
-              <th>Referral Code</th>
-              <th>Provider</th>
-              <th>Profile Status</th>
-              <th>KYC Status</th>
-              <th>Status</th>
-              <th>Created Date</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedUsers.length === 0 ? (
+          <table className={styles.table}>
+            <thead>
               <tr>
-                <td
-                  colSpan={9}
-                  style={{
-                    textAlign: "center",
-                    padding: "2rem",
-                    color: "#888",
-                    fontStyle: "italic",
-                  }}
-                >
-                  {search ? "No users match your search." : "No users found."}
-                </td>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Referral Code</th>
+                <th>Provider</th>
+                <th>Profile Status</th>
+                <th>KYC Status</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th></th>
               </tr>
-            ) : (
-              displayedUsers.map((user) => (
-                <tr key={user.id}>
-                  <td>{user.id}</td>
-                  <td>{user.username}</td>
-                  <td>{user.referral_code || "—"}</td>
-                  <td>
-                    <span style={{ textTransform: "capitalize" }}>
-                      {user.social_provider.toLowerCase()}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      style={{
-                        color: user.profile_complete ? "#32cd32" : "#ff8c00",
-                      }}
-                    >
-                      {user.profile_complete ? "Complete" : "Incomplete"}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      style={{
-                        color:
-                          user.kyc_status === "APPROVED"
-                            ? "#32cd32"
-                            : user.kyc_status === "PENDING"
-                              ? "#ff8c00"
-                              : "#888",
-                      }}
-                    >
-                      {user.kyc_status.replace("_", " ")}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={
-                        user.status === "ACTIVE"
-                          ? styles.statusActive
-                          : styles.statusInactive
-                      }
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td>{new Date(user.date_joined).toLocaleDateString()}</td>
-                  <td>
-                    <div style={{ display: "flex", gap: "0.5rem" }}>
-                      <button
-                        onClick={() => handleOpenAddBalance(user)}
-                        title="Add Balance"
-                        style={{
-                          padding: "0.4rem 0.6rem",
-                          background: "rgba(130, 234, 128, 0.1)",
-                          border: "1px solid #82ea80",
-                          borderRadius: "6px",
-                          color: "#82ea80",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.3rem",
-                          fontSize: "0.85rem",
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        <FiDollarSign size={14} />
-                        Add Balance
-                      </button>
-                      <button
-                        onClick={() => handleOpenStatusModal(user)}
-                        title="Update Status"
-                        style={{
-                          padding: "0.4rem 0.6rem",
-                          background: "rgba(255, 165, 0, 0.1)",
-                          border: "1px solid #ffa500",
-                          borderRadius: "6px",
-                          color: "#ffa500",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.3rem",
-                          fontSize: "0.85rem",
-                          transition: "all 0.2s",
-                        }}
-                      >
-                        <FiUserCheck size={14} />
-                        Status
-                      </button>
-                    </div>
+            </thead>
+            <tbody>
+              {displayedUsers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={9}
+                    style={{
+                      textAlign: "center",
+                      padding: "2rem",
+                      color: "#888",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    {search ? "No users match your search." : "No users found."}
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
+              ) : (
+                displayedUsers.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>{user.username}</td>
+                    <td>{user.referral_code || "—"}</td>
+                    <td>
+                      <span style={{ textTransform: "capitalize" }}>
+                        {user.social_provider.toLowerCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          color: user.profile_complete ? "#32cd32" : "#ff8c00",
+                        }}
+                      >
+                        {user.profile_complete ? "Complete" : "Incomplete"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          color:
+                            user.kyc_status === "APPROVED"
+                              ? "#32cd32"
+                              : user.kyc_status === "PENDING"
+                                ? "#ff8c00"
+                                : "#888",
+                        }}
+                      >
+                        {user.kyc_status.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          user.status === "ACTIVE"
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button
+                          onClick={() => handleOpenAddBalance(user)}
+                          title="Add Balance"
+                          style={{
+                            padding: "0.4rem 0.6rem",
+                            background: "rgba(130, 234, 128, 0.1)",
+                            border: "1px solid #82ea80",
+                            borderRadius: "6px",
+                            color: "#82ea80",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.85rem",
+                            transition: "all 0.2s",
+                          }}
+                        >
+                          <FiDollarSign size={14} />
+                          Add Balance
+                        </button>
+                        <button
+                          onClick={() => handleOpenStatusModal(user)}
+                          title="Update Status"
+                          style={{
+                            padding: "0.4rem 0.6rem",
+                            background: "rgba(255, 165, 0, 0.1)",
+                            border: "1px solid #ffa500",
+                            borderRadius: "6px",
+                            color: "#ffa500",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.85rem",
+                            transition: "all 0.2s",
+                          }}
+                        >
+                          <FiUserCheck size={14} />
+                          Status
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
+      )}
 
       {showModal && (
         <AddAdminModal

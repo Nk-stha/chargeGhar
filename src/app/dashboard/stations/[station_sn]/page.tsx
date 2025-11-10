@@ -236,11 +236,17 @@ export default function StationDetailsPage() {
             </div>
             <div className={styles.row}>
               <label>Available Slots:</label>
-              <span>{station.available_slots}</span>
+              <span>
+                {station.slots?.filter((s) => s.status === "AVAILABLE")
+                  .length || 0}
+              </span>
             </div>
             <div className={styles.row}>
               <label>Occupied Slots:</label>
-              <span>{station.occupied_slots}</span>
+              <span>
+                {station.slots?.filter((s) => s.status === "OCCUPIED").length ||
+                  0}
+              </span>
             </div>
           </div>
         </div>
@@ -330,21 +336,50 @@ export default function StationDetailsPage() {
           <div className={styles.cardContent}>
             <div className={styles.row}>
               <label>Total Powerbanks:</label>
-              <span>{station.total_powerbanks || 0}</span>
+              <span>{station.powerbanks?.length || 0}</span>
             </div>
             <div className={styles.row}>
               <label>Available Powerbanks:</label>
-              <span>{station.available_powerbanks || 0}</span>
+              <span>
+                {station.powerbanks?.filter((pb) => pb.status === "AVAILABLE")
+                  .length || 0}
+              </span>
             </div>
             <div className={styles.row}>
               <label>Rented Powerbanks:</label>
               <span>
-                {(station.total_powerbanks || 0) -
-                  (station.available_powerbanks || 0)}
+                {station.powerbanks?.filter((pb) => pb.status === "RENTED")
+                  .length || 0}
               </span>
             </div>
           </div>
         </div>
+
+        {/* Media/Images Card */}
+        {station.media && station.media.length > 0 && (
+          <div className={styles.card}>
+            <h2 className={styles.cardTitle}>Station Images</h2>
+            <div className={styles.cardContent}>
+              <div className={styles.mediaGrid}>
+                {station.media.map((media) => (
+                  <div key={media.id} className={styles.mediaItem}>
+                    <img
+                      src={media.thumbnail_url || media.file_url}
+                      alt={media.title}
+                      className={styles.mediaImage}
+                    />
+                    <div className={styles.mediaInfo}>
+                      <span className={styles.mediaTitle}>{media.title}</span>
+                      {media.is_primary && (
+                        <span className={styles.primaryBadge}>Primary</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Amenities Card */}
         {station.amenities && station.amenities.length > 0 && (
@@ -352,15 +387,11 @@ export default function StationDetailsPage() {
             <h2 className={styles.cardTitle}>Amenities</h2>
             <div className={styles.cardContent}>
               <div className={styles.amenitiesList}>
-                {station.amenities.map((amenity, index) => {
-                  const amenityName =
-                    typeof amenity === "string" ? amenity : amenity.name;
-                  return (
-                    <span key={index} className={styles.amenityTag}>
-                      {amenityName}
-                    </span>
-                  );
-                })}
+                {station.amenities.map((amenity) => (
+                  <span key={amenity.id} className={styles.amenityTag}>
+                    {amenity.name}
+                  </span>
+                ))}
               </div>
             </div>
           </div>

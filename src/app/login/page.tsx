@@ -9,7 +9,7 @@ import axios from "axios";
 const getCookie = (name: string): string | null => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
   return null;
 };
 
@@ -28,15 +28,15 @@ const Login: React.FC = () => {
     setError(null);
 
     try {
-      const csrfToken = getCookie('csrftoken');
+      const csrfToken = getCookie("csrftoken");
       const response = await axios.post(
         "/api/login",
         { email, password },
         {
           headers: {
-            'X-CSRFTOKEN': csrfToken,
+            "X-CSRFTOKEN": csrfToken,
           },
-        }
+        },
       );
       if (response.data.data.access_token) {
         localStorage.setItem("accessToken", response.data.data.access_token);

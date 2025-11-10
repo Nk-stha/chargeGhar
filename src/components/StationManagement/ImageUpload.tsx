@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import { FiUpload, FiX, FiImage, FiCheck } from "react-icons/fi";
+import { FiUpload, FiX, FiImage, FiCheck, FiLoader } from "react-icons/fi";
 import mediaService from "../../lib/api/media.service";
 import { Media, MediaFileType } from "../../types/station.types";
 import styles from "./ImageUpload.module.css";
@@ -30,10 +30,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
   description = "Click or drag and drop to upload",
 }) => {
   const [uploading, setUploading] = useState(false);
-  const [previews, setPreviews] = useState<{ file: File; preview: string }[]>([]);
+  const [previews, setPreviews] = useState<{ file: File; preview: string }[]>(
+    [],
+  );
   const [uploadedMedia, setUploadedMedia] = useState<Media[]>(existingImages);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [deletingMediaId, setDeletingMediaId] = useState<string | null>(null);
 
   useEffect(() => {
     setUploadedMedia(existingImages);
@@ -106,7 +109,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
       setPreviews((prev) => [...prev, ...newPreviews]);
     },
-    [uploadedMedia.length, previews.length, maxFiles]
+    [uploadedMedia.length, previews.length, maxFiles],
   );
 
   const handleUpload = async () => {
@@ -117,7 +120,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
 
     try {
       for (const { file } of previews) {
-        const response = await mediaService.uploadMedia({ file, file_type: fileType });
+        const response = await mediaService.uploadMedia({
+          file,
+          file_type: fileType,
+        });
 
         if (response.success) {
           setUploadedMedia((prev) => [...prev, response.data]);
@@ -155,9 +161,35 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     });
   };
 
-  const handleRemoveUploaded = (mediaId: string) => {
-    setUploadedMedia((prev) => prev.filter((m) => m.id !== mediaId));
-    onRemove?.(mediaId);
+  const handleRemoveUploaded = async (mediaId: string) => {
+    const media = uploadedMedia.find((m) => m.id === mediaId);
+    if (!media) return;
+
+    // Confirm deletion
+    if (
+      !confirm(
+        `Are you sure you want to delete "${media.title || "this image"}"?`,
+      )
+    ) {
+      return;
+    }
+
+    setDeletingMediaId(mediaId);
+    setError(null);
+
+    try {
+      // Call API to delete media from server
+      await mediaService.deleteMedia(media.media_upload_id);
+
+      // Remove from local state
+      setUploadedMedia((prev) => prev.filter((m) => m.id !== mediaId));
+      onRemove?.(mediaId);
+    } catch (err: any) {
+      console.error("Delete media error:", err);
+      setError(err.response?.data?.message || "Failed to delete image");
+    } finally {
+      setDeletingMediaId(null);
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -259,14 +291,27 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           <div className={styles.uploadedGrid}>
             {uploadedMedia.map((media) => (
               <div key={media.id} className={styles.uploadedItem}>
-                <img src={media.file_url} alt={media.original_name} />
+                <img
+                  src={media.thumbnail_url || media.file_url}
+                  alt={media.title || media.original_name || "Station image"}
+                />
                 <button
                   className={styles.removeButton}
                   onClick={() => handleRemoveUploaded(media.id)}
+                  disabled={deletingMediaId === media.id}
                 >
-                  <FiX />
+                  {deletingMediaId === media.id ? (
+                    <FiLoader className={styles.spinner} />
+                  ) : (
+                    <FiX />
+                  )}
                 </button>
-                <div className={styles.fileName}>{media.original_name}</div>
+                <div className={styles.fileName}>
+                  {media.title || media.original_name || "Untitled"}
+                </div>
+                {media.is_primary && (
+                  <div className={styles.primaryBadge}>Primary</div>
+                )}
               </div>
             ))}
           </div>
