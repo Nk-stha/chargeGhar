@@ -1,14 +1,14 @@
 .container {
     color: #fff;
     background-color: #0b0b0b;
+    margin-left: 1rem;
+    padding: 2rem;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 5rem;
-    margin-left: 3rem;
-    margin-top: 2rem;
 }
 
+/* ---------- Typography ---------- */
 .title {
     font-size: 2rem;
     font-weight: 600;
@@ -111,8 +111,15 @@
     border-radius: 9999px;
     border: none;
     cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
+.addButton:hover {
+    background-color: #46e246;
+    transform: translateY(-1px);
+}
+
+/* ---------- Card ---------- */
 .card {
     background-color: #121212;
     border: 1px solid #2a2a2a;
@@ -140,6 +147,7 @@
     color: #8c8c8c;
 }
 
+/* ---------- Table ---------- */
 .table {
     width: 100%;
     border-collapse: collapse;
@@ -161,6 +169,7 @@
     border-top: 1px solid #2a2a2a;
 }
 
+/* ---------- Status Styles ---------- */
 .statusActive {
     color: #00ff99;
     font-weight: 500;
@@ -171,14 +180,7 @@
     font-weight: 500;
 }
 
-.deleteBtn {
-    background: transparent;
-    border: none;
-    color: #ff4d4d;
-    cursor: pointer;
-    font-size: 1.1rem;
-}
-
+/* ---------- Controls ---------- */
 .controls {
     display: flex;
     justify-content: space-between;
@@ -209,13 +211,33 @@
     color: #ccc;
     font-size: 0.9rem;
     cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.sortBtn:hover {
+    color: #82ea80;
 }
 
 .icon {
     font-size: 1rem;
 }
 
-/* Clickable Row Styles */
+/* ---------- Buttons ---------- */
+.deleteBtn {
+    background: transparent;
+    border: none;
+    color: #ff4d4d;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.deleteBtn:hover {
+    transform: scale(1.1);
+    color: #ff6666;
+}
+
+/* ---------- Clickable Row ---------- */
 .clickableRow {
     cursor: pointer;
     transition: all 0.2s ease;

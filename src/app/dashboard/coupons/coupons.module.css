@@ -2,9 +2,9 @@
     background-color: #0f0f0f;
     color: white;
     min-height: 100vh;
+    margin-left: 1rem;
     padding: 2rem;
     font-family: "Poppins", sans-serif;
-    margin-left: 30px;
 }
 
 .header {
@@ -78,6 +78,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -376,6 +377,7 @@
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
     }
@@ -417,6 +419,7 @@
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);

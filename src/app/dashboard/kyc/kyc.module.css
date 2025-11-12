@@ -4,9 +4,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: 5rem;
-    margin-left: 3rem;
-    margin-top: 2rem;
+    margin-left: 1rem;
+    padding: 2rem;
 }
 
 .header {
@@ -43,6 +42,7 @@
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }

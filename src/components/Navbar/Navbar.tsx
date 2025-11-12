@@ -264,9 +264,8 @@ const Navbar: React.FC = () => {
 
       {/* Navbar */}
       <nav
-        className={`${styles.navbar} ${hovered ? styles.expanded : ""} ${
-          mobileOpen ? styles.mobileOpen : ""
-        }`}
+        className={`${styles.navbar} ${hovered ? styles.expanded : ""} ${mobileOpen ? styles.mobileOpen : ""
+          }`}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -288,9 +287,8 @@ const Navbar: React.FC = () => {
                   >
                     {/* Parent Item with Submenu */}
                     <div
-                      className={`${styles.navItem} ${styles.parentItem} ${
-                        itemIsActive ? styles.active : ""
-                      }`}
+                      className={`${styles.navItem} ${styles.parentItem} ${itemIsActive ? styles.active : ""
+                        }`}
                       onClick={() => mobileOpen && toggleExpanded(item.label)}
                     >
                       <span className={styles.icon}>{item.icon}</span>
@@ -306,9 +304,8 @@ const Navbar: React.FC = () => {
 
                     {/* Submenu */}
                     <ul
-                      className={`${styles.subMenu} ${
-                        itemIsExpanded ? styles.subMenuOpen : ""
-                      }`}
+                      className={`${styles.subMenu} ${itemIsExpanded ? styles.subMenuOpen : ""
+                        }`}
                     >
                       {item.subItems?.map((subItem, subIndex) => {
                         const subItemIsActive = pathname.startsWith(
@@ -318,9 +315,8 @@ const Navbar: React.FC = () => {
                           <li key={subIndex}>
                             <Link
                               href={subItem.href}
-                              className={`${styles.subNavItem} ${
-                                subItemIsActive ? styles.active : ""
-                              }`}
+                              className={`${styles.subNavItem} ${subItemIsActive ? styles.active : ""
+                                }`}
                             >
                               <span className={styles.subIcon}>
                                 {subItem.icon}
@@ -339,9 +335,8 @@ const Navbar: React.FC = () => {
                     {/* Regular Item without Submenu */}
                     <Link
                       href={item.href!}
-                      className={`${styles.navItem} ${
-                        itemIsActive ? styles.active : ""
-                      }`}
+                      className={`${styles.navItem} ${itemIsActive ? styles.active : ""
+                        }`}
                     >
                       <span className={styles.icon}>{item.icon}</span>
                       <span className={styles.label}>{item.label}</span>

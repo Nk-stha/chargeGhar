@@ -313,8 +313,7 @@ export default function MediaLibraryPage() {
       <div className={styles.headerSection}>
         <div>
           <h1 className={styles.title}>
-            <FiSettings style={{ fontSize: "1.5rem", marginRight: "0.5rem" }} />
-            Settings / Media Library
+            Media Library
           </h1>
           <p className={styles.subtitle}>
             View and manage all uploaded media files

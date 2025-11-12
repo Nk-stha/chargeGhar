@@ -544,3 +544,97 @@
 .confirmBtn:hover {
     background: #0aff0a;
 }
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .overlay {
+        align-items: flex-start;
+        padding: 1rem;
+        margin-top: 0;
+        overflow-y: auto;
+    }
+
+    .modal {
+        width: 100%;
+        max-width: none;
+        border-radius: 10px;
+        margin-top: 4rem;
+        padding: 1.5rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 1rem;
+    }
+
+    .form {
+        gap: 0.75rem;
+    }
+
+    .formGroup {
+        gap: 0.4rem;
+    }
+
+    .formGroup input,
+    .formGroup select {
+        width: 100%;
+        padding: 0.55rem;
+        font-size: 0.85rem;
+    }
+
+    .buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .createBtn,
+    .cancelBtn {
+        width: 100%;
+        padding: 0.65rem;
+        font-size: 0.9rem;
+    }
+
+    .errorMessage,
+    .successMessage {
+        font-size: 0.8rem;
+        padding: 0.6rem;
+    }
+
+    .popup {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    .popupOptions {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .optionBox {
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+    }
+
+    .recentList {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .popupButtons {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .confirmBtn,
+    .cancelBtn {
+        width: 100%;
+        text-align: center;
+    }
+}
