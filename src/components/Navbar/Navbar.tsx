@@ -25,6 +25,7 @@ import {
   FiAlertCircle,
   FiImage,
   FiGrid,
+  FiUserCheck,
 } from "react-icons/fi";
 import styles from "./Navbar.module.css";
 
@@ -81,6 +82,16 @@ const Navbar: React.FC = () => {
           icon: <FiTrendingUp />,
           label: "Achievements",
           href: "/dashboard/achievements",
+        },
+        {
+          icon: <FiUserCheck />,
+          label: "Referrals",
+          href: "/dashboard/referrals",
+        },
+        {
+          icon: <FiUsers />,
+          label: "Leaderboard",
+          href: "/dashboard/leaderboard",
         },
       ],
     },
