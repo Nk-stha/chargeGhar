@@ -53,7 +53,7 @@ const EditStationPage: React.FC = () => {
       hardware_version: "",
     },
     amenity_ids: [],
-    media_ids: [],
+    media_uploads: [],
   });
 
   const [validationErrors, setValidationErrors] = useState<{
@@ -95,11 +95,19 @@ const EditStationPage: React.FC = () => {
               station.amenities?.map((a) =>
                 typeof a === "string" ? a : a.id,
               ) || [],
-            media_ids: [],
+            media_uploads:
+              station.media?.map((m) => ({
+                media_upload_id: m.media_upload_id,
+                media_type: m.media_type,
+                title: m.title,
+                is_primary: m.is_primary,
+              })) || [],
           });
 
-          // TODO: If station has media, populate uploadedMedia state
-          // This would require fetching media data from the station
+          // Populate existing media
+          if (station.media && station.media.length > 0) {
+            setUploadedMedia(station.media);
+          }
         } else {
           setError("Failed to load station data");
         }
@@ -187,14 +195,24 @@ const EditStationPage: React.FC = () => {
 
   const handleMediaUpload = (media: Media) => {
     setUploadedMedia((prev) => [...prev, media]);
-    const mediaIds = [...(formData.media_ids || []), media.id];
-    handleInputChange("media_ids", mediaIds);
+    const mediaUploads = [
+      ...(formData.media_uploads || []),
+      {
+        media_upload_id: media.id,
+        media_type: media.file_type,
+        title: media.original_name,
+        is_primary: (formData.media_uploads || []).length === 0, // First image is primary
+      },
+    ];
+    handleInputChange("media_uploads", mediaUploads);
   };
 
   const handleMediaRemove = (mediaId: string) => {
     setUploadedMedia((prev) => prev.filter((m) => m.id !== mediaId));
-    const mediaIds = (formData.media_ids || []).filter((id) => id !== mediaId);
-    handleInputChange("media_ids", mediaIds);
+    const mediaUploads = (formData.media_uploads || []).filter(
+      (upload) => upload.media_upload_id !== mediaId,
+    );
+    handleInputChange("media_uploads", mediaUploads);
   };
 
   const handleAmenityChange = (amenityIds: string[]) => {

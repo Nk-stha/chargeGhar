@@ -45,7 +45,7 @@ const AddStationPage: React.FC = () => {
       hardware_version: "1.0",
     },
     amenity_ids: [],
-    media_ids: [],
+    media_uploads: [],
   });
 
   const [validationErrors, setValidationErrors] = useState<{
@@ -140,14 +140,24 @@ const AddStationPage: React.FC = () => {
 
   const handleMediaUpload = (media: Media) => {
     setUploadedMedia((prev) => [...prev, media]);
-    const mediaIds = [...(formData.media_ids || []), media.id];
-    handleInputChange("media_ids", mediaIds);
+    const mediaUploads = [
+      ...(formData.media_uploads || []),
+      {
+        media_upload_id: media.id,
+        media_type: media.file_type,
+        title: media.original_name,
+        is_primary: (formData.media_uploads || []).length === 0, // First image is primary
+      },
+    ];
+    handleInputChange("media_uploads", mediaUploads);
   };
 
   const handleMediaRemove = (mediaId: string) => {
     setUploadedMedia((prev) => prev.filter((m) => m.id !== mediaId));
-    const mediaIds = (formData.media_ids || []).filter((id) => id !== mediaId);
-    handleInputChange("media_ids", mediaIds);
+    const mediaUploads = (formData.media_uploads || []).filter(
+      (upload) => upload.media_upload_id !== mediaId,
+    );
+    handleInputChange("media_uploads", mediaUploads);
   };
 
   const handleAmenityChange = (amenityIds: string[]) => {

@@ -355,6 +355,63 @@
     border: 1px solid #2a2a2a;
 }
 
+/* Media Grid */
+.mediaGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.mediaItem {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+    transition: all 0.3s ease;
+}
+
+.mediaItem:hover {
+    border-color: #47b216;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(71, 178, 22, 0.2);
+}
+
+.mediaImage {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.mediaInfo {
+    padding: 8px 12px;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.mediaTitle {
+    font-size: 12px;
+    color: #e0e0e0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+}
+
+.primaryBadge {
+    background: #47b216;
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
 /* Slots Section */
 .slotsSection {
     margin-top: 30px;
@@ -587,6 +644,10 @@
     }
 
     .slotsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .mediaGrid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
 

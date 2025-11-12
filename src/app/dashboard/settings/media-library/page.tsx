@@ -184,7 +184,7 @@ export default function MediaLibraryPage() {
       media.id,
       media.original_name,
       media.file_type,
-      mediaService.formatFileSize(media.file_size),
+      mediaService.formatFileSize(media.file_size ?? 0),
       getUserDisplayName(media.uploaded_by),
       media.cloud_provider,
       mediaService.formatDateTime(media.created_at),
@@ -434,12 +434,12 @@ export default function MediaLibraryPage() {
                       />
                     ) : (
                       <div className={styles.filePlaceholder}>
-                        {getFileIcon(media.file_type)}
+                        {getFileIcon(media.file_type ?? "DOCUMENT")}
                         <span>{media.file_type}</span>
                       </div>
                     )}
                     <div className={styles.fileTypebadge}>
-                      {getFileIcon(media.file_type)}
+                      {getFileIcon(media.file_type ?? "DOCUMENT")}
                     </div>
                   </div>
                   <div className={styles.mediaInfo}>
@@ -449,7 +449,7 @@ export default function MediaLibraryPage() {
                     <div className={styles.metaInfo}>
                       <span className={styles.metaItem}>
                         <FiFile size={12} />
-                        {mediaService.formatFileSize(media.file_size)}
+                        {mediaService.formatFileSize(media.file_size ?? 0)}
                       </span>
                       <span className={styles.metaItem}>
                         <FiUser size={12} />
@@ -485,7 +485,10 @@ export default function MediaLibraryPage() {
                       </button>
                       <button
                         onClick={() =>
-                          handleDeleteClick(media.id, media.original_name)
+                          handleDeleteClick(
+                            media.id,
+                            media.original_name ?? "Unknown",
+                          )
                         }
                         className={styles.deleteBtn}
                         title="Delete Media"

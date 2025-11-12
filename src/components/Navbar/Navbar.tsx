@@ -24,6 +24,7 @@ import {
   FiShoppingBag,
   FiAlertCircle,
   FiImage,
+  FiGrid,
 } from "react-icons/fi";
 import styles from "./Navbar.module.css";
 
@@ -138,6 +139,16 @@ const Navbar: React.FC = () => {
           icon: <FiSettings />,
           label: "Config",
           href: "/dashboard/settings/config",
+        },
+        {
+          icon: <FiGrid />,
+          label: "Amenities",
+          href: "/dashboard/settings/amenities",
+        },
+        {
+          icon: <FiDollarSign />,
+          label: "Late Fee Configs",
+          href: "/dashboard/settings/late-fee-configs",
         },
       ],
     },
