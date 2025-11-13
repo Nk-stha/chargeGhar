@@ -2,9 +2,22 @@
 
 import React, { useEffect, useState } from "react";
 import styles from "./RentalDetailModal.module.css";
-import { FiX, FiUser, FiMapPin, FiBatteryCharging, FiPackage, FiClock, FiDollarSign, FiAlertCircle } from "react-icons/fi";
+import {
+  FiX,
+  FiUser,
+  FiMapPin,
+  FiBatteryCharging,
+  FiPackage,
+  FiClock,
+  FiDollarSign,
+  FiAlertCircle,
+} from "react-icons/fi";
 import { rentalsService } from "../../lib/api/rentals.service";
-import { RentalDetail, RentalStatus, PaymentStatus } from "../../types/rentals.types";
+import {
+  RentalDetail,
+  RentalStatus,
+  PaymentStatus,
+} from "../../types/rentals.types";
 
 interface RentalDetailModalProps {
   isOpen: boolean;
@@ -91,7 +104,11 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
       <div className={styles.modal}>
         <div className={styles.header}>
           <h2 className={styles.title}>Rental Details</h2>
-          <button onClick={onClose} className={styles.closeBtn} aria-label="Close modal">
+          <button
+            onClick={onClose}
+            className={styles.closeBtn}
+            aria-label="Close modal"
+          >
             <FiX />
           </button>
         </div>
@@ -120,11 +137,21 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                     <h3 className={styles.rentalCode}>{rental.rental_code}</h3>
                   </div>
                   <div className={styles.statusGroup}>
-                    <span className={`${styles.statusBadge} ${getStatusClass(rental.status)}`}>
+                    <span
+                      className={`${styles.statusBadge} ${getStatusClass(
+                        rental.status
+                      )}`}
+                    >
                       {rentalsService.getStatusLabel(rental.status)}
                     </span>
-                    <span className={`${styles.paymentBadge} ${getPaymentStatusClass(rental.payment_status)}`}>
-                      {rentalsService.getPaymentStatusLabel(rental.payment_status)}
+                    <span
+                      className={`${
+                        styles.paymentBadge
+                      } ${getPaymentStatusClass(rental.payment_status)}`}
+                    >
+                      {rentalsService.getPaymentStatusLabel(
+                        rental.payment_status
+                      )}
                     </span>
                   </div>
                 </div>
@@ -139,11 +166,15 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Username</span>
-                    <span className={styles.infoValue}>{rental.user.username}</span>
+                    <span className={styles.infoValue}>
+                      {rental.user.username}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Email</span>
-                    <span className={styles.infoValue}>{rental.user.email}</span>
+                    <span className={styles.infoValue}>
+                      {rental.user.email}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Phone</span>
@@ -167,75 +198,113 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                 <div className={styles.stationsContainer}>
                   <div className={styles.stationCard}>
                     <span className={styles.stationLabel}>Pickup Station</span>
-                    <h5 className={styles.stationName}>{rental.station.station_name}</h5>
-                    <p className={styles.stationSerial}>{rental.station.serial_number}</p>
-                    <p className={styles.stationAddress}>{rental.station.address}</p>
-                    <span className={styles.slotNumber}>Slot #{rental.slot_number}</span>
+                    <h5 className={styles.stationName}>
+                      {rental.station.station_name}
+                    </h5>
+                    <p className={styles.stationSerial}>
+                      {rental.station.serial_number}
+                    </p>
+                    <p className={styles.stationAddress}>
+                      {rental.station.address}
+                    </p>
+                    <span className={styles.slotNumber}>
+                      Slot #{rental.slot_number}
+                    </span>
                   </div>
                   <div className={styles.stationCard}>
                     <span className={styles.stationLabel}>Return Station</span>
-                    <h5 className={styles.stationName}>{rental.return_station.station_name}</h5>
-                    <p className={styles.stationSerial}>{rental.return_station.serial_number}</p>
-                    <p className={styles.stationAddress}>{rental.return_station.address}</p>
+                    {rental.return_station ? (
+                      <>
+                        <h5 className={styles.stationName}>
+                          {rental.return_station.station_name}
+                        </h5>
+                        <p className={styles.stationSerial}>
+                          {rental.return_station.serial_number}
+                        </p>
+                        <p className={styles.stationAddress}>
+                          {rental.return_station.address}
+                        </p>
+                      </>
+                    ) : (
+                      <p className={styles.stationSerial}>Not yet returned</p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Powerbank Information */}
-              <div className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <FiBatteryCharging className={styles.sectionIcon} />
-                  <h4 className={styles.sectionTitle}>Powerbank Information</h4>
-                </div>
-                <div className={styles.infoGrid}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Serial Number</span>
-                    <span className={styles.infoValue}>{rental.powerbank.serial_number}</span>
+              {rental.powerbank && (
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <FiBatteryCharging className={styles.sectionIcon} />
+                    <h4 className={styles.sectionTitle}>
+                      Powerbank Information
+                    </h4>
                   </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Model</span>
-                    <span className={styles.infoValue}>{rental.powerbank.model}</span>
-                  </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Battery Level</span>
-                    <div className={styles.batteryContainer}>
-                      <div className={styles.batteryBar}>
-                        <div
-                          className={styles.batteryFill}
-                          style={{ width: `${rental.powerbank.battery_level}%` }}
-                        />
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Serial Number</span>
+                      <span className={styles.infoValue}>
+                        {rental.powerbank.serial_number}
+                      </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Model</span>
+                      <span className={styles.infoValue}>
+                        {rental.powerbank.model}
+                      </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Battery Level</span>
+                      <div className={styles.batteryContainer}>
+                        <div className={styles.batteryBar}>
+                          <div
+                            className={styles.batteryFill}
+                            style={{
+                              width: `${rental.powerbank.battery_level}%`,
+                            }}
+                          />
+                        </div>
+                        <span className={styles.batteryPercent}>
+                          {rental.powerbank.battery_level}%
+                        </span>
                       </div>
-                      <span className={styles.batteryPercent}>{rental.powerbank.battery_level}%</span>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Package Information */}
-              <div className={styles.section}>
-                <div className={styles.sectionHeader}>
-                  <FiPackage className={styles.sectionIcon} />
-                  <h4 className={styles.sectionTitle}>Package Information</h4>
+              {rental.package && (
+                <div className={styles.section}>
+                  <div className={styles.sectionHeader}>
+                    <FiPackage className={styles.sectionIcon} />
+                    <h4 className={styles.sectionTitle}>Package Information</h4>
+                  </div>
+                  <div className={styles.infoGrid}>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Package Name</span>
+                      <span className={styles.infoValue}>
+                        {rental.package.name}
+                      </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Duration</span>
+                      <span className={styles.infoValue}>
+                        {rentalsService.formatDuration(
+                          rental.package.duration_minutes
+                        )}
+                      </span>
+                    </div>
+                    <div className={styles.infoItem}>
+                      <span className={styles.infoLabel}>Package Price</span>
+                      <span className={styles.infoValue}>
+                        {rentalsService.formatAmount(rental.package.price)}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.infoGrid}>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Package Name</span>
-                    <span className={styles.infoValue}>{rental.package.name}</span>
-                  </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Duration</span>
-                    <span className={styles.infoValue}>
-                      {rentalsService.formatDuration(rental.package.duration_minutes)}
-                    </span>
-                  </div>
-                  <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Package Price</span>
-                    <span className={styles.infoValue}>
-                      {rentalsService.formatAmount(rental.package.price)}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Rental Timeline */}
               <div className={styles.section}>
@@ -253,7 +322,9 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Started At</span>
                     <span className={styles.infoValue}>
-                      {rental.started_at ? rentalsService.formatDateTime(rental.started_at) : "Not started"}
+                      {rental.started_at
+                        ? rentalsService.formatDateTime(rental.started_at)
+                        : "Not started"}
                     </span>
                   </div>
                   <div className={styles.infoItem}>
@@ -265,7 +336,9 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Ended At</span>
                     <span className={styles.infoValue}>
-                      {rental.ended_at ? rentalsService.formatDateTime(rental.ended_at) : "Not ended"}
+                      {rental.ended_at
+                        ? rentalsService.formatDateTime(rental.ended_at)
+                        : "Not ended"}
                     </span>
                   </div>
                 </div>
@@ -286,7 +359,13 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Overdue Amount</span>
-                    <span className={`${styles.infoValue} ${parseFloat(rental.overdue_amount) > 0 ? styles.overdueAmount : ""}`}>
+                    <span
+                      className={`${styles.infoValue} ${
+                        parseFloat(rental.overdue_amount) > 0
+                          ? styles.overdueAmount
+                          : ""
+                      }`}
+                    >
                       {rentalsService.formatAmount(rental.overdue_amount)}
                     </span>
                   </div>
@@ -316,18 +395,24 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
               {/* Additional Information */}
               <div className={styles.section}>
                 <div className={styles.sectionHeader}>
-                  <h4 className={styles.sectionTitle}>Additional Information</h4>
+                  <h4 className={styles.sectionTitle}>
+                    Additional Information
+                  </h4>
                 </div>
                 <div className={styles.infoGrid}>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Extensions Count</span>
-                    <span className={styles.infoValue}>{rental.extensions_count}</span>
+                    <span className={styles.infoValue}>
+                      {rental.extensions_count}
+                    </span>
                   </div>
                   <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Issues Count</span>
                     <span className={styles.infoValue}>
                       {rental.issues_count > 0 ? (
-                        <span className={styles.warningText}>{rental.issues_count}</span>
+                        <span className={styles.warningText}>
+                          {rental.issues_count}
+                        </span>
                       ) : (
                         rental.issues_count
                       )}
@@ -343,18 +428,19 @@ const RentalDetailModal: React.FC<RentalDetailModalProps> = ({
               </div>
 
               {/* Metadata (if exists) */}
-              {rental.rental_metadata && Object.keys(rental.rental_metadata).length > 0 && (
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>
-                    <h4 className={styles.sectionTitle}>Metadata</h4>
+              {rental.rental_metadata &&
+                Object.keys(rental.rental_metadata).length > 0 && (
+                  <div className={styles.section}>
+                    <div className={styles.sectionHeader}>
+                      <h4 className={styles.sectionTitle}>Metadata</h4>
+                    </div>
+                    <div className={styles.metadataContainer}>
+                      <pre className={styles.metadata}>
+                        {JSON.stringify(rental.rental_metadata, null, 2)}
+                      </pre>
+                    </div>
                   </div>
-                  <div className={styles.metadataContainer}>
-                    <pre className={styles.metadata}>
-                      {JSON.stringify(rental.rental_metadata, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              )}
+                )}
             </>
           ) : null}
         </div>

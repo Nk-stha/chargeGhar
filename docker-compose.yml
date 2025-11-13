@@ -8,12 +8,9 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+      - /app/.next
     logging:
       driver: "json-file"
       options:
         max-size: "200k"
         max-file: "10"
-networks:
-  default:
-    name: shared-chargeghar
-    external: true

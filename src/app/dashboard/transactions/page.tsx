@@ -11,25 +11,28 @@ interface User {
   email?: string;
 }
 
+// Updated Transaction interface to match the new API response format
 interface Transaction {
+  source: string;
   id: string;
-  user: string | User;
-  user_phone?: string;
-  amount: number;
-  payment_method?: string;
+  transaction_id: string;
+  user: User;
+  type: string;
+  amount?: number;
+  points?: number;
+  points_source?: string;
   status: string;
-  transaction_type?: string;
+  balance_before?: number;
+  balance_after?: number;
   created_at: string;
-  updated_at?: string;
+  description: string;
 }
 
 interface Pagination {
-  current_page: number;
-  total_pages: number;
   total_count: number;
+  page: number;
   page_size: number;
-  has_next: boolean;
-  has_previous: boolean;
+  total_pages: number;
 }
 
 interface ApiResponse {
@@ -41,19 +44,26 @@ interface ApiResponse {
   };
 }
 
+const sourceColors: Record<string, string> = {
+  wallet: "#47b216",
+  points: "#ffc107",
+  payment: "#17a2b8",
+};
+
 const statusColors: Record<string, string> = {
   SUCCESS: "#47b216",
   COMPLETED: "#47b216",
   PENDING: "#ffc107",
   FAILED: "#dc3545",
   CANCELLED: "#6c757d",
+  REJECTED: "#dc3545",
 };
 
 const Transactions: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState("All");
+  const [filter, setFilter] = useState("all");
   const [sortBy, setSortBy] = useState("date");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -68,17 +78,14 @@ const Transactions: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", currentPage.toString());
       params.append("page_size", "50");
-
-      if (filter !== "All") {
-        params.append("status", filter.toUpperCase());
-      }
+      params.append("source", filter);
 
       if (searchTerm) {
         params.append("search", searchTerm);
       }
 
       const response = await axiosInstance.get<ApiResponse>(
-        `/api/admin/transactions?${params.toString()}`,
+        `/api/admin/transactions?${params.toString()}`
       );
 
       if (response.data.success) {
@@ -91,7 +98,7 @@ const Transactions: React.FC = () => {
       console.error("Error fetching transactions:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to load transactions. Please try again.",
+          "Failed to load transactions. Please try again."
       );
     } finally {
       setLoading(false);
@@ -111,7 +118,11 @@ const Transactions: React.FC = () => {
 
   // Sort logic
   const sortedTransactions = [...transactions].sort((a, b) => {
-    if (sortBy === "amount") return b.amount - a.amount;
+    if (sortBy === "amount") {
+      const amountA = a.amount || a.points || 0;
+      const amountB = b.amount || b.points || 0;
+      return amountB - amountA;
+    }
     if (sortBy === "status") return a.status.localeCompare(b.status);
     // Default sort by date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
@@ -122,20 +133,21 @@ const Transactions: React.FC = () => {
     const headers = [
       "Transaction ID",
       "User",
-      "Amount",
-      "Method",
+      "Type",
+      "Source",
+      "Amount/Points",
       "Status",
+      "Description",
       "Date",
     ];
     const rows = sortedTransactions.map((t) => [
-      t.id,
-      t.user_phone ||
-        (typeof t.user === "object"
-          ? t.user?.username || t.user?.email || "N/A"
-          : t.user),
-      `Rs.${(t.amount || 0).toFixed(2)}`,
-      t.payment_method || "N/A",
+      t.transaction_id,
+      t.user?.username || t.user?.email || "N/A",
+      t.type,
+      t.source,
+      t.amount ? `Rs.${(t.amount || 0).toFixed(2)}` : `${t.points || 0} points`,
       t.status,
+      t.description,
       new Date(t.created_at).toLocaleString(),
     ]);
     const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
@@ -198,17 +210,19 @@ const Transactions: React.FC = () => {
 
       <div className={styles.controls}>
         <div className={styles.filters}>
-          {["All", "SUCCESS", "PENDING", "FAILED", "CANCELLED"].map((f) => (
+          {["all", "wallet", "points", "payment"].map((f) => (
             <button
               key={f}
-              className={`${styles.filterButton} ${filter === f ? styles.active : ""}`}
+              className={`${styles.filterButton} ${
+                filter === f ? styles.active : ""
+              }`}
               onClick={() => {
                 setFilter(f);
                 setCurrentPage(1);
               }}
               disabled={loading}
             >
-              {f === "All" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+              {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
             </button>
           ))}
         </div>
@@ -239,7 +253,9 @@ const Transactions: React.FC = () => {
             {dropdownOpen && (
               <div className={styles.dropdown}>
                 <div
-                  className={`${styles.dropdownItem} ${sortBy === "date" ? styles.selected : ""}`}
+                  className={`${styles.dropdownItem} ${
+                    sortBy === "date" ? styles.selected : ""
+                  }`}
                   onClick={() => {
                     setSortBy("date");
                     setDropdownOpen(false);
@@ -248,7 +264,9 @@ const Transactions: React.FC = () => {
                   Date
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${sortBy === "amount" ? styles.selected : ""}`}
+                  className={`${styles.dropdownItem} ${
+                    sortBy === "amount" ? styles.selected : ""
+                  }`}
                   onClick={() => {
                     setSortBy("amount");
                     setDropdownOpen(false);
@@ -257,7 +275,9 @@ const Transactions: React.FC = () => {
                   Amount
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${sortBy === "status" ? styles.selected : ""}`}
+                  className={`${styles.dropdownItem} ${
+                    sortBy === "status" ? styles.selected : ""
+                  }`}
                   onClick={() => {
                     setSortBy("status");
                     setDropdownOpen(false);
@@ -303,8 +323,8 @@ const Transactions: React.FC = () => {
                 <tr>
                   <th>Transaction ID</th>
                   <th>User</th>
-                  <th>Amount</th>
-                  <th>Method</th>
+                  <th>Amount/Points</th>
+                  <th>Source</th>
                   <th>Status</th>
                   <th>Date/Time</th>
                 </tr>
@@ -313,17 +333,30 @@ const Transactions: React.FC = () => {
                 {sortedTransactions.length > 0 ? (
                   sortedTransactions.map((t) => (
                     <tr key={t.id}>
-                      <td className={styles.transactionId}>{t.id}</td>
+                      <td className={styles.transactionId}>
+                        {t.transaction_id}
+                      </td>
                       <td>
-                        {t.user_phone ||
-                          (typeof t.user === "object"
-                            ? t.user?.username || t.user?.email || "N/A"
-                            : t.user)}
+                        {typeof t.user === "object"
+                          ? t.user?.username || t.user?.email || "N/A"
+                          : t.user}
                       </td>
                       <td className={styles.amount}>
-                        Rs. {(t.amount || 0).toFixed(2)}
+                        {t.amount
+                          ? `Rs. ${(t.amount || 0).toFixed(2)}`
+                          : `${t.points || 0} points`}
                       </td>
-                      <td>{t.payment_method || "N/A"}</td>
+                      <td>
+                        <span
+                          className={styles.statusBadge}
+                          style={{
+                            backgroundColor:
+                              sourceColors[t.source.toLowerCase()] || "#6c757d",
+                          }}
+                        >
+                          {t.source}
+                        </span>
+                      </td>
                       <td>
                         <span
                           className={styles.statusBadge}
@@ -343,7 +376,7 @@ const Transactions: React.FC = () => {
                 ) : (
                   <tr>
                     <td colSpan={6} className={styles.noData}>
-                      {searchTerm || filter !== "All"
+                      {searchTerm || filter !== "all"
                         ? "No transactions found matching your criteria"
                         : "No transactions available"}
                     </td>
@@ -357,17 +390,17 @@ const Transactions: React.FC = () => {
                 <button
                   className={styles.pageButton}
                   onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={!pagination.has_previous || loading}
+                  disabled={currentPage <= 1 || loading}
                 >
                   Previous
                 </button>
                 <div className={styles.pageInfo}>
-                  Page {pagination.current_page} of {pagination.total_pages}
+                  Page {currentPage} of {pagination.total_pages}
                 </div>
                 <button
                   className={styles.pageButton}
                   onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={!pagination.has_next || loading}
+                  disabled={currentPage >= pagination.total_pages || loading}
                 >
                   Next
                 </button>
