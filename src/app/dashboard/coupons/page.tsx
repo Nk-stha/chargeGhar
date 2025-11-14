@@ -332,55 +332,51 @@ const CouponsPage: React.FC = () => {
 
       {/* Statistics Cards */}
       <div className={styles.statsGrid}>
+        {/* Total Coupons */}
         <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#3498db33" }}
-          >
-            <FiGift style={{ color: "#3498db" }} />
+          <div className={styles.statIcon}>
+            <FiGift />
           </div>
           <div className={styles.statContent}>
             <p className={styles.statLabel}>Total Coupons</p>
             <h3 className={styles.statValue}>{stats.total}</h3>
+            <p className={styles.statSubtext}>All generated coupons</p>
           </div>
         </div>
 
+        {/* Active Coupons */}
         <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#47b21633" }}
-          >
-            <FiCheckCircle style={{ color: "#47b216" }} />
+          <div className={styles.statIcon}>
+            <FiCheckCircle />
           </div>
           <div className={styles.statContent}>
             <p className={styles.statLabel}>Active</p>
             <h3 className={styles.statValue}>{stats.active}</h3>
+            <p className={styles.statSubtext}>Currently usable</p>
           </div>
         </div>
 
+        {/* Inactive Coupons */}
         <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#FFA50033" }}
-          >
-            <FiClock style={{ color: "#FFA500" }} />
+          <div className={styles.statIcon}>
+            <FiClock />
           </div>
           <div className={styles.statContent}>
             <p className={styles.statLabel}>Inactive</p>
             <h3 className={styles.statValue}>{stats.inactive}</h3>
+            <p className={styles.statSubtext}>Not active yet</p>
           </div>
         </div>
 
+        {/* Expired Coupons */}
         <div className={styles.statCard}>
-          <div
-            className={styles.statIcon}
-            style={{ backgroundColor: "#ff444433" }}
-          >
-            <FiAlertCircle style={{ color: "#ff4444" }} />
+          <div className={styles.statIcon}>
+            <FiAlertCircle />
           </div>
           <div className={styles.statContent}>
             <p className={styles.statLabel}>Expired</p>
             <h3 className={styles.statValue}>{stats.expired}</h3>
+            <p className={styles.statSubtext}>No longer valid</p>
           </div>
         </div>
       </div>

@@ -204,13 +204,13 @@ const WithdrawalsPage: React.FC = () => {
     filter === "ALL"
       ? withdrawals
       : withdrawals.filter((w) => {
-          console.log("Filtering:", {
-            status: w.status,
-            filter: filter,
-            match: w.status === filter,
-          });
-          return w.status === filter;
+        console.log("Filtering:", {
+          status: w.status,
+          filter: filter,
+          match: w.status === filter,
         });
+        return w.status === filter;
+      });
 
   console.log("Filter state:", filter);
   console.log("Total withdrawals:", withdrawals.length);
@@ -256,74 +256,65 @@ const WithdrawalsPage: React.FC = () => {
 
       {/* Analytics Cards */}
       {analyticsLoading ? (
-        <div className={styles.analyticsGrid}>
+        <div className={styles.statsGrid}>
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className={styles.analyticsCardSkeleton}></div>
+            <div key={i} className={styles.statCardSkeleton}></div>
           ))}
         </div>
       ) : analytics ? (
-        <div className={styles.analyticsGrid}>
-          <div className={styles.analyticsCard}>
-            <div
-              className={styles.analyticsIcon}
-              style={{ backgroundColor: "#3498db33" }}
-            >
-              <FiDollarSign style={{ color: "#3498db" }} />
+        <div className={styles.statsGrid}>
+          {/* Total Withdrawals */}
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <FiDollarSign />
             </div>
-            <div className={styles.analyticsContent}>
-              <p className={styles.analyticsLabel}>Total Withdrawals</p>
-              <h3 className={styles.analyticsValue}>
-                {analytics.total_withdrawals}
-              </h3>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Total Withdrawals</p>
+              <h3 className={styles.statValue}>{analytics.total_withdrawals}</h3>
+              <p className={styles.statSubtext}>All withdrawal requests</p>
             </div>
           </div>
 
-          <div className={styles.analyticsCard}>
-            <div
-              className={styles.analyticsIcon}
-              style={{ backgroundColor: "#FFA50033" }}
-            >
-              <FiClock style={{ color: "#FFA500" }} />
+          {/* Pending */}
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <FiClock />
             </div>
-            <div className={styles.analyticsContent}>
-              <p className={styles.analyticsLabel}>Pending</p>
-              <h3 className={styles.analyticsValue}>
-                {analytics.pending_withdrawals}
-              </h3>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Pending</p>
+              <h3 className={styles.statValue}>{analytics.pending_withdrawals}</h3>
+              <p className={styles.statSubtext}>Awaiting action</p>
             </div>
           </div>
 
-          <div className={styles.analyticsCard}>
-            <div
-              className={styles.analyticsIcon}
-              style={{ backgroundColor: "#47b21633" }}
-            >
-              <FiCheckCircle style={{ color: "#47b216" }} />
+          {/* Completed */}
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <FiCheckCircle />
             </div>
-            <div className={styles.analyticsContent}>
-              <p className={styles.analyticsLabel}>Completed</p>
-              <h3 className={styles.analyticsValue}>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Completed</p>
+              <h3 className={styles.statValue}>
                 {analytics.completed_withdrawals}
               </h3>
+              <p className={styles.statSubtext}>Successfully processed</p>
             </div>
           </div>
 
-          <div className={styles.analyticsCard}>
-            <div
-              className={styles.analyticsIcon}
-              style={{ backgroundColor: "#ff444433" }}
-            >
-              <FiXCircle style={{ color: "#ff4444" }} />
+          {/* Rejected */}
+          <div className={styles.statCard}>
+            <div className={styles.statIcon}>
+              <FiXCircle />
             </div>
-            <div className={styles.analyticsContent}>
-              <p className={styles.analyticsLabel}>Rejected</p>
-              <h3 className={styles.analyticsValue}>
-                {analytics.rejected_withdrawals}
-              </h3>
+            <div className={styles.statContent}>
+              <p className={styles.statLabel}>Rejected</p>
+              <h3 className={styles.statValue}>{analytics.rejected_withdrawals}</h3>
+              <p className={styles.statSubtext}>Rejected requests</p>
             </div>
           </div>
         </div>
       ) : null}
+
 
       {/* Filters */}
       <div className={styles.filters}>
@@ -657,11 +648,10 @@ const WithdrawalsPage: React.FC = () => {
                 Cancel
               </button>
               <button
-                className={`${styles.confirmButton} ${
-                  processingAction === "REJECT"
+                className={`${styles.confirmButton} ${processingAction === "REJECT"
                     ? styles.confirmReject
                     : styles.confirmApprove
-                }`}
+                  }`}
                 onClick={handleProcessWithdrawal}
                 disabled={
                   processLoading ||

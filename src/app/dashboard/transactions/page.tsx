@@ -98,7 +98,7 @@ const Transactions: React.FC = () => {
       console.error("Error fetching transactions:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to load transactions. Please try again."
+        "Failed to load transactions. Please try again."
       );
     } finally {
       setLoading(false);
@@ -184,7 +184,7 @@ const Transactions: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.headerSection}>
+      <div className={styles.header}>
         <div>
           <h1 className={styles.title}>All Transactions</h1>
           <p className={styles.subtitle}>
@@ -213,9 +213,8 @@ const Transactions: React.FC = () => {
           {["all", "wallet", "points", "payment"].map((f) => (
             <button
               key={f}
-              className={`${styles.filterButton} ${
-                filter === f ? styles.active : ""
-              }`}
+              className={`${styles.filterButton} ${filter === f ? styles.active : ""
+                }`}
               onClick={() => {
                 setFilter(f);
                 setCurrentPage(1);
@@ -253,9 +252,8 @@ const Transactions: React.FC = () => {
             {dropdownOpen && (
               <div className={styles.dropdown}>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "date" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "date" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("date");
                     setDropdownOpen(false);
@@ -264,9 +262,8 @@ const Transactions: React.FC = () => {
                   Date
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "amount" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "amount" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("amount");
                     setDropdownOpen(false);
@@ -275,9 +272,8 @@ const Transactions: React.FC = () => {
                   Amount
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "status" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "status" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("status");
                     setDropdownOpen(false);

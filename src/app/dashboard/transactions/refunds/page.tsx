@@ -193,59 +193,56 @@ const RefundsPage: React.FC = () => {
       )}
 
       {/* Statistics Cards */}
-      <div className={styles.analyticsGrid}>
-        <div className={styles.analyticsCard}>
-          <div
-            className={styles.analyticsIcon}
-            style={{ backgroundColor: "#3498db33" }}
-          >
-            <FiRotateCcw style={{ color: "#3498db" }} />
+      <div className={styles.statsGrid}>
+        {/* Total Refunds */}
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <FiRotateCcw />
           </div>
-          <div className={styles.analyticsContent}>
-            <p className={styles.analyticsLabel}>Total Refunds</p>
-            <h3 className={styles.analyticsValue}>{stats.total}</h3>
-          </div>
-        </div>
-
-        <div className={styles.analyticsCard}>
-          <div
-            className={styles.analyticsIcon}
-            style={{ backgroundColor: "#FFA50033" }}
-          >
-            <FiClock style={{ color: "#FFA500" }} />
-          </div>
-          <div className={styles.analyticsContent}>
-            <p className={styles.analyticsLabel}>Pending</p>
-            <h3 className={styles.analyticsValue}>{stats.requested}</h3>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Total Refunds</p>
+            <h3 className={styles.statValue}>{stats.total}</h3>
+            <p className={styles.statSubtext}>All refund submissions</p>
           </div>
         </div>
 
-        <div className={styles.analyticsCard}>
-          <div
-            className={styles.analyticsIcon}
-            style={{ backgroundColor: "#47b21633" }}
-          >
-            <FiCheckCircle style={{ color: "#47b216" }} />
+        {/* Pending */}
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <FiClock />
           </div>
-          <div className={styles.analyticsContent}>
-            <p className={styles.analyticsLabel}>Approved</p>
-            <h3 className={styles.analyticsValue}>{stats.approved}</h3>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Pending</p>
+            <h3 className={styles.statValue}>{stats.requested}</h3>
+            <p className={styles.statSubtext}>Awaiting review</p>
           </div>
         </div>
 
-        <div className={styles.analyticsCard}>
-          <div
-            className={styles.analyticsIcon}
-            style={{ backgroundColor: "#ff444433" }}
-          >
-            <FiXCircle style={{ color: "#ff4444" }} />
+        {/* Approved */}
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <FiCheckCircle />
           </div>
-          <div className={styles.analyticsContent}>
-            <p className={styles.analyticsLabel}>Rejected</p>
-            <h3 className={styles.analyticsValue}>{stats.rejected}</h3>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Approved</p>
+            <h3 className={styles.statValue}>{stats.approved}</h3>
+            <p className={styles.statSubtext}>Successfully refunded</p>
+          </div>
+        </div>
+
+        {/* Rejected */}
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <FiXCircle />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Rejected</p>
+            <h3 className={styles.statValue}>{stats.rejected}</h3>
+            <p className={styles.statSubtext}>Not eligible</p>
           </div>
         </div>
       </div>
+
 
       {/* Filters */}
       <div className={styles.filters}>
@@ -517,11 +514,10 @@ const RefundsPage: React.FC = () => {
                 Cancel
               </button>
               <button
-                className={`${styles.confirmButton} ${
-                  processingAction === "REJECT"
+                className={`${styles.confirmButton} ${processingAction === "REJECT"
                     ? styles.confirmReject
                     : styles.confirmApprove
-                }`}
+                  }`}
                 onClick={handleProcessRefund}
                 disabled={
                   processLoading ||

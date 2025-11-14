@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import styles from "./kyc.module.css";
 import {
   FiFileText,
@@ -10,7 +10,9 @@ import {
   FiRefreshCw,
   FiEdit,
   FiSave,
-  FiFile,
+  FiClock,
+  FiCheckCircle,
+  FiXCircle,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 
@@ -191,30 +193,63 @@ export default function KYCPage() {
 
       {/* Stats Cards */}
       <div className={styles.statsGrid}>
+        {/* Total Submissions */}
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Total Submissions</div>
-          <div className={styles.statValue}>{pagination?.total_count || 0}</div>
-        </div>
-        <div className={styles.statCard}>
-          <div className={styles.icon}>{<FiFileText />} </div>
-          <div className={styles.statLabel}>Pending</div>
-          <div className={styles.statValue} >
-            {submissions.filter((s) => s.status === "PENDING").length}
+          <div className={styles.statIcon}>
+            <FiFileText />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Total Submissions</p>
+            <h3 className={styles.statValue}>
+              {pagination?.total_count || 0}
+            </h3>
+            <p className={styles.statSubtext}>All KYC requests</p>
           </div>
         </div>
+
+        {/* Pending */}
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Approved</div>
-          <div className={styles.statValue}>
-            {submissions.filter((s) => s.status === "APPROVED").length}
+          <div className={styles.statIcon}>
+            <FiClock />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Pending</p>
+            <h3 className={styles.statValue}>
+              {submissions.filter((s) => s.status === "PENDING").length}
+            </h3>
+            <p className={styles.statSubtext}>Awaiting review</p>
           </div>
         </div>
+
+        {/* Approved */}
         <div className={styles.statCard}>
-          <div className={styles.statLabel}>Rejected</div>
-          <div className={styles.statValue}>
-            {submissions.filter((s) => s.status === "REJECTED").length}
+          <div className={styles.statIcon}>
+            <FiCheckCircle />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Approved</p>
+            <h3 className={styles.statValue}>
+              {submissions.filter((s) => s.status === "APPROVED").length}
+            </h3>
+            <p className={styles.statSubtext}>Successfully verified</p>
+          </div>
+        </div>
+
+        {/* Rejected */}
+        <div className={styles.statCard}>
+          <div className={styles.statIcon}>
+            <FiXCircle />
+          </div>
+          <div className={styles.statContent}>
+            <p className={styles.statLabel}>Rejected</p>
+            <h3 className={styles.statValue}>
+              {submissions.filter((s) => s.status === "REJECTED").length}
+            </h3>
+            <p className={styles.statSubtext}>Need resubmission</p>
           </div>
         </div>
       </div>
+
 
       {/* Controls */}
       <div className={styles.controls}>

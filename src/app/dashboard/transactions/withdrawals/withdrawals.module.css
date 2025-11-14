@@ -1,10 +1,11 @@
 .container {
-    background-color: #0f0f0f;
-    color: white;
+    color: #fff;
+    background-color: #0b0b0b;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
     padding: 2rem;
     margin-left: 1rem;
-    font-family: "Poppins", sans-serif;
 }
 
 .header {
@@ -19,11 +20,12 @@
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
-    margin-bottom: 0.5rem;
+    margin: 0;
 }
 
 .subtitle {
     color: #aaa;
+    margin-top: 0.5rem;
     font-size: 0.95rem;
 }
 
@@ -91,18 +93,18 @@
     }
 }
 
-/* Analytics Section */
-.analyticsGrid {
+/* Stats Section */
+.statsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
 
-.analyticsCard {
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 12px;
+.statCard {
+    background: #121212;
+    border: 1px solid #1a1a1a;
+    border-radius: 10px;
     padding: 1.5rem;
     display: flex;
     align-items: center;
@@ -110,45 +112,78 @@
     transition: all 0.3s ease;
 }
 
-.analyticsCard:hover {
-    border-color: #47b216;
-    transform: translateY(-2px);
+.statCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(130, 234, 128, 0.2);
+    border-color: #82ea80;
 }
 
-.analyticsIcon {
-    width: 50px;
-    height: 50px;
-    border-radius: 10px;
+.statIcon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    background: #1a1a1a;
+    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+    color: #82ea80;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
-.analyticsContent {
+.statCard:hover .statIcon {
+    background: #47b216;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.statContent {
     flex: 1;
 }
 
-.analyticsLabel {
-    color: #aaa;
-    font-size: 0.85rem;
-    margin-bottom: 0.5rem;
+.statLabel {
+    font-size: 0.875rem;
+    color: #888;
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.analyticsValue {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: white;
+.statValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    line-height: 1.2;
 }
 
-.analyticsCardSkeleton {
+.statSubtext {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.25rem;
+}
+
+/* Skeleton Loader */
+.statCardSkeleton {
     background: linear-gradient(90deg, #1a1a1a 25%, #222 50%, #1a1a1a 75%);
     background-size: 200% 100%;
     animation: loading 1.5s infinite;
     border-radius: 12px;
     height: 100px;
 }
+
+@keyframes loading {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
 
 @keyframes loading {
     0% {
