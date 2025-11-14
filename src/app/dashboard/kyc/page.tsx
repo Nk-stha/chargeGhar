@@ -10,6 +10,7 @@ import {
   FiRefreshCw,
   FiEdit,
   FiSave,
+  FiFile,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 
@@ -195,20 +196,21 @@ export default function KYCPage() {
           <div className={styles.statValue}>{pagination?.total_count || 0}</div>
         </div>
         <div className={styles.statCard}>
+          <div className={styles.icon}>{<FiFileText />} </div>
           <div className={styles.statLabel}>Pending</div>
-          <div className={styles.statValue} style={{ color: "#ff8c00" }}>
+          <div className={styles.statValue} >
             {submissions.filter((s) => s.status === "PENDING").length}
           </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Approved</div>
-          <div className={styles.statValue} style={{ color: "#32cd32" }}>
+          <div className={styles.statValue}>
             {submissions.filter((s) => s.status === "APPROVED").length}
           </div>
         </div>
         <div className={styles.statCard}>
           <div className={styles.statLabel}>Rejected</div>
-          <div className={styles.statValue} style={{ color: "#ff4444" }}>
+          <div className={styles.statValue}>
             {submissions.filter((s) => s.status === "REJECTED").length}
           </div>
         </div>
@@ -310,13 +312,12 @@ export default function KYCPage() {
                     <td>{submission.document_number}</td>
                     <td>
                       <span
-                        className={`${styles.statusBadge} ${
-                          submission.status === "APPROVED"
-                            ? styles.statusApproved
-                            : submission.status === "REJECTED"
-                              ? styles.statusRejected
-                              : styles.statusPending
-                        }`}
+                        className={`${styles.statusBadge} ${submission.status === "APPROVED"
+                          ? styles.statusApproved
+                          : submission.status === "REJECTED"
+                            ? styles.statusRejected
+                            : styles.statusPending
+                          }`}
                       >
                         {submission.status}
                       </span>
@@ -398,13 +399,12 @@ export default function KYCPage() {
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Status:</span>
                     <span
-                      className={`${styles.statusBadge} ${
-                        selectedSubmission.status === "APPROVED"
-                          ? styles.statusApproved
-                          : selectedSubmission.status === "REJECTED"
-                            ? styles.statusRejected
-                            : styles.statusPending
-                      }`}
+                      className={`${styles.statusBadge} ${selectedSubmission.status === "APPROVED"
+                        ? styles.statusApproved
+                        : selectedSubmission.status === "REJECTED"
+                          ? styles.statusRejected
+                          : styles.statusPending
+                        }`}
                     >
                       {selectedSubmission.status}
                     </span>
@@ -484,13 +484,12 @@ export default function KYCPage() {
                         Current Status:
                       </span>
                       <span
-                        className={`${styles.statusBadge} ${
-                          selectedSubmission.status === "APPROVED"
-                            ? styles.statusApproved
-                            : selectedSubmission.status === "REJECTED"
-                              ? styles.statusRejected
-                              : styles.statusPending
-                        }`}
+                        className={`${styles.statusBadge} ${selectedSubmission.status === "APPROVED"
+                          ? styles.statusApproved
+                          : selectedSubmission.status === "REJECTED"
+                            ? styles.statusRejected
+                            : styles.statusPending
+                          }`}
                       >
                         {selectedSubmission.status}
                       </span>

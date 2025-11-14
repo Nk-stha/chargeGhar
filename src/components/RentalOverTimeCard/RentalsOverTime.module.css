@@ -94,6 +94,7 @@
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -169,7 +170,7 @@
 /* Summary Stats */
 .summaryContainer {
     display: flex;
-    gap: 1.5rem;
+    gap: 2rem;
     padding: 1rem;
     background: #1a1a1a;
     border-radius: 8px;
@@ -180,7 +181,6 @@
 .summaryItem {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
 }
 
 .summaryLabel {
@@ -196,12 +196,10 @@
 
 /* Date Range Info */
 .dateRange {
-    padding: 0.75rem;
     background: #1a1a1a;
-    border-radius: 6px;
     font-size: 12px;
     color: #888;
-    text-align: center;
+    text-align: left;
 }
 
 /* Responsive Design */

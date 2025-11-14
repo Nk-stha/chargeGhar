@@ -188,194 +188,192 @@ const AdminLogsPage: React.FC = () => {
   };
 
   return (
-    <div className={styles.systemLogsPage}>
+    <div className={styles.container}>
       <Navbar />
-      <div className={styles.container}>
-        <header className={styles.header}>
-          <div>
-            <h1>System Logs</h1>
-            <p className={styles.subtitle}>Real-time admin action audit logs</p>
-          </div>
-          <div className={styles.headerActions}>
-            <button
-              className={`${styles.autoRefreshBtn} ${autoRefresh ? styles.active : ""}`}
-              onClick={() => setAutoRefresh(!autoRefresh)}
-              title={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
-            >
-              <FiRefreshCw
-                className={autoRefresh ? styles.spinning : ""}
-                size={16}
-              />
-              {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
-            </button>
-            <button
-              className={styles.refreshBtn}
-              onClick={handleRefresh}
-              disabled={loading}
-              title="Refresh logs"
-            >
-              <FiRefreshCw size={18} />
-            </button>
-          </div>
-        </header>
-
-        <div className={styles.controls}>
-          <div className={styles.searchContainer}>
-            <FiSearch className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search logs..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className={styles.searchInput}
-            />
-            {searchTerm && (
-              <button
-                className={styles.clearBtn}
-                onClick={clearSearch}
-                title="Clear search"
-              >
-                <FiX size={16} />
-              </button>
-            )}
-          </div>
-
+      <header className={styles.header}>
+        <div>
+          <h1 className={styles.title}>Admin Logs</h1>
+          <p className={styles.subtitle}>Real-time admin action audit logs</p>
+        </div>
+        <div className={styles.headerActions}>
           <button
-            className={styles.filterToggle}
-            onClick={() => setShowFilters(!showFilters)}
+            className={`${styles.autoRefreshBtn} ${autoRefresh ? styles.active : ""}`}
+            onClick={() => setAutoRefresh(!autoRefresh)}
+            title={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
           >
-            <FiFilter size={16} />
-            Filters
+            <FiRefreshCw
+              className={autoRefresh ? styles.spinning : ""}
+              size={16}
+            />
+            {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
+          </button>
+          <button
+            className={styles.refreshBtn}
+            onClick={handleRefresh}
+            disabled={loading}
+            title="Refresh logs"
+          >
+            <FiRefreshCw size={18} />
           </button>
         </div>
+      </header>
 
-        {showFilters && (
-          <div className={styles.filterPanel}>
-            <div className={styles.filterGroup}>
-              <label>Action Type:</label>
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className={styles.filterSelect}
-              >
-                <option value="all">All Actions</option>
-                <option value="create">Create</option>
-                <option value="update">Update</option>
-                <option value="delete">Delete</option>
-                <option value="approve">Approve</option>
-                <option value="reject">Reject</option>
-                <option value="kyc">KYC Actions</option>
-                <option value="coupon">Coupon Actions</option>
-                <option value="withdrawal">Withdrawal Actions</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        <div className={styles.statsBar}>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Total Logs:</span>
-            <span className={styles.statValue}>{actionLogs.length}</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Filtered:</span>
-            <span className={styles.statValue}>{filteredLogs.length}</span>
-          </div>
-          <div className={styles.stat}>
-            <span className={styles.statLabel}>Last Update:</span>
-            <span className={styles.statValue}>
-              {lastUpdate.toLocaleTimeString()}
-            </span>
-          </div>
+      <div className={styles.controls}>
+        <div className={styles.searchContainer}>
+          <FiSearch className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search logs..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+          {searchTerm && (
+            <button
+              className={styles.clearBtn}
+              onClick={clearSearch}
+              title="Clear search"
+            >
+              <FiX size={16} />
+            </button>
+          )}
         </div>
 
-        {loading && actionLogs.length === 0 ? (
-          <div className={styles.loadingContainer}>
-            <FiRefreshCw className={styles.spinner} size={32} />
-            <p>Loading system logs...</p>
+        <button
+          className={styles.filterToggle}
+          onClick={() => setShowFilters(!showFilters)}
+        >
+          <FiFilter size={16} />
+          Filters
+        </button>
+      </div>
+
+      {showFilters && (
+        <div className={styles.filterPanel}>
+          <div className={styles.filterGroup}>
+            <label>Action Type:</label>
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className={styles.filterSelect}
+            >
+              <option value="all">All Actions</option>
+              <option value="create">Create</option>
+              <option value="update">Update</option>
+              <option value="delete">Delete</option>
+              <option value="approve">Approve</option>
+              <option value="reject">Reject</option>
+              <option value="kyc">KYC Actions</option>
+              <option value="coupon">Coupon Actions</option>
+              <option value="withdrawal">Withdrawal Actions</option>
+            </select>
           </div>
-        ) : error ? (
-          <div className={styles.errorContainer}>
-            <FiAlertTriangle size={32} />
-            <p>{error}</p>
-            <button className={styles.retryBtn} onClick={handleRefresh}>
-              Try Again
-            </button>
-          </div>
-        ) : filteredLogs.length === 0 ? (
-          <div className={styles.emptyContainer}>
-            <FiInfo size={32} />
-            <p>No logs found matching your criteria</p>
-          </div>
-        ) : (
-          <div className={styles.logsContainer}>
-            {filteredLogs.map((log) => {
-              const updateType = getUpdateType(log.action_type);
-              return (
-                <div key={log.id} className={styles.logCard}>
-                  <div className={styles.logHeader}>
-                    <div className={styles.logTitle}>
-                      <div className={styles.iconContainer}>
-                        {getIcon(updateType)}
-                      </div>
-                      <div>
-                        <h3>{formatTitle(log.action_type)}</h3>
-                        <span className={styles.targetModel}>
-                          {log.target_model}
-                        </span>
-                      </div>
+        </div>
+      )}
+
+      <div className={styles.statsBar}>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Total Logs:</span>
+          <span className={styles.statValue}>{actionLogs.length}</span>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Filtered:</span>
+          <span className={styles.statValue}>{filteredLogs.length}</span>
+        </div>
+        <div className={styles.stat}>
+          <span className={styles.statLabel}>Last Update:</span>
+          <span className={styles.statValue}>
+            {lastUpdate.toLocaleTimeString()}
+          </span>
+        </div>
+      </div>
+
+      {loading && actionLogs.length === 0 ? (
+        <div className={styles.loadingContainer}>
+          <FiRefreshCw className={styles.spinner} size={32} />
+          <p>Loading system logs...</p>
+        </div>
+      ) : error ? (
+        <div className={styles.errorContainer}>
+          <FiAlertTriangle size={32} />
+          <p>{error}</p>
+          <button className={styles.retryBtn} onClick={handleRefresh}>
+            Try Again
+          </button>
+        </div>
+      ) : filteredLogs.length === 0 ? (
+        <div className={styles.emptyContainer}>
+          <FiInfo size={32} />
+          <p>No logs found matching your criteria</p>
+        </div>
+      ) : (
+        <div className={styles.logsContainer}>
+          {filteredLogs.map((log) => {
+            const updateType = getUpdateType(log.action_type);
+            return (
+              <div key={log.id} className={styles.logCard}>
+                <div className={styles.logHeader}>
+                  <div className={styles.logTitle}>
+                    <div className={styles.iconContainer}>
+                      {getIcon(updateType)}
                     </div>
-                    <div className={styles.logMeta}>
-                      <span className={styles.timeAgo}>
-                        {formatTimeAgo(log.created_at)}
-                      </span>
-                      <span className={styles.timestamp}>
-                        {formatDateTime(log.created_at)}
+                    <div>
+                      <h3>{formatTitle(log.action_type)}</h3>
+                      <span className={styles.targetModel}>
+                        {log.target_model}
                       </span>
                     </div>
                   </div>
-
-                  <div className={styles.logBody}>
-                    <p className={styles.description}>{log.description}</p>
-
-                    {Object.keys(log.changes).length > 0 && (
-                      <div className={styles.changesContainer}>
-                        <h4>Changes:</h4>
-                        <div className={styles.changes}>
-                          {Object.entries(log.changes).map(([key, value]) => (
-                            <div key={key} className={styles.changeItem}>
-                              <span className={styles.changeKey}>{key}:</span>
-                              <span className={styles.changeValue}>
-                                {typeof value === "object"
-                                  ? JSON.stringify(value)
-                                  : String(value)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className={styles.logFooter}>
-                    <div className={styles.adminInfo}>
-                      <span className={styles.adminName}>
-                        {log.admin_username}
-                      </span>
-                      <span className={styles.adminEmail}>
-                        {log.admin_email}
-                      </span>
-                    </div>
-                    <div className={styles.technicalInfo}>
-                      <span className={styles.ipAddress}>{log.ip_address}</span>
-                    </div>
+                  <div className={styles.logMeta}>
+                    <span className={styles.timeAgo}>
+                      {formatTimeAgo(log.created_at)}
+                    </span>
+                    <span className={styles.timestamp}>
+                      {formatDateTime(log.created_at)}
+                    </span>
                   </div>
                 </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+
+                <div className={styles.logBody}>
+                  <p className={styles.description}>{log.description}</p>
+
+                  {Object.keys(log.changes).length > 0 && (
+                    <div className={styles.changesContainer}>
+                      <h4>Changes:</h4>
+                      <div className={styles.changes}>
+                        {Object.entries(log.changes).map(([key, value]) => (
+                          <div key={key} className={styles.changeItem}>
+                            <span className={styles.changeKey}>{key}:</span>
+                            <span className={styles.changeValue}>
+                              {typeof value === "object"
+                                ? JSON.stringify(value)
+                                : String(value)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className={styles.logFooter}>
+                  <div className={styles.adminInfo}>
+                    <span className={styles.adminName}>
+                      {log.admin_username}
+                    </span>
+                    <span className={styles.adminEmail}>
+                      {log.admin_email}
+                    </span>
+                  </div>
+                  <div className={styles.technicalInfo}>
+                    <span className={styles.ipAddress}>{log.ip_address}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

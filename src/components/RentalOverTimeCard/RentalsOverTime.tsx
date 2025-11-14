@@ -216,15 +216,14 @@ const RentalOverTime: React.FC = () => {
                 {data.summary.peak_count} on{" "}
                 {new Date(data.summary.peak_date).toLocaleDateString()}
               </span>
+              {/* Date Range Info */}
+              <span className={styles.dateRange}>
+                Showing data from {data.start_date} to {data.end_date}
+              </span>
             </div>
           )}
         </div>
       )}
-
-      {/* Date Range Info */}
-      <div className={styles.dateRange}>
-        Showing data from {data.start_date} to {data.end_date}
-      </div>
     </div>
   );
 };

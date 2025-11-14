@@ -91,7 +91,7 @@ const SystemLogsPage: React.FC = () => {
         console.error("Error fetching system logs:", err);
         setError(
           err.response?.data?.message ||
-            "Failed to load system logs. Please try again."
+          "Failed to load system logs. Please try again."
         );
       } finally {
         setLoading(false);
@@ -179,7 +179,7 @@ const SystemLogsPage: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1>System Logs</h1>
+          <h1 className={styles.title}>System Logs</h1>
           <p className={styles.subtitle}>
             Monitor system events, errors, and warnings in real-time
           </p>
@@ -241,9 +241,8 @@ const SystemLogsPage: React.FC = () => {
               {levels.map((level) => (
                 <button
                   key={level}
-                  className={`${styles.levelButton} ${
-                    filterLevel === level ? styles.active : ""
-                  }`}
+                  className={`${styles.levelButton} ${filterLevel === level ? styles.active : ""
+                    }`}
                   onClick={() => {
                     setFilterLevel(level);
                     setCurrentPage(1);
