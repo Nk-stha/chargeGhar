@@ -13,6 +13,33 @@
     z-index: 1000;
 }
 
+/* Mobile Menu Toggle */
+.menuToggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #82ea80;
+    font-size: 1.5rem;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-right: 1rem;
+}
+
+.menuToggle:hover {
+    background: #47b216;
+    border-color: #47b216;
+    color: #fff;
+}
+
+.menuToggle:active {
+    transform: scale(0.95);
+}
+
 /* Logo */
 .logoContainer {
     display: flex;
@@ -156,9 +183,12 @@
 
 /* Mobile Landscape (768px and below) */
 @media (max-width: 768px) {
+    .menuToggle {
+        display: flex;
+    }
+
     .header {
         padding: 0 1rem;
-        padding-left: 60px;
     }
 
     .logo {
@@ -193,10 +223,16 @@
 
 /* Mobile Portrait (480px and below) */
 @media (max-width: 480px) {
+    .menuToggle {
+        width: 36px;
+        height: 36px;
+        font-size: 1.3rem;
+        margin-right: 0.75rem;
+    }
+
     .header {
         height: 56px;
         padding: 0 0.75rem;
-        padding-left: 55px;
     }
 
     .logo {
@@ -237,10 +273,16 @@
 
 /* Extra Small Mobile (360px and below) */
 @media (max-width: 360px) {
+    .menuToggle {
+        width: 34px;
+        height: 34px;
+        font-size: 1.2rem;
+        margin-right: 0.5rem;
+    }
+
     .header {
         height: 54px;
         padding: 0 0.5rem;
-        padding-left: 50px;
     }
 
     .logo {

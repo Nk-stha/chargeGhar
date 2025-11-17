@@ -3,11 +3,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from "@/components/Navbar/Navbar";
+import { DashboardDataProvider } from '../../contexts/DashboardDataContext';
 import Header from "@/components/Header/Header";
 import styles from "./dashboard.module.css";
-import { DashboardDataProvider } from '../../contexts/DashboardDataContext';
-
+import Navbar from '@/components/Navbar/Navbar';
 export default function DashboardLayout({
     children,
 }: {
