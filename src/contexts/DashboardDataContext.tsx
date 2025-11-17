@@ -56,6 +56,7 @@ export const DashboardDataProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const response = await instance.get("/api/admin/profiles");
       if (response.data.success) {
+        // API returns array directly in data field
         setProfilesData(response.data.data);
       } else {
         setError("Failed to fetch profiles data");

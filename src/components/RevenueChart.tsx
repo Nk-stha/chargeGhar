@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import styles from "./RevenueChart.module.css";
+import TotalBadge from "./common/TotalBadge";
 import {
   AreaChart,
   Area,
@@ -22,6 +24,18 @@ const RevenueChart: React.FC = () => {
   const [data, setData] = useState<RevenueAnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Detect screen size for responsive labels
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchRevenueData = async (selectedPeriod: AnalyticsPeriod) => {
     try {
@@ -60,32 +74,36 @@ const RevenueChart: React.FC = () => {
     return `${value.toLocaleString("en-US")}`;
   };
 
+  // Format X-axis tick to show shorter dates
+  const formatXAxisTick = (value: string) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      // For daily: show "18 Oct" format
+      if (period === "daily") {
+        return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+      }
+      // For weekly: keep as is or shorten
+      if (period === "weekly") {
+        return value.replace("Week ", "W");
+      }
+      // For monthly: show "Jan" format
+      if (period === "monthly") {
+        return date.toLocaleDateString("en-US", { month: "short" });
+      }
+      return value;
+    } catch {
+      return value;
+    }
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div
-          style={{
-            background: "#0b0b0b",
-            border: "1px solid #47b216",
-            borderRadius: "8px",
-            padding: "12px",
-            color: "#fff",
-          }}
-        >
-          <p
-            style={{ color: "#82ea80", fontWeight: "600", marginBottom: "8px" }}
-          >
-            {label}
-          </p>
+        <div className={styles.customTooltip}>
+          <p className={styles.tooltipLabel}>{label}</p>
           {payload.map((entry: any, index: number) => (
-            <p
-              key={index}
-              style={{
-                color: entry.color,
-                fontSize: "14px",
-                margin: "4px 0",
-              }}
-            >
+            <p key={index} className={styles.tooltipValue} style={{ color: entry.color }}>
               {entry.name}: {data?.currency} {formatCurrency(entry.value)}
             </p>
           ))}
@@ -97,167 +115,56 @@ const RevenueChart: React.FC = () => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          width: "100%",
-          minHeight: "400px",
-          background: "#121212",
-          borderRadius: "12px",
-          padding: "2rem",
-          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <div style={{ textAlign: "center", color: "#82ea80" }}>
-          <div
-            style={{
-              width: "50px",
-              height: "50px",
-              border: "4px solid #1a1a1a",
-              borderTop: "4px solid #47b216",
-              borderRadius: "50%",
-              animation: "spin 1s linear infinite",
-              margin: "0 auto 1rem",
-            }}
-          />
+      <div className={styles.card}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.spinner} />
           <p>Loading revenue data...</p>
         </div>
-        <style jsx>{`
-          @keyframes spin {
-            0% {
-              transform: rotate(0deg);
-            }
-            100% {
-              transform: rotate(360deg);
-            }
-          }
-        `}</style>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div
-        style={{
-          width: "100%",
-          minHeight: "400px",
-          background: "#121212",
-          borderRadius: "12px",
-          padding: "2rem",
-          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
-          gap: "1rem",
-        }}
-      >
-        <p style={{ color: "#dc3545", fontSize: "16px" }}>{error}</p>
-        <button
-          onClick={() => fetchRevenueData(period)}
-          style={{
-            background: "#47b216",
-            color: "#fff",
-            border: "none",
-            borderRadius: "6px",
-            padding: "10px 20px",
-            cursor: "pointer",
-            fontSize: "14px",
-            fontWeight: "500",
-          }}
-        >
-          Retry
-        </button>
+      <div className={styles.card}>
+        <div className={styles.errorContainer}>
+          <p className={styles.errorText}>{error}</p>
+          <button onClick={() => fetchRevenueData(period)} className={styles.retryButton}>
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
   if (!data || data.chart_data.length === 0) {
     return (
-      <div
-        style={{
-          width: "100%",
-          minHeight: "400px",
-          background: "#121212",
-          borderRadius: "12px",
-          padding: "2rem",
-          boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <p style={{ color: "#888" }}>No revenue data available</p>
+      <div className={styles.card}>
+        <div className={styles.noData}>
+          <p>No revenue data available</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        minHeight: "400px",
-        background: "#121212",
-        borderRadius: "12px",
-        padding: "1.5rem",
-        boxShadow: "0 0 10px rgba(0,0,0,0.2)",
-      }}
-    >
-      {/* Header with Title and Period Filter */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <div>
-          <h3
-            style={{
-              color: "#82ea80",
-              margin: "0 0 0.5rem 0",
-              fontSize: "1.25rem",
-            }}
-          >
-            Revenue Over Time
-          </h3>
-          <p style={{ color: "#888", margin: 0, fontSize: "14px" }}>
-            Total: {data.currency} {formatCurrency(data.total_revenue)}
-          </p>
+    <div className={styles.card}>
+      <div className={styles.header}>
+        <div className={styles.titleSection}>
+          <h3>Revenue Over Time</h3>
+          <TotalBadge 
+            label="Total" 
+            value={`${data.currency} ${formatCurrency(data.total_revenue)}`}
+            color="green"
+          />
         </div>
 
-        {/* Period Toggle */}
-        <div
-          style={{
-            display: "flex",
-            gap: "8px",
-            background: "#1a1a1a",
-            borderRadius: "8px",
-            padding: "4px",
-          }}
-        >
+        <div className={styles.toggle}>
           {(["daily", "weekly", "monthly"] as AnalyticsPeriod[]).map((p) => (
             <button
               key={p}
               onClick={() => handlePeriodChange(p)}
-              style={{
-                background: period === p ? "#47b216" : "transparent",
-                color: period === p ? "#fff" : "#888",
-                border: "none",
-                borderRadius: "6px",
-                padding: "8px 16px",
-                cursor: "pointer",
-                fontSize: "14px",
-                fontWeight: "500",
-                transition: "all 0.2s ease",
-                textTransform: "capitalize",
-              }}
+              className={`${styles.toggleBtn} ${period === p ? styles.active : ""}`}
             >
               {p}
             </button>
@@ -265,103 +172,105 @@ const RevenueChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Chart */}
-      <ResponsiveContainer width="100%" height={350}>
-        <AreaChart
-          data={data.chart_data}
-          margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-        >
-          <defs>
-            <linearGradient id="rentalRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#47b216" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#47b216" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="rentalDueRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#82ea80" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#82ea80" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="topupRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#2196f3" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#2196f3" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="fineRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#ff9800" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#ff9800" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
-          <XAxis
-            dataKey="label"
-            stroke="#888"
-            style={{ fontSize: "12px" }}
-            angle={-45}
-            textAnchor="end"
-            height={80}
-          />
-          <YAxis
-            stroke="#888"
-            style={{ fontSize: "12px" }}
-            tickFormatter={formatCurrency}
-          />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend
-            wrapperStyle={{
-              paddingTop: "20px",
-              fontSize: "14px",
+      <div className={styles.chartContainer}>
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart
+            data={data.chart_data}
+            margin={{ 
+              top: 10, 
+              right: isMobile ? 5 : 10, 
+              left: isMobile ? -10 : 0, 
+              bottom: 0 
             }}
-            iconType="circle"
-          />
-          <Area
-            type="monotone"
-            dataKey="rental_revenue"
-            name="Rental"
-            stroke="#47b216"
-            fillOpacity={1}
-            fill="url(#rentalRevenue)"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="rental_due_revenue"
-            name="Rental Due"
-            stroke="#82ea80"
-            fillOpacity={1}
-            fill="url(#rentalDueRevenue)"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="topup_revenue"
-            name="Top-up"
-            stroke="#2196f3"
-            fillOpacity={1}
-            fill="url(#topupRevenue)"
-            strokeWidth={2}
-          />
-          <Area
-            type="monotone"
-            dataKey="fine_revenue"
-            name="Fine"
-            stroke="#ff9800"
-            fillOpacity={1}
-            fill="url(#fineRevenue)"
-            strokeWidth={2}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+          >
+            <defs>
+              <linearGradient id="rentalRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#47b216" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#47b216" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="rentalDueRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#82ea80" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#82ea80" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="topupRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#2196f3" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#2196f3" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="fineRevenue" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#ff9800" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#ff9800" stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
+            <XAxis
+              dataKey="label"
+              stroke="#888"
+              style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: 500 }}
+              angle={-45}
+              textAnchor="end"
+              height={isMobile ? 60 : 70}
+              interval={isMobile ? 2 : 1}
+              tick={{ fill: "#888" }}
+              tickFormatter={formatXAxisTick}
+            />
+            <YAxis
+              stroke="#888"
+              style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: 500 }}
+              tickFormatter={formatCurrency}
+              width={isMobile ? 45 : 55}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend
+              wrapperStyle={{
+                paddingTop: isMobile ? "12px" : "18px",
+                fontSize: isMobile ? "11px" : "13px",
+                fontWeight: 500,
+              }}
+              iconType="circle"
+              iconSize={isMobile ? 9 : 11}
+            />
+            {/* Non-stacked areas - each visible independently */}
+            <Area
+              type="monotone"
+              dataKey="rental_revenue"
+              name="Rental"
+              stroke="#47b216"
+              strokeWidth={2}
+              fill="url(#rentalRevenue)"
+              fillOpacity={1}
+            />
+            <Area
+              type="monotone"
+              dataKey="rental_due_revenue"
+              name="Rental Due"
+              stroke="#82ea80"
+              strokeWidth={2}
+              fill="url(#rentalDueRevenue)"
+              fillOpacity={1}
+            />
+            <Area
+              type="monotone"
+              dataKey="topup_revenue"
+              name="Top-up"
+              stroke="#2196f3"
+              strokeWidth={2}
+              fill="url(#topupRevenue)"
+              fillOpacity={1}
+            />
+            <Area
+              type="monotone"
+              dataKey="fine_revenue"
+              name="Fine"
+              stroke="#ff9800"
+              strokeWidth={2}
+              fill="url(#fineRevenue)"
+              fillOpacity={1}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
-      {/* Date Range Info */}
-      <div
-        style={{
-          marginTop: "1rem",
-          padding: "0.75rem",
-          background: "#1a1a1a",
-          borderRadius: "6px",
-          fontSize: "12px",
-          color: "#888",
-          textAlign: "center",
-        }}
-      >
+      <div className={styles.dateRange}>
         Showing data from {data.start_date} to {data.end_date}
       </div>
     </div>

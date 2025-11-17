@@ -30,20 +30,10 @@ const Dashboard: React.FC = () => {
           <DashboardStats />
         </section>
 
-        {/* System Health */}
-        <section className={styles.systemHealthSection}>
-          <SystemHealth />
-        </section>
-
-        {/* Revenue Section */}
-        <section className={styles.revenueSection}>
+        {/* Revenue Chart + System Health side by side */}
+        <section className={styles.twoColumnLarge}>
           <RevenueChart />
-        </section>
-
-        {/* Popular Packages + Recent Transactions side by side */}
-        <section className={styles.twoColumn}>
-          <PopularPackages />
-          <RecentTransactions />
+          <SystemHealth />
         </section>
 
         {/* Rental Over Time + Station Utilization side by side */}
@@ -52,9 +42,15 @@ const Dashboard: React.FC = () => {
           <StationUtilizationChart />
         </section>
 
-        {/* Monitor Rentals and Recent Updates stacked */}
-        <section className={styles.bottomSection}>
+        {/* Monitor Rentals + Popular Packages side by side */}
+        <section className={styles.twoColumn}>
           <MonitorRentals />
+          <PopularPackages />
+        </section>
+
+        {/* Recent Transactions + Recent Updates side by side */}
+        <section className={styles.twoColumn}>
+          <RecentTransactions />
           <RecentUpdates />
         </section>
       </div>
