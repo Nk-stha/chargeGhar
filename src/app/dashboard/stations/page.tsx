@@ -18,6 +18,7 @@ import {
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
 import stationsService from "../../../lib/api/stations.service";
 import { Station } from "../../../types/station.types";
+import DataTable from "../../../components/DataTable/dataTable";
 
 const StationsPage: React.FC = () => {
   const router = useRouter();
@@ -38,7 +39,7 @@ const StationsPage: React.FC = () => {
   const filteredStations = stations.filter(
     (s: Station) =>
       s.station_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.address.toLowerCase().includes(search.toLowerCase()),
+      s.address.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleDeleteClick = (station: Station, e: React.MouseEvent) => {
@@ -49,19 +50,15 @@ const StationsPage: React.FC = () => {
 
   const handleDeleteConfirm = async () => {
     if (!deleteModal.station) return;
-
     setDeleting(true);
     setDeleteError(null);
-
     try {
       const response = await stationsService.deleteStation(
-        deleteModal.station.serial_number,
+        deleteModal.station.serial_number
       );
 
       if (response.success) {
-        // Refresh stations list
         await refetchStations();
-        // Close modal
         setDeleteModal({ show: false, station: null });
       } else {
         setDeleteError("Failed to delete station");
@@ -70,7 +67,7 @@ const StationsPage: React.FC = () => {
       console.error("Error deleting station:", err);
       setDeleteError(
         err.response?.data?.message ||
-          "Failed to delete station. It may have active rentals.",
+        "Failed to delete station. It may have active rentals."
       );
     } finally {
       setDeleting(false);
@@ -111,13 +108,76 @@ const StationsPage: React.FC = () => {
   // Auto-refresh effect
   useEffect(() => {
     if (!autoRefresh) return;
-
-    const intervalId = setInterval(() => {
-      refetchStations();
-    }, 30000); // Refresh every 30 seconds
-
+    const intervalId = setInterval(() => refetchStations(), 30000);
     return () => clearInterval(intervalId);
   }, [autoRefresh, refetchStations]);
+
+  const columns = [
+    { header: "#", accessor: "index" },
+    {
+      header: "Station Name",
+      accessor: "station_name",
+      render: (_: any, row: Station) => (
+        <span className={styles.stationName}>
+          <FiMapPin className={styles.icon} /> {row.station_name}
+        </span>
+      ),
+    },
+    { header: "Location", accessor: "address" },
+    {
+      header: "Status",
+      accessor: "status",
+      render: (value: string) => (
+        <span className={`${styles.status} ${styles[value.toLowerCase()]}`}>
+          {value}
+        </span>
+      ),
+    },
+    { header: "Chargers", accessor: "total_slots" },
+    {
+      header: "Utilization",
+      accessor: "utilization",
+      render: (_: any, row: Station) => {
+        const percent = stationsService.calculateUtilization(row);
+        return (
+          <div className={styles.utilizationCell}>
+            <div className={styles.utilizationBar}>
+              <div
+                className={styles.utilizationFill}
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+            <span className={styles.utilizationText}>{percent}%</span>
+          </div>
+        );
+      },
+    },
+    {
+      header: "Actions",
+      accessor: "actions",
+      render: (_: any, row: Station) => (
+        <div className={styles.actions}>
+          <button
+            className={styles.editButton}
+            onClick={(e) => handleEdit(row, e)}
+          >
+            <FiEdit />
+          </button>
+          <button
+            className={styles.deleteButton}
+            onClick={(e) => handleDeleteClick(row, e)}
+          >
+            <FiTrash2 />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const tableData = filteredStations.map((station, index) => ({
+    ...station,
+    index: index + 1,
+  }));
 
   if (loading) return <div className={styles.container}>Loading...</div>;
   if (error) return <div className={styles.container}>{error}</div>;
@@ -126,9 +186,7 @@ const StationsPage: React.FC = () => {
     <div className={styles.StationsPage}>
       <div className={styles.container}>
         <h1 className={styles.title}>Stations</h1>
-        <p className={styles.subtitle}>
-          Add and Manage stations configurations
-        </p>
+        <p className={styles.subtitle}>Add and Manage stations configurations</p>
 
         <div className={styles.header}>
           <div className={styles.headerActions}>
@@ -152,9 +210,9 @@ const StationsPage: React.FC = () => {
                 <FiRefreshCw className={refreshing ? styles.spinning : ""} />
               </button>
               <button
-                className={`${styles.autoRefreshButton} ${autoRefresh ? styles.active : ""}`}
+                className={`${styles.autoRefreshButton} ${autoRefresh ? styles.active : ""
+                  }`}
                 onClick={toggleAutoRefresh}
-                title={autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
               >
                 {autoRefresh ? <FiToggleRight /> : <FiToggleLeft />}
                 {autoRefresh ? "Auto" : "Manual"}
@@ -166,90 +224,15 @@ const StationsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Station Name</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Chargers</th>
-                <th>Utilization</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+        <DataTable
+          title="Station List"
+          subtitle={`Showing ${tableData.length} of ${stations.length} stations`}
+          columns={columns}
+          data={tableData}
+          loading={loading}
+          emptyMessage="No stations found."
+        />
 
-            <tbody>
-              {filteredStations.length > 0 ? (
-                filteredStations.map((station: Station, index: number) => {
-                  const utilizationPercent =
-                    stationsService.calculateUtilization(station);
-
-                  return (
-                    <tr
-                      key={station.id}
-                      className={styles.clickableRow}
-                      onClick={() => handleRowClick(station)}
-                    >
-                      <td>{index + 1}</td>
-                      <td>
-                        <FiMapPin className={styles.icon} />{" "}
-                        {station.station_name}
-                      </td>
-                      <td>{station.address}</td>
-                      <td>
-                        <span
-                          className={`${styles.status} ${
-                            styles[station.status.toLowerCase()]
-                          }`}
-                        >
-                          {station.status}
-                        </span>
-                      </td>
-                      <td>{station.total_slots}</td>
-                      <td>
-                        <div className={styles.utilizationBar}>
-                          <div
-                            className={styles.utilizationFill}
-                            style={{ width: `${utilizationPercent}%` }}
-                          />
-                        </div>
-                        <span className={styles.utilizationText}>
-                          {utilizationPercent}%
-                        </span>
-                      </td>
-                      <td className={styles.actions}>
-                        <button
-                          className={styles.editButton}
-                          onClick={(e) => handleEdit(station, e)}
-                          title="Edit station"
-                        >
-                          <FiEdit />
-                        </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={(e) => handleDeleteClick(station, e)}
-                          title="Delete station"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={7} className={styles.noResults}>
-                    No stations found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Delete Confirmation Modal */}
         {deleteModal.show && (
           <div className={styles.modalOverlay}>
             <div className={styles.modal}>

@@ -5,7 +5,6 @@ import styles from "./users.module.css";
 import {
   FiShield,
   FiUsers,
-  FiTrash2,
   FiSearch,
   FiArrowDown,
   FiChevronDown,
@@ -19,6 +18,7 @@ import { userService } from "../../../lib/api/user.service";
 import AddAdminModal from "./addadmin/AddAdminModal";
 import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfileModal";
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
+import DataTable from "../../../components/DataTable/dataTable";
 
 interface User {
   id: number;
@@ -297,88 +297,43 @@ export default function UsersPage() {
 
       {/* Admin Users Table */}
       {activeTab === "admin" && (
-        <section className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.cardTitle}>
-              <FiShield className={styles.icon} /> Admin Users
-            </div>
-            <p className={styles.cardSubText}>
-              Manage admins and their permissions
-            </p>
-          </div>
+        <DataTable
+          title="Admin Users"
+          subtitle="Manage admins and their permissions"
+          columns={[
+            { header: "ID", accessor: "id", render: (v) => `${v.slice(0, 8)}...` },
+            { header: "Username", accessor: "username" },
+            { header: "Email", accessor: "email" },
+            {
+              header: "Role",
+              accessor: "role",
+              render: (_: any, row) => (
+                <span style={{ textTransform: "capitalize", color: row.is_super_admin ? "#82ea80" : "#ccc" }}>
+                  {row.role.replace("_", " ")}
+                </span>
+              ),
+            },
+            {
+              header: "Status",
+              accessor: "is_active",
+              render: (v) => (
+                <span className={v ? styles.statusActive : styles.statusInactive}>
+                  {v ? "Active" : "Inactive"}
+                </span>
+              ),
+            },
+            {
+              header: "Created Date",
+              accessor: "created_at",
+              render: (v) => new Date(v).toLocaleDateString(),
+            },
+            { header: "Created By", accessor: "created_by_username" },
+          ]}
+          data={admins}
+          emptyMessage="No admins found"
+          loading={loading}
+        />
 
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th>Created By</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {admins.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
-                    style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "#888",
-                    }}
-                  >
-                    No admins found
-                  </td>
-                </tr>
-              ) : (
-                admins.map((admin: AdminProfile) => (
-                  <tr
-                    key={admin.id}
-                    onClick={() => handleAdminClick(admin.id)}
-                    style={{ cursor: "pointer" }}
-                    className={styles.clickableRow}
-                  >
-                    <td>{admin.id.slice(0, 8)}...</td>
-                    <td>{admin.username}</td>
-                    <td>{admin.email}</td>
-                    <td>
-                      <span
-                        style={{
-                          textTransform: "capitalize",
-                          color: admin.is_super_admin ? "#82ea80" : "#ccc",
-                        }}
-                      >
-                        {admin.role.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          admin.is_active
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {admin.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td>{new Date(admin.created_at).toLocaleDateString()}</td>
-                    <td>{admin.created_by_username}</td>
-                    <td onClick={(e) => e.stopPropagation()}>
-                      <button className={styles.deleteBtn} title="Manage admin">
-                        <FiShield />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </section>
       )}
 
       {/* USER CONTROLS */}
@@ -515,139 +470,82 @@ export default function UsersPage() {
 
       {/* Users Table */}
       {activeTab === "users" && (
-        <section className={styles.card}>
-          <div className={styles.cardHeader}>
-            <div className={styles.cardTitle}>
-              <FiUsers className={styles.icon} /> Users
-            </div>
-            <p className={styles.cardSubText}>Manage users</p>
-          </div>
-
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Referral Code</th>
-                <th>Provider</th>
-                <th>Profile Status</th>
-                <th>KYC Status</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedUsers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
-                    style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "#888",
-                      fontStyle: "italic",
-                    }}
+        <DataTable
+          title="Users"
+          subtitle="Manage registered users"
+          columns={[
+            { header: "ID", accessor: "id" },
+            { header: "Username", accessor: "username" },
+            { header: "Referral Code", accessor: "referral_code", render: (v) => v || "—" },
+            { header: "Provider", accessor: "social_provider", render: (v) => v.toLowerCase() },
+            {
+              header: "Profile Status",
+              accessor: "profile_complete",
+              render: (v) => (
+                <span style={{ color: v ? "#32cd32" : "#ff8c00" }}>
+                  {v ? "Complete" : "Incomplete"}
+                </span>
+              ),
+            },
+            {
+              header: "KYC Status",
+              accessor: "kyc_status",
+              render: (v) => (
+                <span
+                  style={{
+                    color:
+                      v === "APPROVED"
+                        ? "#32cd32"
+                        : v === "PENDING"
+                          ? "#ff8c00"
+                          : "#888",
+                  }}
+                >
+                  {v.replace("_", " ")}
+                </span>
+              ),
+            },
+            {
+              header: "Status",
+              accessor: "status",
+              render: (v) => (
+                <span className={v === "ACTIVE" ? styles.statusActive : styles.statusInactive}>
+                  {v}
+                </span>
+              ),
+            },
+            {
+              header: "Created Date",
+              accessor: "date_joined",
+              render: (v) => new Date(v).toLocaleDateString(),
+            },
+            {
+              header: "Actions",
+              accessor: "actions",
+              render: (_: any, row) => (
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    onClick={() => handleOpenAddBalance(row)}
+                    title="Add Balance"
+                    className={styles.actionButtonGreen}
                   >
-                    {search ? "No users match your search." : "No users found."}
-                  </td>
-                </tr>
-              ) : (
-                displayedUsers.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.username}</td>
-                    <td>{user.referral_code || "—"}</td>
-                    <td>
-                      <span style={{ textTransform: "capitalize" }}>
-                        {user.social_provider.toLowerCase()}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        style={{
-                          color: user.profile_complete ? "#32cd32" : "#ff8c00",
-                        }}
-                      >
-                        {user.profile_complete ? "Complete" : "Incomplete"}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            user.kyc_status === "APPROVED"
-                              ? "#32cd32"
-                              : user.kyc_status === "PENDING"
-                                ? "#ff8c00"
-                                : "#888",
-                        }}
-                      >
-                        {user.kyc_status.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          user.status === "ACTIVE"
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <button
-                          onClick={() => handleOpenAddBalance(user)}
-                          title="Add Balance"
-                          style={{
-                            padding: "0.4rem 0.6rem",
-                            background: "rgba(130, 234, 128, 0.1)",
-                            border: "1px solid #82ea80",
-                            borderRadius: "6px",
-                            color: "#82ea80",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                            fontSize: "0.85rem",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          <FiDollarSign size={14} />
-                          Add Balance
-                        </button>
-                        <button
-                          onClick={() => handleOpenStatusModal(user)}
-                          title="Update Status"
-                          style={{
-                            padding: "0.4rem 0.6rem",
-                            background: "rgba(255, 165, 0, 0.1)",
-                            border: "1px solid #ffa500",
-                            borderRadius: "6px",
-                            color: "#ffa500",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                            fontSize: "0.85rem",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          <FiUserCheck size={14} />
-                          Status
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </section>
+                    <FiDollarSign size={14} /> Add Balance
+                  </button>
+                  <button
+                    onClick={() => handleOpenStatusModal(row)}
+                    title="Update Status"
+                    className={styles.actionButtonOrange}
+                  >
+                    <FiUserCheck size={14} /> Status
+                  </button>
+                </div>
+              ),
+            },
+          ]}
+          data={displayedUsers}
+          emptyMessage={search ? "No users match your search." : "No users found."}
+          loading={loading}
+        />
       )}
 
       {showModal && (
