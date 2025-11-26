@@ -18,6 +18,7 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
+import DataTable from "../../../components/DataTable/dataTable";
 
 interface Coupon {
   id: string;
@@ -398,98 +399,146 @@ const CouponsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Table */}
-      <div className={styles.tableWrapper}>
-        <div className={styles.tableHeader}>
-          <h3>All Coupons</h3>
-          <span className={styles.tableCount}>
-            {filteredCoupons.length}{" "}
-            {filteredCoupons.length === 1 ? "coupon" : "coupons"}
-          </span>
-        </div>
 
-        {loading ? (
-          <div className={styles.loadingContainer}>
-            <div className={styles.spinner}></div>
-            <p>Loading coupons...</p>
-          </div>
-        ) : filteredCoupons.length === 0 ? (
-          <div className={styles.emptyState}>
-            <FiGift className={styles.emptyIcon} />
-            <p>No coupons found</p>
-          </div>
-        ) : (
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Name</th>
-                  <th>Points Value</th>
-                  <th>Max Uses/User</th>
-                  <th>Total Uses</th>
-                  <th>Status</th>
-                  <th>Valid Until</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCoupons.map((coupon) => (
-                  <tr key={coupon.id}>
-                    <td className={styles.codeCell}>{coupon.code}</td>
-                    <td>{coupon.name}</td>
-                    <td className={styles.pointsCell}>
-                      {coupon.points_value} pts
-                    </td>
-                    <td>{coupon.max_uses_per_user}</td>
-                    <td>{coupon.total_uses || 0}</td>
-                    <td>
-                      <span
-                        className={styles.statusBadge}
-                        style={{
-                          backgroundColor: `${getStatusColor(coupon.status)}22`,
-                          color: getStatusColor(coupon.status),
-                          borderColor: getStatusColor(coupon.status),
-                        }}
-                      >
-                        {coupon.status}
-                      </span>
-                    </td>
-                    <td className={styles.dateCell}>
-                      {new Date(coupon.valid_until).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.actionButton}
-                          onClick={() => fetchCouponDetails(coupon.code)}
-                          title="View Details"
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className={styles.actionButton}
-                          onClick={() => openStatusModal(coupon)}
-                          title="Update Status"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className={`${styles.actionButton} ${styles.deleteButton}`}
-                          onClick={() => handleDelete(coupon.code)}
-                          title="Delete"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Table */}
+      <DataTable
+        title="All Coupons"
+        subtitle={`${filteredCoupons.length} ${filteredCoupons.length === 1 ? "coupon" : "coupons"}`}
+        columns={[
+          {
+            header: "Code",
+            accessor: "code",
+            render: (value: string) => (
+              <span className={styles.codeCell}>{value}</span>
+            ),
+          },
+          {
+            header: "Name",
+            accessor: "name",
+          },
+          {
+            header: "Points Value",
+            accessor: "points_value",
+            render: (value: number) => (
+              <span className={styles.pointsCell}>{value} pts</span>
+            ),
+          },
+          {
+            header: "Max Uses/User",
+            accessor: "max_uses_per_user",
+          },
+          {
+            header: "Total Uses",
+            accessor: "total_uses",
+            render: (value: number) => value || 0,
+          },
+          {
+            header: "Status",
+            accessor: "status",
+            render: (value: string, row: Coupon) => (
+              <span
+                className={styles.statusBadge}
+                style={{
+                  backgroundColor: `${getStatusColor(value)}22`,
+                  color: getStatusColor(value),
+                  borderColor: getStatusColor(value),
+                }}
+              >
+                {value}
+              </span>
+            ),
+          },
+          {
+            header: "Valid Until",
+            accessor: "valid_until",
+            render: (value: string) => (
+              <span className={styles.dateCell}>
+                {new Date(value).toLocaleDateString()}
+              </span>
+            ),
+          },
+          {
+            header: "Actions",
+            accessor: "actions",
+            render: (_: any, row: Coupon) => (
+              <div className={styles.actions}>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => fetchCouponDetails(row.code)}
+                  title="View Details"
+                >
+                  <FiEye />
+                </button>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => openStatusModal(row)}
+                  title="Update Status"
+                >
+                  <FiEdit2 />
+                </button>
+                <button
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => handleDelete(row.code)}
+                  title="Delete"
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            ),
+          },
+        ]}
+        data={filteredCoupons}
+        loading={loading}
+        emptyMessage="No coupons found"
+        mobileCardRender={(row: Coupon) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+              <span className={styles.codeCell}>{row.code}</span>
+              <span
+                className={styles.statusBadge}
+                style={{
+                  backgroundColor: `${getStatusColor(row.status)}22`,
+                  color: getStatusColor(row.status),
+                  borderColor: getStatusColor(row.status),
+                }}
+              >
+                {row.status}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontWeight: 500 }}>{row.name}</p>
+            <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "#aaa" }}>
+              <span className={styles.pointsCell}>{row.points_value} pts</span>
+              <span>Uses: {row.total_uses || 0}/{row.max_uses_per_user}</span>
+            </div>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>
+              Valid until: {new Date(row.valid_until).toLocaleDateString()}
+            </p>
+            <div className={styles.actions} style={{ marginTop: "0.5rem" }}>
+              <button
+                className={styles.actionButton}
+                onClick={() => fetchCouponDetails(row.code)}
+                title="View Details"
+              >
+                <FiEye /> View
+              </button>
+              <button
+                className={styles.actionButton}
+                onClick={() => openStatusModal(row)}
+                title="Update Status"
+              >
+                <FiEdit2 /> Edit
+              </button>
+              <button
+                className={`${styles.actionButton} ${styles.deleteButton}`}
+                onClick={() => handleDelete(row.code)}
+                title="Delete"
+              >
+                <FiTrash2 /> Delete
+              </button>
+            </div>
           </div>
         )}
-      </div>
+      />
 
       {/* Add Coupon Modal */}
       {showAddModal && (

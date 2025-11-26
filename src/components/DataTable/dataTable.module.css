@@ -2,7 +2,7 @@
     background: #141414;
     border-radius: 10px;
     border: 1px solid #2a2a2a;
-    padding: 1rem;
+    overflow: hidden;
 }
 
 /* Header (Title + Subtitle area) */
@@ -34,6 +34,18 @@
     color: #777;
 }
 
+/* Desktop Table - visible on md and up */
+.desktopTable {
+    display: none;
+    overflow-x: auto;
+}
+
+@media (min-width: 768px) {
+    .desktopTable {
+        display: block;
+    }
+}
+
 /* Table core styling */
 .table {
     width: 100%;
@@ -45,22 +57,16 @@
     text-align: left;
     color: #bbb;
     font-size: 0.85rem;
+    font-weight: 600;
     padding: 0.75rem 1rem;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .table td {
     padding: 0.75rem 1rem;
     border-top: 1px solid #222;
     color: #eee;
-}
-
-.table tr:hover {
-    background: #1e1e1e;
-}
-
-.table thead {
-    background: #111;
-    border-bottom: 2px solid #47b216;
+    font-size: 0.9rem;
 }
 
 .table tbody tr {
@@ -76,6 +82,54 @@
     background-color: #1d1d1d;
 }
 
+.alignRight {
+    text-align: right;
+}
+
+/* Mobile Cards - visible below md */
+.mobileCards {
+    display: block;
+}
+
+@media (min-width: 768px) {
+    .mobileCards {
+        display: none;
+    }
+}
+
+.mobileCard {
+    padding: 1rem;
+    border-bottom: 1px solid #222;
+    background: #111;
+}
+
+.mobileCard:last-child {
+    border-bottom: none;
+}
+
+.mobileCardDefault {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.mobileCardRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobileCardLabel {
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 500;
+}
+
+.mobileCardValue {
+    font-size: 0.9rem;
+    color: #ddd;
+}
+
 /* No data message */
 .noData {
     text-align: center;
@@ -84,7 +138,7 @@
     font-size: 0.95rem;
 }
 
-/* Optional loading container */
+/* Loading container */
 .loadingContainer {
     text-align: center;
     padding: 40px;
@@ -112,35 +166,109 @@
     color: #ff6b6b;
 }
 
-@media (max-width: 768px) {
+/* Avatar styles */
+.avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+}
 
+/* Badge pills for roles, subscriptions, status */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.badgeRoleCreator {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: rgb(59, 130, 246);
+}
+
+.badgeRoleUser {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: rgb(156, 163, 175);
+}
+
+.badgeSubscriptionPaid {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+}
+
+.badgeSubscriptionTrial {
+    background-color: rgba(234, 179, 8, 0.1);
+    color: rgb(234, 179, 8);
+}
+
+.badgeSubscriptionFree {
+    background-color: rgba(156, 163, 175, 0.1);
+    color: rgb(156, 163, 175);
+}
+
+.badgeStatusActive {
+    background-color: rgba(34, 197, 94, 0.1);
+    color: rgb(34, 197, 94);
+}
+
+.badgeStatusInactive {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: rgb(239, 68, 68);
+}
+
+/* Action buttons */
+.actionButton {
+    padding: 0.5rem;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    color: #ddd;
+}
+
+.actionButton:hover {
+    background-color: #1e1e1e;
+}
+
+@media (max-width: 768px) {
     .tableHeader {
         flex-direction: column;
         gap: 12px;
         align-items: stretch;
+        padding: 1rem;
     }
 
-    .table {
-        font-size: 13px;
+    .tableInfo h3 {
+        font-size: 0.95rem;
     }
 
-    .table th,
-    .table td {
-        padding: 12px 10px;
+    .tableInfo p {
+        font-size: 0.8rem;
+    }
+
+    .mobileCard {
+        padding: 1rem 0.75rem;
     }
 }
 
 @media (max-width: 480px) {
-
-    .table {
-        display: block;
-        overflow-x: auto;
+    .tableWrapper {
+        border-radius: 8px;
     }
 
-    .table th,
-    .table td {
-        white-space: nowrap;
-        padding: 10px 8px;
-        font-size: 12px;
+    .mobileCardLabel {
+        font-size: 0.8rem;
+    }
+
+    .mobileCardValue {
+        font-size: 0.85rem;
     }
 }

@@ -15,6 +15,7 @@ import {
   FiXCircle,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
+import DataTable from "@/components/DataTable/dataTable";
 
 interface KYCSubmission {
   id: string;
@@ -294,98 +295,132 @@ export default function KYCPage() {
       {error && <div className={styles.errorBanner}>{error}</div>}
 
       {/* KYC Submissions Table */}
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div className={styles.cardTitle}>
-            <FiFileText className={styles.icon} /> KYC Submissions
-          </div>
-          <p className={styles.cardSubText}>
-            Review user document submissions and verify identity
-          </p>
-        </div>
-
-        <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Document Type</th>
-                <th>Document Number</th>
-                <th>Status</th>
-                <th>Submitted Date</th>
-                <th>Verified By</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSubmissions.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className={styles.emptyState}>
-                    {search || statusFilter !== "ALL"
-                      ? "No submissions match your filters"
-                      : "No KYC submissions found"}
-                  </td>
-                </tr>
-              ) : (
-                filteredSubmissions.map((submission) => (
-                  <tr key={submission.id}>
-                    <td>
-                      <div className={styles.userInfo}>
-                        <div className={styles.userName}>
-                          {submission.username}
-                        </div>
-                        <div className={styles.userEmail}>
-                          {submission.email}
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={styles.docType}>
-                        {submission.document_type}
-                      </span>
-                    </td>
-                    <td>{submission.document_number}</td>
-                    <td>
-                      <span
-                        className={`${styles.statusBadge} ${submission.status === "APPROVED"
-                          ? styles.statusApproved
-                          : submission.status === "REJECTED"
-                            ? styles.statusRejected
-                            : styles.statusPending
-                          }`}
-                      >
-                        {submission.status}
-                      </span>
-                    </td>
-                    <td>
-                      {new Date(submission.created_at).toLocaleDateString()}
-                    </td>
-                    <td>{submission.verified_by_username || "—"}</td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <button
-                          className={styles.viewBtn}
-                          onClick={() => handleViewSubmission(submission)}
-                          title="View details"
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEditClick(submission)}
-                          title="Edit KYC status"
-                        >
-                          <FiEdit />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <DataTable
+        title="KYC Submissions"
+        subtitle="Review user document submissions and verify identity"
+        columns={[
+          {
+            header: "User",
+            accessor: "username",
+            render: (_: any, row: KYCSubmission) => (
+              <div className={styles.userInfo}>
+                <div className={styles.userName}>{row.username}</div>
+                <div className={styles.userEmail}>{row.email}</div>
+              </div>
+            ),
+          },
+          {
+            header: "Document Type",
+            accessor: "document_type",
+            render: (value: string) => (
+              <span className={styles.docType}>{value}</span>
+            ),
+          },
+          {
+            header: "Document Number",
+            accessor: "document_number",
+          },
+          {
+            header: "Status",
+            accessor: "status",
+            render: (value: string) => (
+              <span
+                className={`${styles.statusBadge} ${value === "APPROVED"
+                    ? styles.statusApproved
+                    : value === "REJECTED"
+                      ? styles.statusRejected
+                      : styles.statusPending
+                  }`}
+              >
+                {value}
+              </span>
+            ),
+          },
+          {
+            header: "Submitted Date",
+            accessor: "created_at",
+            render: (value: string) =>
+              new Date(value).toLocaleDateString(),
+          },
+          {
+            header: "Verified By",
+            accessor: "verified_by_username",
+            render: (value: string | null) => value || "—",
+          },
+          {
+            header: "Actions",
+            accessor: "actions",
+            render: (_: any, row: KYCSubmission) => (
+              <div className={styles.actionButtons}>
+                <button
+                  className={styles.viewBtn}
+                  onClick={() => handleViewSubmission(row)}
+                  title="View details"
+                >
+                  <FiEye />
+                </button>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => handleEditClick(row)}
+                  title="Edit KYC status"
+                >
+                  <FiEdit />
+                </button>
+              </div>
+            ),
+          },
+        ]}
+        data={filteredSubmissions}
+        loading={loading}
+        emptyMessage={
+          search || statusFilter !== "ALL"
+            ? "No submissions match your filters"
+            : "No KYC submissions found"
+        }
+        mobileCardRender={(row: KYCSubmission) => (
+          <>
+            <div className={styles.userInfo} style={{ marginBottom: "0.75rem" }}>
+              <div className={styles.userName}>{row.username}</div>
+              <div className={styles.userEmail}>{row.email}</div>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+              <span className={styles.docType}>{row.document_type}</span>
+              <span
+                className={`${styles.statusBadge} ${row.status === "APPROVED"
+                    ? styles.statusApproved
+                    : row.status === "REJECTED"
+                      ? styles.statusRejected
+                      : styles.statusPending
+                  }`}
+              >
+                {row.status}
+              </span>
+            </div>
+            <p style={{ margin: 0, fontSize: "0.8rem", color: "#888", marginBottom: "0.5rem" }}>
+              Document: {row.document_number}
+            </p>
+            <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
+              Submitted {new Date(row.created_at).toLocaleDateString()}
+            </p>
+            <div className={styles.actionButtons} style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid #222" }}>
+              <button
+                className={styles.viewBtn}
+                onClick={() => handleViewSubmission(row)}
+                title="View details"
+              >
+                <FiEye /> View
+              </button>
+              <button
+                className={styles.editBtn}
+                onClick={() => handleEditClick(row)}
+                title="Edit KYC status"
+              >
+                <FiEdit /> Edit
+              </button>
+            </div>
+          </>
+        )}
+      />
 
       {/* Modal */}
       {showModal && selectedSubmission && (

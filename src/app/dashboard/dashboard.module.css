@@ -123,8 +123,8 @@
 /* 1024px*/
 @media (max-width: 1024px) {
     .main {
-        margin-left: 30px;
-        width: calc(100% - 60px);
+        margin-left: 0;
+        width: 100%;
     }
 
     .dashboardContainer {
@@ -152,5 +152,45 @@
 
     .revenueSection {
         padding: 1.25rem;
+    }
+}
+
+/* 768px - Mobile */
+@media (max-width: 768px) {
+    .main {
+        margin-left: 0;
+        width: 100%;
+        padding-top: 60px;
+    }
+
+    .dashboardContainer {
+        padding: 1.5rem 1rem;
+    }
+
+    .twoColumn {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 480px - Small Mobile */
+@media (max-width: 480px) {
+    .main {
+        padding-top: 60px;
+    }
+
+    .dashboardContainer {
+        padding: 1rem 0.75rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .topStats {
+        gap: 1rem;
+    }
+
+    .revenueSection {
+        padding: 1rem;
     }
 }

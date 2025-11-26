@@ -7,19 +7,17 @@ interface Column {
     header: string;
     accessor: string;
     render?: (value: any, row: any) => React.ReactNode;
+    align?: 'left' | 'right' | 'center';
 }
 
 interface DataTableProps {
     title?: string;
     subtitle?: string;
-    columns: {
-        header: string;
-        accessor: string;
-        render?: (value: any, row?: any) => React.ReactNode;
-    }[];
+    columns: Column[];
     data: any[];
     emptyMessage?: string;
-    loading?: boolean; 
+    loading?: boolean;
+    mobileCardRender?: (row: any) => React.ReactNode;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -29,6 +27,7 @@ const DataTable: React.FC<DataTableProps> = ({
     data,
     emptyMessage,
     loading,
+    mobileCardRender,
 }) => {
     return (
         <div className={styles.tableWrapper}>
@@ -44,36 +43,79 @@ const DataTable: React.FC<DataTableProps> = ({
             {loading ? (
                 <div className={styles.loadingContainer}>Loading...</div>
             ) : (
-                <table className={styles.table}>
-                    <thead>
-                        <tr>
-                            {columns.map((col) => (
-                                <th key={col.header}>{col.header}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.length > 0 ? (
-                            data.map((row, idx) => (
-                                <tr key={idx}>
+                <>
+                    {/* Desktop Table */}
+                    <div className={styles.desktopTable}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
                                     {columns.map((col) => (
-                                        <td key={col.header}>
-                                            {col.render
-                                                ? col.render(row[col.accessor], row)
-                                                : row[col.accessor]}
-                                        </td>
+                                        <th
+                                            key={col.header}
+                                            className={col.align === 'right' ? styles.alignRight : ''}
+                                        >
+                                            {col.header}
+                                        </th>
                                     ))}
                                 </tr>
+                            </thead>
+                            <tbody>
+                                {data.length > 0 ? (
+                                    data.map((row, idx) => (
+                                        <tr key={idx}>
+                                            {columns.map((col) => (
+                                                <td
+                                                    key={col.header}
+                                                    className={col.align === 'right' ? styles.alignRight : ''}
+                                                >
+                                                    {col.render
+                                                        ? col.render(row[col.accessor], row)
+                                                        : row[col.accessor]}
+                                                </td>
+                                            ))}
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={columns.length} className={styles.noData}>
+                                            {emptyMessage || "No data available"}
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Mobile Cards */}
+                    <div className={styles.mobileCards}>
+                        {data.length > 0 ? (
+                            data.map((row, idx) => (
+                                <div key={idx} className={styles.mobileCard}>
+                                    {mobileCardRender ? (
+                                        mobileCardRender(row)
+                                    ) : (
+                                        <div className={styles.mobileCardDefault}>
+                                            {columns.slice(0, 3).map((col) => (
+                                                <div key={col.header} className={styles.mobileCardRow}>
+                                                    <span className={styles.mobileCardLabel}>{col.header}:</span>
+                                                    <span className={styles.mobileCardValue}>
+                                                        {col.render
+                                                            ? col.render(row[col.accessor], row)
+                                                            : row[col.accessor]}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             ))
                         ) : (
-                            <tr>
-                                <td colSpan={columns.length} className={styles.noData}>
-                                    {emptyMessage || "No data available"}
-                                </td>
-                            </tr>
+                            <div className={styles.noData}>
+                                {emptyMessage || "No data available"}
+                            </div>
                         )}
-                    </tbody>
-                </table>
+                    </div>
+                </>
             )}
         </div>
     );

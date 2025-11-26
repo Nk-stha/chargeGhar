@@ -18,6 +18,7 @@ import {
 } from "react-icons/fi";
 import { rewardsService } from "../../../lib/api";
 import type { ReferralsAnalytics } from "../../../types/rewards.types";
+import DataTable from "../../../components/DataTable/dataTable";
 
 const ReferralsPage: React.FC = () => {
   const [analytics, setAnalytics] = useState<ReferralsAnalytics | null>(null);
@@ -206,88 +207,70 @@ const ReferralsPage: React.FC = () => {
           </div>
 
           {/* Top Referrers Section */}
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2 className={styles.cardTitle}>
-                <FiTrendingUp className={styles.icon} /> Top Referrers
-              </h2>
-              <p className={styles.cardSubText}>
-                Users with the most successful referrals
-              </p>
-            </div>
-
-            <div className={styles.controls}>
-              <div className={styles.searchContainer}>
-                <FiSearch className={styles.searchIcon} />
-                <input
-                  type="text"
-                  placeholder="Search by username..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className={styles.searchInput}
-                />
-              </div>
-            </div>
-
-            {filteredTopReferrers && filteredTopReferrers.length === 0 ? (
-              <div className={styles.emptyState}>
-                <FiUsers className={styles.emptyIcon} />
-                <p>No referrers found</p>
-                {searchTerm && (
-                  <button
-                    className={styles.clearSearch}
-                    onClick={() => setSearchTerm("")}
-                  >
-                    Clear Search
-                  </button>
-                )}
-              </div>
-            ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Username</th>
-                      <th>Total Referrals</th>
-                      <th>Success Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTopReferrers?.map((referrer, index) => (
-                      <tr key={referrer.user_id}>
-                        <td>
-                          <span className={styles.rank}>#{index + 1}</span>
-                        </td>
-                        <td>
-                          <span className={styles.username}>
-                            {referrer.username}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.referralCount}>
-                            {referrer.referral_count.toLocaleString()}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.successRate}>
-                            {analytics.total_referrals > 0
-                              ? (
-                                (referrer.referral_count /
-                                  analytics.total_referrals) *
-                                100
-                              ).toFixed(1)
-                              : 0}
-                            %
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+          <DataTable
+            title="Top Referrers"
+            subtitle="Users with the most successful referrals"
+            columns={[
+              {
+                header: "Rank",
+                accessor: "user_id",
+                render: (_: any, row: any) => {
+                  const index = (filteredTopReferrers || []).findIndex(r => r.user_id === row.user_id);
+                  return <span className={styles.rank}>#{index + 1}</span>;
+                },
+              },
+              {
+                header: "Username",
+                accessor: "username",
+                render: (value: string) => (
+                  <span className={styles.username}>{value}</span>
+                ),
+              },
+              {
+                header: "Total Referrals",
+                accessor: "referral_count",
+                render: (value: number) => (
+                  <span className={styles.referralCount}>{value.toLocaleString()}</span>
+                ),
+              },
+              {
+                header: "Success Rate",
+                accessor: "referral_count",
+                render: (value: number) => (
+                  <span className={styles.successRate}>
+                    {analytics && analytics.total_referrals > 0
+                      ? ((value / analytics.total_referrals) * 100).toFixed(1)
+                      : 0}%
+                  </span>
+                ),
+              },
+            ]}
+            data={filteredTopReferrers || []}
+            loading={false}
+            emptyMessage={
+              searchTerm
+                ? "No referrers found matching your search"
+                : "No referrers found"
+            }
+            mobileCardRender={(row: any) => {
+              const index = (filteredTopReferrers || []).findIndex(r => r.user_id === row.user_id);
+              return (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <p style={{ margin: 0, fontWeight: 600 }}>#{index + 1} {row.username}</p>
+                    <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>
+                      {row.referral_count.toLocaleString()} referrals
+                    </p>
+                  </div>
+                  <span className={styles.successRate}>
+                    {analytics && analytics.total_referrals > 0
+                      ? ((row.referral_count / analytics.total_referrals) * 100).toFixed(1)
+                      : 0}%
+                  </span>
+                </div>
+              );
+            }}
+          />
 
           {/* Referral Status Breakdown */}
           <section className={styles.card}>

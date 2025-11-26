@@ -19,6 +19,7 @@ import {
   PaymentStatus,
 } from "../../../types/rentals.types";
 import RentalDetailModal from "../../../components/RentalDetailModal/RentalDetailModal";
+import DataTable from "../../../components/DataTable/dataTable";
 
 const statusTabs: (RentalStatus | "ALL")[] = [
   "ALL",
@@ -235,9 +236,8 @@ export default function RentalsPage() {
           {statusTabs.map((tab) => (
             <button
               key={tab}
-              className={`${styles.tab} ${
-                activeTab === tab ? styles.activeTab : ""
-              }`}
+              className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
+                }`}
               onClick={() => handleTabClick(tab)}
               disabled={loading}
             >
@@ -247,181 +247,160 @@ export default function RentalsPage() {
         </div>
 
         {/* Table Card */}
-        <section className={styles.card}>
-          <div className={styles.cardHeader}>
-            <h2 className={styles.cardTitle}>
-              <FiShoppingBag className={styles.icon} /> Rentals
-            </h2>
+        <DataTable
+          title="Rentals"
+          subtitle={totalCount > 0 ? `Showing ${rentals.length} of ${totalCount} rentals` : "Manage all rental transactions"}
+          columns={[
+            {
+              header: "Rental Code",
+              accessor: "rental_code",
+              render: (value: string) => (
+                <span className={styles.rentalCode}>{value}</span>
+              ),
+            },
+            {
+              header: "User",
+              accessor: "username",
+              render: (_: any, row: RentalListItem) => (
+                <div className={styles.userInfo}>
+                  <span className={styles.username}>{row.username}</span>
+                  {row.user_phone && (
+                    <span className={styles.phone}>{row.user_phone}</span>
+                  )}
+                </div>
+              ),
+            },
+            {
+              header: "Station",
+              accessor: "station_name",
+              render: (_: any, row: RentalListItem) => (
+                <div className={styles.stationInfo}>
+                  <span>{row.station_name}</span>
+                  <span className={styles.stationSerial}>
+                    {row.station_serial}
+                  </span>
+                </div>
+              ),
+            },
+            {
+              header: "Return Station",
+              accessor: "return_station_name",
+              render: (value: string) => (
+                <div className={styles.stationInfo}>
+                  <span>{value}</span>
+                </div>
+              ),
+            },
+            {
+              header: "Package",
+              accessor: "package_name",
+              render: (_: any, row: RentalListItem) => (
+                <div className={styles.packageInfo}>
+                  <span>{row.package_name}</span>
+                  <span className={styles.duration}>
+                    {rentalsService.formatDuration(row.package_duration)}
+                  </span>
+                </div>
+              ),
+            },
+            {
+              header: "Due Date",
+              accessor: "due_at",
+              render: (value: string) => (
+                <span className={styles.date}>
+                  {rentalsService.formatDateTime(value)}
+                </span>
+              ),
+            },
+            {
+              header: "Amount",
+              accessor: "amount_paid",
+              render: (_: any, row: RentalListItem) => (
+                <span className={styles.amount}>
+                  {rentalsService.formatAmount(row.amount_paid)}
+                </span>
+              ),
+            },
+            {
+              header: "Payment",
+              accessor: "payment_status",
+              render: (value: PaymentStatus) => (
+                <span
+                  className={`${styles.paymentStatus} ${getPaymentStatusClass(value)}`}
+                >
+                  {rentalsService.getPaymentStatusLabel(value)}
+                </span>
+              ),
+            },
+            {
+              header: "Status",
+              accessor: "status",
+              render: (value: RentalStatus) => (
+                <span className={`${styles.status} ${getStatusClass(value)}`}>
+                  {rentalsService.getStatusLabel(value)}
+                </span>
+              ),
+            },
+          ]}
+          data={rentals}
+          loading={loading}
+          emptyMessage={
+            error
+              ? error
+              : searchQuery
+                ? "No rentals found matching your search"
+                : "No rentals found"
+          }
+          mobileCardRender={(row: RentalListItem) => (
+            <div onClick={() => handleRowClick(row.id)} style={{ cursor: "pointer" }}>
+              <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+                <span className={styles.rentalCode}>{row.rental_code}</span>
+                <span className={`${styles.status} ${getStatusClass(row.status)}`}>
+                  {rentalsService.getStatusLabel(row.status)}
+                </span>
+              </div>
+              <div className={styles.userInfo} style={{ marginBottom: "0.5rem" }}>
+                <span className={styles.username}>{row.username}</span>
+                {row.user_phone && <span className={styles.phone}>{row.user_phone}</span>}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <span className={`${styles.paymentStatus} ${getPaymentStatusClass(row.payment_status)}`}>
+                  {rentalsService.getPaymentStatusLabel(row.payment_status)}
+                </span>
+                <span className={styles.amount}>{rentalsService.formatAmount(row.amount_paid)}</span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "#999" }}>
+                {row.station_name} → {row.return_station_name}
+              </p>
+              <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#888" }}>
+                Due: {rentalsService.formatDateTime(row.due_at)}
+              </p>
+            </div>
+          )}
+        />
+
+        {/* Pagination */}
+        {totalPages > 1 && !loading && !error && rentals.length > 0 && (
+          <div className={styles.pagination}>
             <button
-              className={styles.exportBtn}
-              onClick={handleExportCSV}
-              disabled={loading || rentals.length === 0}
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1 || loading}
+              className={styles.paginationBtn}
             >
-              <FiDownload /> Export CSV
+              <FiChevronLeft /> Previous
+            </button>
+            <span className={styles.pageInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages || loading}
+              className={styles.paginationBtn}
+            >
+              Next <FiChevronRight />
             </button>
           </div>
-
-          {loading ? (
-            <div className={styles.loadingContainer}>
-              <div className={styles.spinner} />
-              <p>Loading rentals...</p>
-            </div>
-          ) : error ? (
-            <div className={styles.errorContainer}>
-              <FiAlertCircle className={styles.errorIcon} />
-              <p className={styles.errorText}>{error}</p>
-              <button onClick={handleRefresh} className={styles.retryButton}>
-                <FiRefreshCw /> Retry
-              </button>
-            </div>
-          ) : rentals.length === 0 ? (
-            <div className={styles.noData}>
-              <FiShoppingBag className={styles.noDataIcon} />
-              <p>No rentals found</p>
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setCurrentPage(1);
-                  }}
-                  className={styles.clearFiltersBtn}
-                >
-                  Clear Search
-                </button>
-              )}
-            </div>
-          ) : (
-            <>
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Rental Code</th>
-                      <th>User</th>
-                      <th>Station</th>
-                      <th>Return Station</th>
-                      <th>Package</th>
-                      <th>Due Date</th>
-                      <th>Amount</th>
-                      <th>Payment</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rentals.map((rental) => (
-                      <tr
-                        key={rental.id}
-                        onClick={() => handleRowClick(rental.id)}
-                        className={styles.clickableRow}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            handleRowClick(rental.id);
-                          }
-                        }}
-                      >
-                        <td>
-                          <span className={styles.rentalCode}>
-                            {rental.rental_code}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.userInfo}>
-                            <span className={styles.username}>
-                              {rental.username}
-                            </span>
-                            {rental.user_phone && (
-                              <span className={styles.phone}>
-                                {rental.user_phone}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.stationInfo}>
-                            <span>{rental.station_name}</span>
-                            <span className={styles.stationSerial}>
-                              {rental.station_serial}
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.stationInfo}>
-                            <span>{rental.return_station_name}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.packageInfo}>
-                            <span>{rental.package_name}</span>
-                            <span className={styles.duration}>
-                              {rentalsService.formatDuration(
-                                rental.package_duration,
-                              )}
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={styles.date}>
-                            {rentalsService.formatDateTime(rental.due_at)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.amount}>
-                            {rentalsService.formatAmount(rental.amount_paid)}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.paymentStatus} ${getPaymentStatusClass(
-                              rental.payment_status,
-                            )}`}
-                          >
-                            {rentalsService.getPaymentStatusLabel(
-                              rental.payment_status,
-                            )}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.status} ${getStatusClass(
-                              rental.status,
-                            )}`}
-                          >
-                            {rentalsService.getStatusLabel(rental.status)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className={styles.pagination}>
-                  <button
-                    onClick={handlePreviousPage}
-                    disabled={currentPage === 1 || loading}
-                    className={styles.paginationBtn}
-                  >
-                    <FiChevronLeft /> Previous
-                  </button>
-                  <span className={styles.pageInfo}>
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={handleNextPage}
-                    disabled={currentPage === totalPages || loading}
-                    className={styles.paginationBtn}
-                  >
-                    Next <FiChevronRight />
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </section>
+        )}
       </main>
 
       {/* Rental Detail Modal */}

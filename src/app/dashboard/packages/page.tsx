@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import PackageModal from "./PackageModal";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
+import DataTable from "../../../components/DataTable/dataTable";
 
 interface RentalPackage {
   id: string;
@@ -225,121 +226,142 @@ export default function PackagesPage() {
         </div>
       </div>
 
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <div className={styles.cardTitle}>
-            <FiPackage className={styles.icon} /> Rental Packages
-          </div>
-          <p className={styles.cardSubText}>
-            Configure pricing and duration for rental packages
-          </p>
-        </div>
-
-        {filteredPackages.length === 0 ? (
-          <div className={styles.emptyState}>
-            {search ? (
-              <>
-                <FiSearch className={styles.emptyIcon} />
-                <p>No packages match your search</p>
-              </>
-            ) : (
-              <>
-                <FiPackage className={styles.emptyIcon} />
-                <p>No packages configured</p>
+      <DataTable
+        title="Rental Packages"
+        subtitle="Configure pricing and duration for rental packages"
+        columns={[
+          {
+            header: "Package Name",
+            accessor: "name",
+            render: (value: string) => (
+              <span className={styles.packageName}>{value}</span>
+            ),
+          },
+          {
+            header: "Description",
+            accessor: "description",
+            render: (value: string) => (
+              <span className={styles.description}>{value}</span>
+            ),
+          },
+          {
+            header: "Duration",
+            accessor: "duration_display",
+            render: (value: string) => (
+              <span className={styles.duration}>{value}</span>
+            ),
+          },
+          {
+            header: "Price",
+            accessor: "price",
+            render: (value: string) => (
+              <span className={styles.price}>₹{value}</span>
+            ),
+          },
+          {
+            header: "Type",
+            accessor: "package_type",
+            render: (value: string) => (
+              <span className={styles.typeTag}>{value}</span>
+            ),
+          },
+          {
+            header: "Payment",
+            accessor: "payment_model",
+            render: (value: string) => (
+              <span className={styles.paymentTag}>{value}</span>
+            ),
+          },
+          {
+            header: "Status",
+            accessor: "is_active",
+            render: (value: boolean) => (
+              <span className={value ? styles.statusActive : styles.statusInactive}>
+                {value ? "Active" : "Inactive"}
+              </span>
+            ),
+          },
+          {
+            header: "Created",
+            accessor: "created_at",
+            render: (value: string) => (
+              <span className={styles.date}>
+                {new Date(value).toLocaleDateString()}
+              </span>
+            ),
+          },
+          {
+            header: "Actions",
+            accessor: "actions",
+            render: (_: any, row: RentalPackage) => (
+              <div className={styles.actions}>
                 <button
-                  className={styles.emptyButton}
-                  onClick={() => setShowModal(true)}
+                  className={styles.editBtn}
+                  onClick={() => handleEdit(row)}
+                  title="Edit package"
                 >
-                  <FiPlus /> Add Your First Package
+                  <FiEdit2 />
                 </button>
-              </>
-            )}
-          </div>
-        ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Package Name</th>
-                  <th>Description</th>
-                  <th>Duration</th>
-                  <th>Price</th>
-                  <th>Type</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPackages.map((pkg) => (
-                  <tr key={pkg.id}>
-                    <td>
-                      <div className={styles.nameCell}>
-                        <span className={styles.packageName}>{pkg.name}</span>
-                      </div>
-                    </td>
-                    <td className={styles.description}>{pkg.description}</td>
-                    <td>
-                      <span className={styles.duration}>
-                        {pkg.duration_display}
-                      </span>
-                    </td>
-                    <td className={styles.price}>₹{pkg.price}</td>
-                    <td>
-                      <span className={styles.typeTag}>
-                        {pkg.package_type}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={styles.paymentTag}>
-                        {pkg.payment_model}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          pkg.is_active
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {pkg.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className={styles.date}>
-                      {new Date(pkg.created_at).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEdit(pkg)}
-                          title="Edit package"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDelete(pkg.id, pkg.name)}
-                          disabled={deleteLoading === pkg.id}
-                          title="Delete package"
-                        >
-                          {deleteLoading === pkg.id ? (
-                            <FiLoader className={styles.spinner} />
-                          ) : (
-                            <FiTrash2 />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(row.id, row.name)}
+                  disabled={deleteLoading === row.id}
+                  title="Delete package"
+                >
+                  {deleteLoading === row.id ? (
+                    <FiLoader className={styles.spinner} />
+                  ) : (
+                    <FiTrash2 />
+                  )}
+                </button>
+              </div>
+            ),
+          },
+        ]}
+        data={filteredPackages}
+        loading={false}
+        emptyMessage={
+          search
+            ? "No packages match your search"
+            : "No packages configured"
+        }
+        mobileCardRender={(row: RentalPackage) => (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
+              <span className={styles.packageName}>{row.name}</span>
+              <span className={row.is_active ? styles.statusActive : styles.statusInactive}>
+                {row.is_active ? "Active" : "Inactive"}
+              </span>
+            </div>
+            <p className={styles.description}>{row.description}</p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+              <span className={styles.typeTag}>{row.package_type}</span>
+              <span className={styles.paymentTag}>{row.payment_model}</span>
+              <span className={styles.duration}>{row.duration_display}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span className={styles.price}>₹{row.price}</span>
+              <div className={styles.actions}>
+                <button
+                  className={styles.editBtn}
+                  onClick={() => handleEdit(row)}
+                  title="Edit package"
+                >
+                  <FiEdit2 />
+                </button>
+                <button
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(row.id, row.name)}
+                  disabled={deleteLoading === row.id}
+                  title="Delete package"
+                >
+                  {deleteLoading === row.id ? <FiLoader className={styles.spinner} /> : <FiTrash2 />}
+                </button>
+              </div>
+            </div>
           </div>
         )}
-      </section>
+      />
 
       {showModal && (
         <PackageModal

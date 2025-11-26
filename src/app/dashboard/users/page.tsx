@@ -301,14 +301,47 @@ export default function UsersPage() {
           title="Admin Users"
           subtitle="Manage admins and their permissions"
           columns={[
-            { header: "ID", accessor: "id", render: (v) => `${v.slice(0, 8)}...` },
-            { header: "Username", accessor: "username" },
-            { header: "Email", accessor: "email" },
+            {
+              header: "ID",
+              accessor: "id",
+              render: (v) => (
+                <span style={{ color: "#aaa", fontSize: "0.85rem", fontFamily: "monospace" }}>
+                  {`${v.slice(0, 8)}...`}
+                </span>
+              ),
+            },
+            {
+              header: "Username",
+              accessor: "username",
+              render: (v) => (
+                <span style={{ color: "#eee", fontSize: "0.9rem", fontWeight: "500" }}>
+                  {v}
+                </span>
+              ),
+            },
+            {
+              header: "Email",
+              accessor: "email",
+              render: (v) => (
+                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>
+                  {v}
+                </span>
+              ),
+            },
             {
               header: "Role",
               accessor: "role",
               render: (_: any, row) => (
-                <span style={{ textTransform: "capitalize", color: row.is_super_admin ? "#82ea80" : "#ccc" }}>
+                <span style={{
+                  display: "inline-block",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  textTransform: "capitalize",
+                  backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
+                  color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
+                }}>
                   {row.role.replace("_", " ")}
                 </span>
               ),
@@ -317,7 +350,15 @@ export default function UsersPage() {
               header: "Status",
               accessor: "is_active",
               render: (v) => (
-                <span className={v ? styles.statusActive : styles.statusInactive}>
+                <span style={{
+                  display: "inline-block",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  backgroundColor: v ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                  color: v ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
+                }}>
                   {v ? "Active" : "Inactive"}
                 </span>
               ),
@@ -325,13 +366,63 @@ export default function UsersPage() {
             {
               header: "Created Date",
               accessor: "created_at",
-              render: (v) => new Date(v).toLocaleDateString(),
+              render: (v) => (
+                <span style={{ color: "#ccc", fontSize: "0.85rem" }}>
+                  {new Date(v).toLocaleDateString()}
+                </span>
+              ),
             },
-            { header: "Created By", accessor: "created_by_username" },
+            {
+              header: "Created By",
+              accessor: "created_by_username",
+              render: (v) => (
+                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>
+                  {v || "—"}
+                </span>
+              ),
+            },
           ]}
           data={admins}
           emptyMessage="No admins found"
           loading={loading}
+          mobileCardRender={(row) => (
+            <>
+              <div style={{ marginBottom: "0.75rem" }}>
+                <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: "600", color: "#eee" }}>
+                  {row.username}
+                </p>
+                <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.8rem", color: "#888" }}>
+                  {row.email}
+                </p>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                <span style={{
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.7rem",
+                  fontWeight: "500",
+                  textTransform: "capitalize",
+                  backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
+                  color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
+                }}>
+                  {row.role.replace("_", " ")}
+                </span>
+                <span style={{
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.7rem",
+                  fontWeight: "500",
+                  backgroundColor: row.is_active ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                  color: row.is_active ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
+                }}>
+                  {row.is_active ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
+                Created {new Date(row.created_at).toLocaleDateString()} by {row.created_by_username || "—"}
+              </p>
+            </>
+          )}
         />
 
       )}
@@ -474,15 +565,77 @@ export default function UsersPage() {
           title="Users"
           subtitle="Manage registered users"
           columns={[
-            { header: "ID", accessor: "id" },
-            { header: "Username", accessor: "username" },
-            { header: "Referral Code", accessor: "referral_code", render: (v) => v || "—" },
-            { header: "Provider", accessor: "social_provider", render: (v) => v.toLowerCase() },
             {
-              header: "Profile Status",
+              header: "User",
+              accessor: "username",
+              render: (_: any, row) => (
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <div
+                    style={{
+                      width: "2rem",
+                      height: "2rem",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.75rem",
+                      fontWeight: "600",
+                      backgroundColor: "rgba(130, 234, 128, 0.1)",
+                      color: "#82ea80",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {row.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {row.username}
+                    </p>
+                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      ID: {row.id}
+                    </p>
+                  </div>
+                </div>
+              ),
+            },
+            {
+              header: "Referral",
+              accessor: "referral_code",
+              render: (v) => (
+                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>{v || "—"}</span>
+              ),
+            },
+            {
+              header: "Provider",
+              accessor: "social_provider",
+              render: (v) => (
+                <span style={{
+                  display: "inline-block",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  backgroundColor: "rgba(156, 163, 175, 0.1)",
+                  color: "rgb(156, 163, 175)",
+                  textTransform: "capitalize",
+                }}>
+                  {v.toLowerCase()}
+                </span>
+              ),
+            },
+            {
+              header: "Profile",
               accessor: "profile_complete",
               render: (v) => (
-                <span style={{ color: v ? "#32cd32" : "#ff8c00" }}>
+                <span style={{
+                  display: "inline-block",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  backgroundColor: v ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
+                  color: v ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
+                }}>
                   {v ? "Complete" : "Incomplete"}
                 </span>
               ),
@@ -490,40 +643,60 @@ export default function UsersPage() {
             {
               header: "KYC Status",
               accessor: "kyc_status",
-              render: (v) => (
-                <span
-                  style={{
-                    color:
-                      v === "APPROVED"
-                        ? "#32cd32"
-                        : v === "PENDING"
-                          ? "#ff8c00"
-                          : "#888",
-                  }}
-                >
-                  {v.replace("_", " ")}
-                </span>
-              ),
+              render: (v) => {
+                const getKYCStyle = (status: string) => {
+                  if (status === "APPROVED") return { bg: "rgba(34, 197, 94, 0.1)", color: "rgb(34, 197, 94)" };
+                  if (status === "PENDING") return { bg: "rgba(234, 179, 8, 0.1)", color: "rgb(234, 179, 8)" };
+                  return { bg: "rgba(156, 163, 175, 0.1)", color: "rgb(156, 163, 175)" };
+                };
+                const style = getKYCStyle(v);
+                return (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "0.25rem 0.5rem",
+                    borderRadius: "4px",
+                    fontSize: "0.75rem",
+                    fontWeight: "500",
+                    backgroundColor: style.bg,
+                    color: style.color,
+                  }}>
+                    {v.replace("_", " ")}
+                  </span>
+                );
+              },
             },
             {
               header: "Status",
               accessor: "status",
               render: (v) => (
-                <span className={v === "ACTIVE" ? styles.statusActive : styles.statusInactive}>
+                <span style={{
+                  display: "inline-block",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: "500",
+                  backgroundColor: v === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                  color: v === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
+                }}>
                   {v}
                 </span>
               ),
             },
             {
-              header: "Created Date",
+              header: "Joined",
               accessor: "date_joined",
-              render: (v) => new Date(v).toLocaleDateString(),
+              render: (v) => (
+                <span style={{ color: "#ccc", fontSize: "0.85rem" }}>
+                  {new Date(v).toLocaleDateString()}
+                </span>
+              ),
             },
             {
               header: "Actions",
               accessor: "actions",
+              align: "right",
               render: (_: any, row) => (
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                   <button
                     onClick={() => handleOpenAddBalance(row)}
                     title="Add Balance"
@@ -545,6 +718,93 @@ export default function UsersPage() {
           data={displayedUsers}
           emptyMessage={search ? "No users match your search." : "No users found."}
           loading={loading}
+          mobileCardRender={(row) => (
+            <>
+              <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      width: "2.5rem",
+                      height: "2.5rem",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "0.875rem",
+                      fontWeight: "600",
+                      backgroundColor: "rgba(130, 234, 128, 0.1)",
+                      color: "#82ea80",
+                      flexShrink: 0,
+                    }}
+                  >
+                    {row.username.charAt(0).toUpperCase()}
+                  </div>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {row.username}
+                    </p>
+                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      ID: {row.id}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
+                <span style={{
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.7rem",
+                  fontWeight: "500",
+                  backgroundColor: "rgba(156, 163, 175, 0.1)",
+                  color: "rgb(156, 163, 175)",
+                  textTransform: "capitalize",
+                }}>
+                  {row.social_provider.toLowerCase()}
+                </span>
+                <span style={{
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.7rem",
+                  fontWeight: "500",
+                  backgroundColor: row.profile_complete ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
+                  color: row.profile_complete ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
+                }}>
+                  {row.profile_complete ? "Complete" : "Incomplete"}
+                </span>
+                <span style={{
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                  fontSize: "0.7rem",
+                  fontWeight: "500",
+                  backgroundColor: row.status === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                  color: row.status === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
+                }}>
+                  {row.status}
+                </span>
+              </div>
+              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
+                Joined {new Date(row.date_joined).toLocaleDateString()}
+              </p>
+              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid #222" }}>
+                <button
+                  onClick={() => handleOpenAddBalance(row)}
+                  title="Add Balance"
+                  className={styles.actionButtonGreen}
+                  style={{ flex: 1, fontSize: "0.8rem" }}
+                >
+                  <FiDollarSign size={14} /> Balance
+                </button>
+                <button
+                  onClick={() => handleOpenStatusModal(row)}
+                  title="Update Status"
+                  className={styles.actionButtonOrange}
+                  style={{ flex: 1, fontSize: "0.8rem" }}
+                >
+                  <FiUserCheck size={14} /> Status
+                </button>
+              </div>
+            </>
+          )}
         />
       )}
 
