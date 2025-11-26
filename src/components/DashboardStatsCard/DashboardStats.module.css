@@ -1,16 +1,7 @@
-/* Desktop: All cards in one row */
-.revenueCard {
-    display: contents;
-}
-
-.statsGrid {
-    display: contents;
-}
-
-/* Legacy support for topStats class */
+/* Stats Grid Container */
 .topStats {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -47,22 +38,11 @@
     }
 }
 
-/* Tablet Portrait (768px and below) - Mobile Layout */
+/* Tablet Portrait (768px and below) */
 @media (max-width: 768px) {
-    .revenueCard {
-        display: block;
-        margin-bottom: 0.875rem;
-    }
-
-    .statsGrid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.875rem;
-    }
-
     .topStats {
-        grid-template-columns: 1fr;
-        gap: 0.875rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
 
     .card {
@@ -72,52 +52,28 @@
     }
 }
 
-/* Mobile Portrait (480px and below) - Revenue Full Width, Others 2x2 */
+/* Mobile Portrait (480px and below) */
 @media (max-width: 480px) {
-    .revenueCard {
-        display: block;
-        margin-bottom: 0.75rem;
-    }
-
-    .statsGrid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.625rem;
-    }
-
     .topStats {
         grid-template-columns: 1fr;
-        gap: 0.625rem;
+        gap: 0.875rem;
+    }
+
+    .card {
+        padding: 1rem;
+        min-height: 80px;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .topStats {
+        gap: 0.75rem;
     }
 
     .card {
         padding: 0.875rem;
         min-height: 75px;
         gap: 0.75rem;
-    }
-}
-
-/* Extra Small Mobile (360px and below) - Revenue Full Width, Others 2x2 */
-@media (max-width: 360px) {
-    .revenueCard {
-        display: block;
-        margin-bottom: 0.625rem;
-    }
-
-    .statsGrid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 0.5rem;
-    }
-
-    .topStats {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-    }
-
-    .card {
-        padding: 0.75rem;
-        min-height: 70px;
-        gap: 0.625rem;
     }
 }

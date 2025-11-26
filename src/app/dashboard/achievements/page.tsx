@@ -30,7 +30,6 @@ import type {
   CriteriaType,
   RewardType,
 } from "../../../types/rewards.types";
-import DataTable from "../../../components/DataTable/dataTable";
 
 const AchievementsPage: React.FC = () => {
   const router = useRouter();
@@ -423,17 +422,17 @@ const AchievementsPage: React.FC = () => {
                 {(searchTerm ||
                   filterCriteria !== "all" ||
                   filterActive !== "all") && (
-                    <button
-                      className={styles.clearSearch}
-                      onClick={() => {
-                        setSearchTerm("");
-                        setFilterCriteria("all");
-                        setFilterActive("all");
-                      }}
-                    >
-                      Clear Filters
-                    </button>
-                  )}
+                  <button
+                    className={styles.clearSearch}
+                    onClick={() => {
+                      setSearchTerm("");
+                      setFilterCriteria("all");
+                      setFilterActive("all");
+                    }}
+                  >
+                    Clear Filters
+                  </button>
+                )}
               </div>
             ) : (
               <div className={styles.achievementsGrid}>
@@ -529,52 +528,54 @@ const AchievementsPage: React.FC = () => {
               </div>
             )}
 
-
             {/* Top Achievements Section */}
             {analytics && analytics.most_unlocked_achievements.length > 0 && (
-              <DataTable
-                title="Most Unlocked Achievements"
-                subtitle="Achievements with the highest unlock count"
-                columns={[
-                  {
-                    header: "Achievement",
-                    accessor: "name",
-                    render: (value: string) => (
-                      <span className={styles.achievementNameTable}>{value}</span>
-                    ),
-                  },
-                  {
-                    header: "Unlock Count",
-                    accessor: "unlock_count",
-                    render: (value: number) => (
-                      <span className={styles.unlockCount}>
-                        {value.toLocaleString()} unlocks
-                      </span>
-                    ),
-                  },
-                  {
-                    header: "Reward",
-                    accessor: "reward_value",
-                    render: (value: number) => (
-                      <span className={styles.rewardValue}>{value} pts</span>
-                    ),
-                  },
-                ]}
-                data={analytics.most_unlocked_achievements}
-                loading={false}
-                emptyMessage="No achievements found"
-                mobileCardRender={(row: any) => (
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
-                      <p style={{ margin: 0, fontSize: "0.85rem", color: "#aaa" }}>
-                        {row.unlock_count.toLocaleString()} unlocks
-                      </p>
-                    </div>
-                    <span className={styles.rewardValue}>{row.reward_value} pts</span>
-                  </div>
-                )}
-              />
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2 className={styles.cardTitle}>
+                    <FiTrendingUp className={styles.icon} /> Most Unlocked
+                    Achievements
+                  </h2>
+                  <p className={styles.cardSubText}>
+                    Achievements with the highest unlock count
+                  </p>
+                </div>
+                <div className={styles.tableWrapper}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Achievement</th>
+                        <th>Unlock Count</th>
+                        <th>Reward</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {analytics.most_unlocked_achievements.map(
+                        (achievement) => (
+                          <tr key={achievement.achievement_id}>
+                            <td>
+                              <span className={styles.achievementNameTable}>
+                                {achievement.name}
+                              </span>
+                            </td>
+                            <td>
+                              <span className={styles.unlockCount}>
+                                {achievement.unlock_count.toLocaleString()}{" "}
+                                unlocks
+                              </span>
+                            </td>
+                            <td>
+                              <span className={styles.rewardValue}>
+                                {achievement.reward_value} pts
+                              </span>
+                            </td>
+                          </tr>
+                        ),
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </section>
             )}
           </>
         )}

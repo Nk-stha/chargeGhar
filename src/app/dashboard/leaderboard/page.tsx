@@ -20,7 +20,6 @@ import type {
   LeaderboardCategory,
   LeaderboardPeriod,
 } from "../../../types/rewards.types";
-import DataTable from "../../../components/DataTable/dataTable";
 
 const LeaderboardPage: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<Leaderboard | null>(null);
@@ -259,93 +258,99 @@ const LeaderboardPage: React.FC = () => {
           </div>
 
           {/* Leaderboard Table */}
-          <DataTable
-            title="Rankings"
-            subtitle={`Showing top performers based on ${rewardsService.getLeaderboardCategoryLabel(category).toLowerCase()} for ${rewardsService.getLeaderboardPeriodLabel(period).toLowerCase()}`}
-            columns={[
-              {
-                header: "Rank",
-                accessor: "rank",
-                render: (value: number) => (
-                  <span className={getRankColor(value)}>{getRankIcon(value)}</span>
-                ),
-              },
-              {
-                header: "User",
-                accessor: "username",
-                render: (value: string) => (
-                  <span className={styles.username}>{value}</span>
-                ),
-              },
-              {
-                header: "Total Rentals",
-                accessor: "total_rentals",
-                render: (value: number) => (
-                  <span className={styles.value}>{value.toLocaleString()}</span>
-                ),
-              },
-              {
-                header: "Total Points",
-                accessor: "total_points_earned",
-                render: (value: number) => (
-                  <span className={styles.pointsValue}>{value.toLocaleString()} pts</span>
-                ),
-              },
-              {
-                header: "Referrals",
-                accessor: "referrals_count",
-                render: (value: number) => (
-                  <span className={styles.value}>{value.toLocaleString()}</span>
-                ),
-              },
-              {
-                header: "Timely Returns",
-                accessor: "timely_returns",
-                render: (value: number) => (
-                  <span className={styles.value}>{value.toLocaleString()}</span>
-                ),
-              },
-              {
-                header: "Achievements",
-                accessor: "achievements_count",
-                render: (value: number) => (
-                  <span className={styles.value}>{value.toLocaleString()}</span>
-                ),
-              },
-              {
-                header: "Last Updated",
-                accessor: "last_updated",
-                render: (value: string) => (
-                  <span className={styles.date}>{formatDate(value)}</span>
-                ),
-              },
-            ]}
-            data={filteredLeaderboard || []}
-            loading={false}
-            emptyMessage={
-              searchTerm
-                ? "No users found matching your search"
-                : "No users found"
-            }
-            mobileCardRender={(row: any) => (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                  <span className={getRankColor(row.rank)}>{getRankIcon(row.rank)}</span>
-                  <span className={styles.pointsValue}>{row.total_points_earned.toLocaleString()} pts</span>
-                </div>
-                <p style={{ margin: 0, fontWeight: 600 }}>{row.username}</p>
-                <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", flexWrap: "wrap" }}>
-                  <span>🚗 {row.total_rentals}</span>
-                  <span>👥 {row.referrals_count}</span>
-                  <span>⏰ {row.timely_returns}</span>
-                  <span>🏆 {row.achievements_count}</span>
-                </div>
-                <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>
-                  Updated: {formatDate(row.last_updated)}
-                </p>
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2 className={styles.cardTitle}>
+                <FiTrendingUp className={styles.icon} /> Rankings
+              </h2>
+              <p className={styles.cardSubText}>
+                Showing top performers based on{" "}
+                {rewardsService
+                  .getLeaderboardCategoryLabel(category)
+                  .toLowerCase()}{" "}
+                for{" "}
+                {rewardsService
+                  .getLeaderboardPeriodLabel(period)
+                  .toLowerCase()}
+              </p>
+            </div>
+
+            {filteredLeaderboard && filteredLeaderboard.length === 0 ? (
+              <div className={styles.emptyState}>
+                <FiAward className={styles.emptyIcon} />
+                <p>No users found</p>
+                {searchTerm && (
+                  <button
+                    className={styles.clearSearch}
+                    onClick={() => setSearchTerm("")}
+                  >
+                    Clear Search
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>User</th>
+                      <th>Total Rentals</th>
+                      <th>Total Points</th>
+                      <th>Referrals</th>
+                      <th>Timely Returns</th>
+                      <th>Achievements</th>
+                      <th>Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLeaderboard?.map((entry, index) => (
+                      <tr key={index}>
+                        <td>
+                          <span className={getRankColor(entry.rank)}>
+                            {getRankIcon(entry.rank)}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.username}>
+                            {entry.username}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.value}>
+                            {entry.total_rentals.toLocaleString()}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.pointsValue}>
+                            {entry.total_points_earned.toLocaleString()} pts
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.value}>
+                            {entry.referrals_count.toLocaleString()}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.value}>
+                            {entry.timely_returns.toLocaleString()}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={styles.value}>
+                            {entry.achievements_count.toLocaleString()}
+                          </span>
+                        </td>
+                        <td className={styles.date}>
+                          {formatDate(entry.last_updated)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
-          />
+          </section>
 
           {/* Top 3 Podium */}
           {leaderboard.leaderboard.length >= 3 && (

@@ -17,7 +17,6 @@ import {
   StationIssuePriority,
   StationIssueDetail,
 } from "../../../../types/station-issues.types";
-import DataTable from "../../../../components/DataTable/dataTable";
 
 const statusTabs: (StationIssueStatus | "ALL")[] = [
   "ALL",
@@ -321,8 +320,9 @@ export default function StationIssuesPage() {
           {statusTabs.map((tab) => (
             <button
               key={tab}
-              className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
-                }`}
+              className={`${styles.tab} ${
+                activeTab === tab ? styles.activeTab : ""
+              }`}
               onClick={() => handleTabClick(tab)}
               disabled={loading}
             >
@@ -332,142 +332,161 @@ export default function StationIssuesPage() {
         </div>
 
         {/* Table Card */}
-        <DataTable
-          title="Station Issues"
-          subtitle={issues.length > 0 ? `Showing ${issues.length} station issues` : "Manage station issues reported by users"}
-          columns={[
-            {
-              header: "Station",
-              accessor: "station_name",
-              render: (_: any, row: StationIssueListItem) => (
-                <div className={styles.stationInfo}>
-                  <span className={styles.stationName}>{row.station_name}</span>
-                  <span className={styles.stationSerial}>{row.station_serial}</span>
-                </div>
-              ),
-            },
-            {
-              header: "Reporter",
-              accessor: "reporter_name",
-              render: (_: any, row: StationIssueListItem) => (
-                <div className={styles.userInfo}>
-                  <span className={styles.username}>{row.reporter_name}</span>
-                  <span className={styles.email}>{row.reporter_email}</span>
-                </div>
-              ),
-            },
-            {
-              header: "Issue Type",
-              accessor: "issue_type",
-              render: (_: any, row: StationIssueListItem) => (
-                <span className={`${styles.issueType} ${getIssueTypeClass(row.issue_type)}`}>
-                  {stationIssuesService.getIssueTypeLabel(row.issue_type)}
-                </span>
-              ),
-            },
-            {
-              header: "Priority",
-              accessor: "priority",
-              render: (value: StationIssuePriority) => (
-                <span className={`${styles.priority} ${getPriorityClass(value)}`}>
-                  {stationIssuesService.getPriorityLabel(value)}
-                </span>
-              ),
-            },
-            {
-              header: "Description",
-              accessor: "description",
-              render: (value: string) => (
-                <span className={styles.description}>
-                  {value.length > 50 ? `${value.substring(0, 50)}...` : value}
-                </span>
-              ),
-            },
-            {
-              header: "Assigned To",
-              accessor: "assigned_to_name",
-              render: (value: string | null) => (
-                <span className={styles.assignedTo}>{value || "Unassigned"}</span>
-              ),
-            },
-            {
-              header: "Reported",
-              accessor: "reported_at",
-              render: (value: string) => (
-                <div className={styles.timeInfo}>
-                  <span className={styles.date}>
-                    {stationIssuesService.formatDateTime(value, false)}
-                  </span>
-                  <span className={styles.timeAgo}>
-                    {stationIssuesService.getTimeSinceReported(value)}
-                  </span>
-                </div>
-              ),
-            },
-            {
-              header: "Status",
-              accessor: "status",
-              render: (value: StationIssueStatus) => (
-                <span className={`${styles.status} ${getStatusClass(value)}`}>
-                  {stationIssuesService.getStatusLabel(value)}
-                </span>
-              ),
-            },
-            {
-              header: "Actions",
-              accessor: "actions",
-              render: (_: any, row: StationIssueListItem) => (
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>
+              <FiAlertCircle className={styles.icon} /> Station Issues
+            </h2>
+            <button
+              className={styles.exportBtn}
+              onClick={handleExportCSV}
+              disabled={loading || issues.length === 0}
+            >
+              <FiDownload /> Export CSV
+            </button>
+          </div>
+
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner} />
+              <p>Loading station issues...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.errorContainer}>
+              <FiAlertCircle className={styles.errorIcon} />
+              <p className={styles.errorText}>{error}</p>
+              <button onClick={handleRefresh} className={styles.retryButton}>
+                <FiRefreshCw /> Retry
+              </button>
+            </div>
+          ) : issues.length === 0 ? (
+            <div className={styles.noData}>
+              <FiAlertCircle className={styles.noDataIcon} />
+              <p>No station issues found</p>
+              {searchQuery && (
                 <button
-                  onClick={() => handleViewDetails(row.id)}
-                  className={styles.viewBtn}
-                  title="View details"
+                  onClick={() => {
+                    setSearchQuery("");
+                  }}
+                  className={styles.clearFiltersBtn}
                 >
-                  <FiEye />
+                  Clear Search
                 </button>
-              ),
-            },
-          ]}
-          data={issues}
-          loading={loading}
-          emptyMessage={
-            error
-              ? error
-              : searchQuery
-                ? "No station issues found matching your search"
-                : "No station issues found"
-          }
-          mobileCardRender={(row: StationIssueListItem) => (
-            <div onClick={() => handleViewDetails(row.id)} style={{ cursor: "pointer" }}>
-              <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.5rem" }}>
-                <div className={styles.stationInfo}>
-                  <span className={styles.stationName}>{row.station_name}</span>
-                  <span className={styles.stationSerial}>{row.station_serial}</span>
-                </div>
-                <span className={`${styles.priority} ${getPriorityClass(row.priority)}`}>
-                  {stationIssuesService.getPriorityLabel(row.priority)}
-                </span>
-              </div>
-              <div className={styles.userInfo} style={{ marginBottom: "0.5rem" }}>
-                <span className={styles.username}>{row.reporter_name}</span>
-                <span className={styles.email}>{row.reporter_email}</span>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <span className={`${styles.issueType} ${getIssueTypeClass(row.issue_type)}`}>
-                  {stationIssuesService.getIssueTypeLabel(row.issue_type)}
-                </span>
-                <span className={`${styles.status} ${getStatusClass(row.status)}`}>
-                  {stationIssuesService.getStatusLabel(row.status)}
-                </span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "#999", marginBottom: "0.25rem" }}>
-                {row.description.length > 80 ? `${row.description.substring(0, 80)}...` : row.description}
-              </p>
-              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-                {stationIssuesService.formatDateTime(row.reported_at, false)} • {stationIssuesService.getTimeSinceReported(row.reported_at)}
-              </p>
+              )}
+            </div>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Station</th>
+                    <th>Reporter</th>
+                    <th>Issue Type</th>
+                    <th>Priority</th>
+                    <th>Description</th>
+                    <th>Assigned To</th>
+                    <th>Reported</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {issues.map((issue) => (
+                    <tr key={issue.id}>
+                      <td>
+                        <div className={styles.stationInfo}>
+                          <span className={styles.stationName}>
+                            {issue.station_name}
+                          </span>
+                          <span className={styles.stationSerial}>
+                            {issue.station_serial}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className={styles.userInfo}>
+                          <span className={styles.username}>
+                            {issue.reporter_name}
+                          </span>
+                          <span className={styles.email}>
+                            {issue.reporter_email}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.issueType} ${getIssueTypeClass(
+                            issue.issue_type,
+                          )}`}
+                        >
+                          {stationIssuesService.getIssueTypeLabel(
+                            issue.issue_type,
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.priority} ${getPriorityClass(
+                            issue.priority,
+                          )}`}
+                        >
+                          {stationIssuesService.getPriorityLabel(
+                            issue.priority,
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.description}>
+                          {issue.description.length > 50
+                            ? `${issue.description.substring(0, 50)}...`
+                            : issue.description}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.assignedTo}>
+                          {issue.assigned_to_name || "Unassigned"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.timeInfo}>
+                          <span className={styles.date}>
+                            {stationIssuesService.formatDateTime(
+                              issue.reported_at,
+                              false,
+                            )}
+                          </span>
+                          <span className={styles.timeAgo}>
+                            {stationIssuesService.getTimeSinceReported(
+                              issue.reported_at,
+                            )}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.status} ${getStatusClass(
+                            issue.status,
+                          )}`}
+                        >
+                          {stationIssuesService.getStatusLabel(issue.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleViewDetails(issue.id)}
+                          className={styles.viewBtn}
+                          title="View details"
+                        >
+                          <FiEye />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-        />
+        </section>
       </main>
 
       {/* Issue Detail Modal */}

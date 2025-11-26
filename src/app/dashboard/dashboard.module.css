@@ -29,7 +29,6 @@
     min-height: 100vh;
     font-family: "Poppins", sans-serif;
     color: #fff;
-    overflow-x: hidden;
 }
 
 /* Main container beside sidebar */
@@ -37,8 +36,6 @@
     flex: 1;
     padding: 2rem 3rem;
     max-width: 100%;
-    width: 100%;
-    box-sizing: border-box;
 }
 
 /* Header */
@@ -67,7 +64,7 @@
 /* Top Statistics Section */
 .topStats {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -81,24 +78,11 @@
     border: 1px solid #1a1a1a;
 }
 
-/* Two column large (Revenue + System Health) */
-.twoColumnLarge {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* Two column sections (Rental + Station Utilization - same as Revenue layout) */
+/* Two column sections (Popular Packages + Recent Transactions etc.) */
 .twoColumn {
     display: grid;
-    grid-template-columns: 1.6fr 1fr;
+    grid-template-columns: 1.3fr 1fr;
     gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* Full width section */
-.fullWidth {
     margin-bottom: 2rem;
 }
 
@@ -109,22 +93,11 @@
     gap: 1.5rem;
 }
 
-/* Large Tablet (1200px and below) */
-@media (max-width: 1200px) {
-    .dashboardContainer {
-        padding: 1.75rem 2.5rem;
-    }
-
-    .twoColumnLarge {
-        grid-template-columns: 1.4fr 1fr;
-    }
-}
-
-/* 1024px*/
+/* Tablet Responsive (1024px and below) */
 @media (max-width: 1024px) {
     .main {
-        margin-left: 0;
-        width: 100%;
+        margin-left: 60px;
+        width: calc(100% - 60px);
     }
 
     .dashboardContainer {
@@ -136,17 +109,12 @@
     }
 
     .topStats {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.25rem;
-    }
-
-    .twoColumnLarge {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 1.25rem;
     }
 
     .twoColumn {
-        grid-template-columns: 1.4fr 1fr;
+        grid-template-columns: 1fr;
         gap: 1.25rem;
     }
 
@@ -155,7 +123,7 @@
     }
 }
 
-/* 768px - Mobile */
+/* Tablet Portrait and Mobile Landscape (768px and below) */
 @media (max-width: 768px) {
     .main {
         margin-left: 0;
@@ -164,33 +132,96 @@
     }
 
     .dashboardContainer {
-        padding: 1.5rem 1rem;
+        padding: 1.25rem 1.5rem;
     }
 
-    .twoColumn {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* 480px - Small Mobile */
-@media (max-width: 480px) {
-    .main {
-        padding-top: 60px;
-    }
-
-    .dashboardContainer {
-        padding: 1rem 0.75rem;
+    .header {
+        margin-bottom: 1.5rem;
     }
 
     .header h1 {
         font-size: 1.5rem;
     }
 
+    .header p {
+        font-size: 0.9rem;
+    }
+
     .topStats {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .twoColumn {
         gap: 1rem;
     }
 
     .revenueSection {
         padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .bottomSection {
+        gap: 1rem;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .dashboardContainer {
+        padding: 1rem;
+    }
+
+    .header h1 {
+        font-size: 1.25rem;
+    }
+
+    .header p {
+        font-size: 0.85rem;
+    }
+
+    .topStats {
+        grid-template-columns: 1fr;
+        gap: 0.875rem;
+    }
+
+    .revenueSection {
+        padding: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .twoColumn {
+        gap: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .bottomSection {
+        gap: 0.875rem;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .dashboardContainer {
+        padding: 0.75rem;
+    }
+
+    .header h1 {
+        font-size: 1.1rem;
+    }
+
+    .header p {
+        font-size: 0.8rem;
+    }
+
+    .topStats {
+        gap: 0.75rem;
+    }
+
+    .revenueSection,
+    .twoColumn,
+    .bottomSection {
+        margin-bottom: 0.75rem;
+        gap: 0.75rem;
     }
 }

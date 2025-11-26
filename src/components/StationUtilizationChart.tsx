@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import TotalBadge from "./common/TotalBadge";
 import {
   PieChart,
   Pie,
@@ -26,18 +25,6 @@ const COLORS = [
 const StationUtilizationChart: React.FC = () => {
   const { stationsData, loading, error, refetchStations } = useDashboardData();
   const [refreshing, setRefreshing] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect screen size for responsive chart
-  React.useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -131,11 +118,9 @@ const StationUtilizationChart: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <h2>Station Utilization</h2>
-          <TotalBadge 
-            label="Stations" 
-            value={chartData.length}
-            color="purple"
-          />
+          <span className={styles.subtitle}>
+            {chartData.length} Station{chartData.length !== 1 ? "s" : ""}
+          </span>
         </div>
         <button
           onClick={handleRefresh}
@@ -153,11 +138,10 @@ const StationUtilizationChart: React.FC = () => {
               data={chartData}
               cx="50%"
               cy="50%"
-              outerRadius={isMobile ? 70 : 90}
+              outerRadius={90}
               fill="#47b216"
               dataKey="value"
-              label={!isMobile}
-              labelLine={!isMobile}
+              label={(entry) => `${entry.value}%`}
             >
               {chartData.map((entry: any, index: number) => (
                 <Cell
@@ -172,19 +156,14 @@ const StationUtilizationChart: React.FC = () => {
                 border: "1px solid #47b216",
                 color: "#fff",
                 borderRadius: "6px",
-                fontSize: isMobile ? "12px" : "13px",
-                fontWeight: 500,
               }}
               formatter={(value: any) => `${value}%`}
             />
             <Legend
               wrapperStyle={{
                 color: "#ccc",
-                fontSize: isMobile ? "12px" : "13px",
-                paddingTop: isMobile ? "12px" : "18px",
-                fontWeight: 500,
+                fontSize: "0.875rem",
               }}
-              iconSize={isMobile ? 9 : 11}
             />
           </PieChart>
         </ResponsiveContainer>

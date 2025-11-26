@@ -22,7 +22,7 @@
 .headerLeft {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.25rem;
 }
 
 .card h2 {
@@ -30,6 +30,12 @@
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0;
+}
+
+.subtitle {
+    color: #888;
+    font-size: 0.875rem;
+    font-weight: 400;
 }
 
 .chartContainer {

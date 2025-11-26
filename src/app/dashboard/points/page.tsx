@@ -23,7 +23,6 @@ import type {
   AdjustPointsInput,
   AdjustmentType,
 } from "../../../types/rewards.types";
-import DataTable from "../../../components/DataTable/dataTable";
 
 const PointsPage: React.FC = () => {
   const [analytics, setAnalytics] = useState<PointsAnalytics | null>(null);
@@ -350,61 +349,55 @@ const PointsPage: React.FC = () => {
                 </button>
               </div>
 
-
-              <DataTable
-                title="Top Earners"
-                subtitle="Users with the highest points earned"
-                columns={[
-                  {
-                    header: "Rank",
-                    accessor: "user_id",
-                    render: (_: any, row: any) => {
-                      const index = (filteredTopEarners || []).findIndex(e => e.user_id === row.user_id);
-                      return index + 1;
-                    },
-                  },
-                  {
-                    header: "Username",
-                    accessor: "username",
-                    render: (value: string) => (
-                      <span className={styles.username}>{value}</span>
-                    ),
-                  },
-                  {
-                    header: "User ID",
-                    accessor: "user_id",
-                    render: (value: number) => (
-                      <span className={styles.userId}>ID: {value}</span>
-                    ),
-                  },
-                  {
-                    header: "Total Points Earned",
-                    accessor: "total_earned",
-                    render: (value: number) => (
-                      <span className={styles.points}>{value.toLocaleString()} pts</span>
-                    ),
-                  },
-                ]}
-                data={filteredTopEarners || []}
-                loading={false}
-                emptyMessage={
-                  searchTerm
-                    ? "No top earners found matching your search"
-                    : "No top earners found"
-                }
-                mobileCardRender={(row: any) => {
-                  const index = (filteredTopEarners || []).findIndex(e => e.user_id === row.user_id);
-                  return (
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 600 }}>#{index + 1} {row.username}</p>
-                        <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>ID: {row.user_id}</p>
-                      </div>
-                      <span className={styles.points}>{row.total_earned.toLocaleString()} pts</span>
-                    </div>
-                  );
-                }}
-              />
+              {filteredTopEarners && filteredTopEarners.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <FiAward className={styles.emptyIcon} />
+                  <p>No top earners found</p>
+                  {searchTerm && (
+                    <button
+                      className={styles.clearSearch}
+                      onClick={() => setSearchTerm("")}
+                    >
+                      Clear Search
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.tableWrapper}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Username</th>
+                        <th>User ID</th>
+                        <th>Total Points Earned</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTopEarners?.map((earner, index) => (
+                        <tr key={earner.user_id}>
+                          <td>{index + 1}</td>
+                          <td>
+                            <span className={styles.username}>
+                              {earner.username}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={styles.userId}>
+                              ID: {earner.user_id}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={styles.points}>
+                              {earner.total_earned.toLocaleString()} pts
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </section>
           </>
         ) : (

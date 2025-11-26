@@ -147,6 +147,28 @@
     color: #8c8c8c;
 }
 
+/* ---------- Table ---------- */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th,
+.table td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    font-size: 0.9rem;
+}
+
+.table thead {
+    background-color: #1a1a1a;
+    color: #aaa;
+}
+
+.table tbody tr {
+    border-top: 1px solid #2a2a2a;
+}
+
 /* ---------- Status Styles ---------- */
 .statusActive {
     color: #00ff99;
@@ -231,47 +253,7 @@
     outline-offset: -2px;
 }
 
-/* Action Buttons */
-.actionButtonGreen {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background-color: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 6px;
-    color: rgb(34, 197, 94);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.actionButtonGreen:hover {
-    background-color: rgba(34, 197, 94, 0.2);
-    border-color: rgba(34, 197, 94, 0.5);
-}
-
-.actionButtonOrange {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    background-color: rgba(234, 179, 8, 0.1);
-    border: 1px solid rgba(234, 179, 8, 0.3);
-    border-radius: 6px;
-    color: rgb(234, 179, 8);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.actionButtonOrange:hover {
-    background-color: rgba(234, 179, 8, 0.2);
-    border-color: rgba(234, 179, 8, 0.5);
-}
-
+/* Table Scroll Shadow Effect */
 .card {
     position: relative;
 }
@@ -305,12 +287,18 @@
         padding: 3rem 2rem;
         margin-left: 0;
     }
+
+    .table th,
+    .table td {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.85rem;
+    }
 }
 
 @media (max-width: 768px) {
     .container {
-        padding: 1.5rem 1rem;
-        margin-left: 0;
+        padding: 2rem 1rem;
+        margin-top: 1rem;
     }
 
     .title {
@@ -392,11 +380,22 @@
     .card::-webkit-scrollbar-thumb:hover {
         background: #6dd86b;
     }
+
+    .table {
+        min-width: 800px;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
 }
 
 @media (max-width: 480px) {
     .container {
-        padding: 1.25rem 0.75rem;
+        padding: 1.5rem 0.75rem;
     }
 
     .title {
@@ -427,6 +426,11 @@
         font-size: 0.75rem;
     }
 
+    .table th,
+    .table td {
+        font-size: 0.75rem;
+    }
+
     .sortBtn {
         width: 100%;
         justify-content: center;
@@ -439,7 +443,6 @@
 
 /* Print Styles */
 @media print {
-
     .tabContainer,
     .addButtonWrapper,
     .controls,

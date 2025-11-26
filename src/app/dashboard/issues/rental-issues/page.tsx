@@ -16,7 +16,6 @@ import {
   RentalIssueStatus,
   RentalIssueDetail,
 } from "../../../../types/rental-issues.types";
-import DataTable from "../../../../components/DataTable/dataTable";
 
 const statusTabs: (RentalIssueStatus | "ALL")[] = ["ALL", "REPORTED", "RESOLVED"];
 
@@ -248,8 +247,9 @@ export default function RentalIssuesPage() {
           {statusTabs.map((tab) => (
             <button
               key={tab}
-              className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
-                }`}
+              className={`${styles.tab} ${
+                activeTab === tab ? styles.activeTab : ""
+              }`}
               onClick={() => handleTabClick(tab)}
               disabled={loading}
             >
@@ -261,133 +261,150 @@ export default function RentalIssuesPage() {
         </div>
 
         {/* Table Card */}
-        <DataTable
-          title="Rental Issues"
-          subtitle={issues.length > 0 ? `Showing ${issues.length} rental issues` : "Manage rental issues reported by users"}
-          columns={[
-            {
-              header: "Rental Code",
-              accessor: "rental_code",
-              render: (value: string) => (
-                <span className={styles.rentalCode}>{value}</span>
-              ),
-            },
-            {
-              header: "User",
-              accessor: "user_name",
-              render: (_: any, row: RentalIssueListItem) => (
-                <div className={styles.userInfo}>
-                  <span className={styles.username}>{row.user_name}</span>
-                  <span className={styles.email}>{row.user_email}</span>
-                </div>
-              ),
-            },
-            {
-              header: "Issue Type",
-              accessor: "issue_type",
-              render: (_: any, row: RentalIssueListItem) => (
-                <span
-                  className={`${styles.issueType} ${getIssueTypeClass(row.issue_type)}`}
-                >
-                  {rentalIssuesService.getIssueTypeLabel(row.issue_type)}
-                </span>
-              ),
-            },
-            {
-              header: "Description",
-              accessor: "description",
-              render: (value: string) => (
-                <span className={styles.description}>
-                  {value.length > 50 ? `${value.substring(0, 50)}...` : value}
-                </span>
-              ),
-            },
-            {
-              header: "Station",
-              accessor: "station_name",
-              render: (value: string) => (
-                <span className={styles.stationName}>{value}</span>
-              ),
-            },
-            {
-              header: "Power Bank",
-              accessor: "power_bank_serial",
-              render: (value: string) => (
-                <span className={styles.powerBankSerial}>{value}</span>
-              ),
-            },
-            {
-              header: "Reported",
-              accessor: "reported_at",
-              render: (value: string) => (
-                <div className={styles.timeInfo}>
-                  <span className={styles.date}>
-                    {rentalIssuesService.formatDateTime(value, false)}
-                  </span>
-                  <span className={styles.timeAgo}>
-                    {rentalIssuesService.getTimeSinceReported(value)}
-                  </span>
-                </div>
-              ),
-            },
-            {
-              header: "Status",
-              accessor: "status",
-              render: (value: RentalIssueStatus) => (
-                <span className={`${styles.status} ${getStatusClass(value)}`}>
-                  {rentalIssuesService.getStatusLabel(value)}
-                </span>
-              ),
-            },
-            {
-              header: "Actions",
-              accessor: "actions",
-              render: (_: any, row: RentalIssueListItem) => (
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <h2 className={styles.cardTitle}>
+              <FiAlertCircle className={styles.icon} /> Rental Issues
+            </h2>
+            <button
+              className={styles.exportBtn}
+              onClick={handleExportCSV}
+              disabled={loading || issues.length === 0}
+            >
+              <FiDownload /> Export CSV
+            </button>
+          </div>
+
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <div className={styles.spinner} />
+              <p>Loading rental issues...</p>
+            </div>
+          ) : error ? (
+            <div className={styles.errorContainer}>
+              <FiAlertCircle className={styles.errorIcon} />
+              <p className={styles.errorText}>{error}</p>
+              <button onClick={handleRefresh} className={styles.retryButton}>
+                <FiRefreshCw /> Retry
+              </button>
+            </div>
+          ) : issues.length === 0 ? (
+            <div className={styles.noData}>
+              <FiAlertCircle className={styles.noDataIcon} />
+              <p>No rental issues found</p>
+              {searchQuery && (
                 <button
-                  onClick={() => handleViewDetails(row.id)}
-                  className={styles.viewBtn}
-                  title="View details"
+                  onClick={() => {
+                    setSearchQuery("");
+                  }}
+                  className={styles.clearFiltersBtn}
                 >
-                  <FiEye />
+                  Clear Search
                 </button>
-              ),
-            },
-          ]}
-          data={issues}
-          loading={loading}
-          emptyMessage={
-            error
-              ? error
-              : searchQuery
-                ? "No rental issues found matching your search"
-                : "No rental issues found"
-          }
-          mobileCardRender={(row: RentalIssueListItem) => (
-            <div onClick={() => handleViewDetails(row.id)} style={{ cursor: "pointer" }}>
-              <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                <span className={styles.rentalCode}>{row.rental_code}</span>
-                <span className={`${styles.status} ${getStatusClass(row.status)}`}>
-                  {rentalIssuesService.getStatusLabel(row.status)}
-                </span>
-              </div>
-              <div className={styles.userInfo} style={{ marginBottom: "0.5rem" }}>
-                <span className={styles.username}>{row.user_name}</span>
-                <span className={styles.email}>{row.user_email}</span>
-              </div>
-              <div style={{ marginBottom: "0.5rem" }}>
-                <span className={`${styles.issueType} ${getIssueTypeClass(row.issue_type)}`}>
-                  {rentalIssuesService.getIssueTypeLabel(row.issue_type)}
-                </span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "#999", marginBottom: "0.25rem" }}>
-                {row.description.length > 80 ? `${row.description.substring(0, 80)}...` : row.description}
-              </p>
-              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-                {rentalIssuesService.formatDateTime(row.reported_at, false)} • {rentalIssuesService.getTimeSinceReported(row.reported_at)}
-              </p>
+              )}
+            </div>
+          ) : (
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Rental Code</th>
+                    <th>User</th>
+                    <th>Issue Type</th>
+                    <th>Description</th>
+                    <th>Station</th>
+                    <th>Power Bank</th>
+                    <th>Reported</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {issues.map((issue) => (
+                    <tr key={issue.id}>
+                      <td>
+                        <span className={styles.rentalCode}>
+                          {issue.rental_code}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.userInfo}>
+                          <span className={styles.username}>
+                            {issue.user_name}
+                          </span>
+                          <span className={styles.email}>
+                            {issue.user_email}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.issueType} ${getIssueTypeClass(
+                            issue.issue_type
+                          )}`}
+                        >
+                          {rentalIssuesService.getIssueTypeLabel(
+                            issue.issue_type
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.description}>
+                          {issue.description.length > 50
+                            ? `${issue.description.substring(0, 50)}...`
+                            : issue.description}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.stationName}>
+                          {issue.station_name}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.powerBankSerial}>
+                          {issue.power_bank_serial}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.timeInfo}>
+                          <span className={styles.date}>
+                            {rentalIssuesService.formatDateTime(
+                              issue.reported_at,
+                              false
+                            )}
+                          </span>
+                          <span className={styles.timeAgo}>
+                            {rentalIssuesService.getTimeSinceReported(
+                              issue.reported_at
+                            )}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span
+                          className={`${styles.status} ${getStatusClass(
+                            issue.status
+                          )}`}
+                        >
+                          {rentalIssuesService.getStatusLabel(issue.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => handleViewDetails(issue.id)}
+                          className={styles.viewBtn}
+                          title="View details"
+                        >
+                          <FiEye />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
-        />
+        </section>
       </main>
 
       {/* Issue Detail Modal */}

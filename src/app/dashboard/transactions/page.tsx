@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import styles from "./transactions.module.css";
 import { FiDownload, FiFilter, FiRefreshCw, FiSearch } from "react-icons/fi";
 import axiosInstance from "../../../lib/axios";
-import Table from "../../../components/DataTable/dataTable";
 
 interface User {
   id: string;
@@ -12,6 +11,7 @@ interface User {
   email?: string;
 }
 
+// Updated Transaction interface to match the new API response format
 interface Transaction {
   source: string;
   id: string;
@@ -98,7 +98,7 @@ const Transactions: React.FC = () => {
       console.error("Error fetching transactions:", err);
       setError(
         err.response?.data?.message ||
-          "Failed to load transactions. Please try again."
+        "Failed to load transactions. Please try again."
       );
     } finally {
       setLoading(false);
@@ -109,12 +109,14 @@ const Transactions: React.FC = () => {
     fetchTransactions();
   }, [fetchTransactions]);
 
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = () => setDropdownOpen(false);
     if (dropdownOpen) document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [dropdownOpen]);
 
+  // Sort logic
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (sortBy === "amount") {
       const amountA = a.amount || a.points || 0;
@@ -122,9 +124,11 @@ const Transactions: React.FC = () => {
       return amountB - amountA;
     }
     if (sortBy === "status") return a.status.localeCompare(b.status);
+    // Default sort by date (newest first)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
+  // CSV download
   const downloadCSV = () => {
     const headers = [
       "Transaction ID",
@@ -157,6 +161,17 @@ const Transactions: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && pagination && newPage <= pagination.total_pages) {
       setCurrentPage(newPage);
@@ -166,75 +181,6 @@ const Transactions: React.FC = () => {
   const handleRefresh = () => {
     fetchTransactions();
   };
-
-  // ✅ Reusable table column definitions
-  const columns = [
-    {
-      header: "Transaction ID",
-      accessor: "transaction_id",
-    },
-    {
-      header: "User",
-      accessor: "user",
-      render: (value: any) => value?.username || value?.email || "N/A",
-    },
-    {
-      header: "Amount/Points",
-      accessor: "amount",
-      render: (_: any, row: Transaction) =>
-        row.amount
-          ? `Rs. ${(row.amount || 0).toFixed(2)}`
-          : `${row.points || 0} points`,
-    },
-    {
-      header: "Source",
-      accessor: "source",
-      render: (value: string) => (
-        <span
-          style={{
-            backgroundColor: sourceColors[value.toLowerCase()] || "#6c757d",
-            color: "#000",
-            padding: "4px 8px",
-            borderRadius: "4px",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-          }}
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      header: "Status",
-      accessor: "status",
-      render: (value: string) => (
-        <span
-          style={{
-            backgroundColor: statusColors[value.toUpperCase()] || "#6c757d",
-            color: "#000",
-            padding: "4px 8px",
-            borderRadius: "4px",
-            fontSize: "0.8rem",
-            fontWeight: 600,
-          }}
-        >
-          {value}
-        </span>
-      ),
-    },
-    {
-      header: "Date/Time",
-      accessor: "created_at",
-      render: (value: string) =>
-        new Date(value).toLocaleString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-    },
-  ];
 
   return (
     <div className={styles.container}>
@@ -267,9 +213,8 @@ const Transactions: React.FC = () => {
           {["all", "wallet", "points", "payment"].map((f) => (
             <button
               key={f}
-              className={`${styles.filterButton} ${
-                filter === f ? styles.active : ""
-              }`}
+              className={`${styles.filterButton} ${filter === f ? styles.active : ""
+                }`}
               onClick={() => {
                 setFilter(f);
                 setCurrentPage(1);
@@ -307,9 +252,8 @@ const Transactions: React.FC = () => {
             {dropdownOpen && (
               <div className={styles.dropdown}>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "date" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "date" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("date");
                     setDropdownOpen(false);
@@ -318,9 +262,8 @@ const Transactions: React.FC = () => {
                   Date
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "amount" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "amount" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("amount");
                     setDropdownOpen(false);
@@ -329,9 +272,8 @@ const Transactions: React.FC = () => {
                   Amount
                 </div>
                 <div
-                  className={`${styles.dropdownItem} ${
-                    sortBy === "status" ? styles.selected : ""
-                  }`}
+                  className={`${styles.dropdownItem} ${sortBy === "status" ? styles.selected : ""
+                    }`}
                   onClick={() => {
                     setSortBy("status");
                     setDropdownOpen(false);
@@ -365,39 +307,102 @@ const Transactions: React.FC = () => {
           </button>
         </div>
 
-        <Table
-          title=""
-          subtitle=""
-          columns={columns}
-          data={sortedTransactions}
-          loading={loading}
-          emptyMessage={
-            searchTerm || filter !== "all"
-              ? "No transactions found matching your criteria"
-              : "No transactions available"
-          }
-        />
-
-        {pagination && pagination.total_pages > 1 && (
-          <div className={styles.pagination}>
-            <button
-              className={styles.pageButton}
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage <= 1 || loading}
-            >
-              Previous
-            </button>
-            <div className={styles.pageInfo}>
-              Page {currentPage} of {pagination.total_pages}
-            </div>
-            <button
-              className={styles.pageButton}
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage >= pagination.total_pages || loading}
-            >
-              Next
-            </button>
+        {loading && transactions.length === 0 ? (
+          <div className={styles.loadingContainer}>
+            <FiRefreshCw className={styles.spinner} size={32} />
+            <p>Loading transactions...</p>
           </div>
+        ) : (
+          <>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>User</th>
+                  <th>Amount/Points</th>
+                  <th>Source</th>
+                  <th>Status</th>
+                  <th>Date/Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedTransactions.length > 0 ? (
+                  sortedTransactions.map((t) => (
+                    <tr key={t.id}>
+                      <td className={styles.transactionId}>
+                        {t.transaction_id}
+                      </td>
+                      <td>
+                        {typeof t.user === "object"
+                          ? t.user?.username || t.user?.email || "N/A"
+                          : t.user}
+                      </td>
+                      <td className={styles.amount}>
+                        {t.amount
+                          ? `Rs. ${(t.amount || 0).toFixed(2)}`
+                          : `${t.points || 0} points`}
+                      </td>
+                      <td>
+                        <span
+                          className={styles.statusBadge}
+                          style={{
+                            backgroundColor:
+                              sourceColors[t.source.toLowerCase()] || "#6c757d",
+                          }}
+                        >
+                          {t.source}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={styles.statusBadge}
+                          style={{
+                            backgroundColor:
+                              statusColors[t.status.toUpperCase()] || "#6c757d",
+                          }}
+                        >
+                          {t.status}
+                        </span>
+                      </td>
+                      <td className={styles.dateTime}>
+                        {formatDate(t.created_at)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className={styles.noData}>
+                      {searchTerm || filter !== "all"
+                        ? "No transactions found matching your criteria"
+                        : "No transactions available"}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+
+            {pagination && pagination.total_pages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  className={styles.pageButton}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage <= 1 || loading}
+                >
+                  Previous
+                </button>
+                <div className={styles.pageInfo}>
+                  Page {currentPage} of {pagination.total_pages}
+                </div>
+                <button
+                  className={styles.pageButton}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= pagination.total_pages || loading}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

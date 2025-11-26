@@ -1,6 +1,6 @@
 .container {
     color: #fff;
-    background-color: #0b0b0b;
+    background-color: #0a0a0a;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -175,9 +175,96 @@
     color: #43ff64;
 }
 
+/* Card */
+.card {
+    background-color: #141414;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
 
+.cardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
 
+.cardTitle {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
 
+.icon {
+    font-size: 1.1rem;
+}
+
+.exportBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.exportBtn:hover {
+    color: #fff;
+}
+
+.exportBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Table */
+.tableWrapper {
+    overflow-x: auto;
+    margin: 0 -1.25rem;
+    padding: 0 1.25rem;
+}
+
+.tableWrapper::-webkit-scrollbar {
+    height: 6px;
+}
+
+.tableWrapper::-webkit-scrollbar-track {
+    background: #0b0b0b;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb {
+    background: #2a2a2a;
+    border-radius: 3px;
+}
+
+.tableWrapper::-webkit-scrollbar-thumb:hover {
+    background: #333;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+.table th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #333;
+    color: #999;
+    font-weight: 500;
+}
+
+.table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #222;
+}
 
 /* Table Cell Content */
 .rentalCode {
@@ -407,9 +494,85 @@
     border-color: #82ea80;
 }
 
+/* Loading State */
+.loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #aaa;
+}
 
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #2a2a2a;
+    border-top-color: #82ea80;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 1rem;
+}
 
+/* Error State */
+.errorContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+}
 
+.errorIcon {
+    font-size: 3rem;
+    color: #ff4040;
+    margin-bottom: 1rem;
+}
+
+.errorText {
+    color: #ddd;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.retryButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.retryButton:hover {
+    background: #222;
+    border-color: #82ea80;
+}
+
+/* No Data State */
+.noData {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #999;
+}
+
+.noDataIcon {
+    font-size: 3rem;
+    color: #666;
+    margin-bottom: 1rem;
+}
 
 .clearFiltersBtn {
     margin-top: 1rem;

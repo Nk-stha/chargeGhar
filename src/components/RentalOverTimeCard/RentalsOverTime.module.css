@@ -19,7 +19,7 @@
 .titleSection {
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
+    gap: 0.5rem;
 }
 
 .card h2 {
@@ -27,6 +27,12 @@
     color: #fff;
     margin: 0;
     font-weight: 600;
+}
+
+.totalRentals {
+    font-size: 14px;
+    color: #888;
+    margin: 0;
 }
 
 .toggle {
@@ -60,7 +66,7 @@
 
 .chartContainer {
     width: 100%;
-    height: 290px;
+    height: 300px;
     margin-bottom: 1rem;
 }
 
@@ -161,16 +167,39 @@
     font-size: 13px;
 }
 
-/* Date Range Info - Compact Summary */
-.dateRange {
-    margin-top: 1rem;
-    padding: 0.625rem 0.875rem;
+/* Summary Stats */
+.summaryContainer {
+    display: flex;
+    gap: 2rem;
+    padding: 1rem;
     background: #1a1a1a;
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.summaryItem {
+    display: flex;
+    flex-direction: column;
+}
+
+.summaryLabel {
+    font-size: 12px;
     color: #888;
-    text-align: center;
-    line-height: 1.4;
+}
+
+.summaryValue {
+    font-size: 16px;
+    color: #82ea80;
+    font-weight: 600;
+}
+
+/* Date Range Info */
+.dateRange {
+    background: #1a1a1a;
+    font-size: 12px;
+    color: #888;
+    text-align: left;
 }
 
 /* Responsive Design */
@@ -192,7 +221,7 @@
     }
 
     .chartContainer {
-        height: 270px;
+        height: 280px;
     }
 }
 
@@ -216,13 +245,15 @@
     }
 
     .chartContainer {
-        height: 250px;
+        height: 260px;
     }
 
-    .dateRange {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.6875rem;
-        margin-top: 0.875rem;
+    .summaryContainer {
+        gap: 1rem;
+    }
+
+    .summaryValue {
+        font-size: 14px;
     }
 
     .loadingContainer,
@@ -261,14 +292,27 @@
     }
 
     .chartContainer {
-        height: 210px;
+        height: 240px;
         margin-bottom: 0.75rem;
     }
 
+    .summaryContainer {
+        flex-direction: column;
+        gap: 0.75rem;
+        padding: 0.75rem;
+    }
+
+    .summaryLabel {
+        font-size: 11px;
+    }
+
+    .summaryValue {
+        font-size: 13px;
+    }
+
     .dateRange {
-        padding: 0.5rem 0.625rem;
-        font-size: 0.625rem;
-        margin-top: 0.75rem;
+        padding: 0.5rem;
+        font-size: 11px;
     }
 
     .spinner {
@@ -309,12 +353,19 @@
     }
 
     .chartContainer {
-        height: 200px;
+        height: 220px;
+    }
+
+    .summaryContainer {
+        padding: 0.5rem;
+    }
+
+    .summaryValue {
+        font-size: 12px;
     }
 
     .dateRange {
         padding: 0.5rem;
-        font-size: 0.5625rem;
-        margin-top: 0.625rem;
+        font-size: 10px;
     }
 }

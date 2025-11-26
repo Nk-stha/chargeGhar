@@ -5,6 +5,7 @@ import styles from "./users.module.css";
 import {
   FiShield,
   FiUsers,
+  FiTrash2,
   FiSearch,
   FiArrowDown,
   FiChevronDown,
@@ -18,7 +19,6 @@ import { userService } from "../../../lib/api/user.service";
 import AddAdminModal from "./addadmin/AddAdminModal";
 import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfileModal";
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
-import DataTable from "../../../components/DataTable/dataTable";
 
 interface User {
   id: number;
@@ -297,134 +297,88 @@ export default function UsersPage() {
 
       {/* Admin Users Table */}
       {activeTab === "admin" && (
-        <DataTable
-          title="Admin Users"
-          subtitle="Manage admins and their permissions"
-          columns={[
-            {
-              header: "ID",
-              accessor: "id",
-              render: (v) => (
-                <span style={{ color: "#aaa", fontSize: "0.85rem", fontFamily: "monospace" }}>
-                  {`${v.slice(0, 8)}...`}
-                </span>
-              ),
-            },
-            {
-              header: "Username",
-              accessor: "username",
-              render: (v) => (
-                <span style={{ color: "#eee", fontSize: "0.9rem", fontWeight: "500" }}>
-                  {v}
-                </span>
-              ),
-            },
-            {
-              header: "Email",
-              accessor: "email",
-              render: (v) => (
-                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>
-                  {v}
-                </span>
-              ),
-            },
-            {
-              header: "Role",
-              accessor: "role",
-              render: (_: any, row) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  textTransform: "capitalize",
-                  backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
-                  color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
-                }}>
-                  {row.role.replace("_", " ")}
-                </span>
-              ),
-            },
-            {
-              header: "Status",
-              accessor: "is_active",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: v ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                  color: v ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                }}>
-                  {v ? "Active" : "Inactive"}
-                </span>
-              ),
-            },
-            {
-              header: "Created Date",
-              accessor: "created_at",
-              render: (v) => (
-                <span style={{ color: "#ccc", fontSize: "0.85rem" }}>
-                  {new Date(v).toLocaleDateString()}
-                </span>
-              ),
-            },
-            {
-              header: "Created By",
-              accessor: "created_by_username",
-              render: (v) => (
-                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>
-                  {v || "—"}
-                </span>
-              ),
-            },
-          ]}
-          data={admins}
-          emptyMessage="No admins found"
-          loading={loading}
-          mobileCardRender={(row) => (
-            <>
-              <div style={{ marginBottom: "0.75rem" }}>
-                <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: "600", color: "#eee" }}>
-                  {row.username}
-                </p>
-                <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.8rem", color: "#888" }}>
-                  {row.email}
-                </p>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <span style={{
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.7rem",
-                  fontWeight: "500",
-                  textTransform: "capitalize",
-                  backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
-                  color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
-                }}>
-                  {row.role.replace("_", " ")}
-                </span>
-                <span style={{
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.7rem",
-                  fontWeight: "500",
-                  backgroundColor: row.is_active ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                  color: row.is_active ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                }}>
-                  {row.is_active ? "Active" : "Inactive"}
-                </span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-                Created {new Date(row.created_at).toLocaleDateString()} by {row.created_by_username || "—"}
-              </p>
-            </>
-          )}
-        />
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardTitle}>
+              <FiShield className={styles.icon} /> Admin Users
+            </div>
+            <p className={styles.cardSubText}>
+              Manage admins and their permissions
+            </p>
+          </div>
 
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Created By</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {admins.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    style={{
+                      textAlign: "center",
+                      padding: "2rem",
+                      color: "#888",
+                    }}
+                  >
+                    No admins found
+                  </td>
+                </tr>
+              ) : (
+                admins.map((admin: AdminProfile) => (
+                  <tr
+                    key={admin.id}
+                    onClick={() => handleAdminClick(admin.id)}
+                    style={{ cursor: "pointer" }}
+                    className={styles.clickableRow}
+                  >
+                    <td>{admin.id.slice(0, 8)}...</td>
+                    <td>{admin.username}</td>
+                    <td>{admin.email}</td>
+                    <td>
+                      <span
+                        style={{
+                          textTransform: "capitalize",
+                          color: admin.is_super_admin ? "#82ea80" : "#ccc",
+                        }}
+                      >
+                        {admin.role.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          admin.is_active
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }
+                      >
+                        {admin.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td>{new Date(admin.created_at).toLocaleDateString()}</td>
+                    <td>{admin.created_by_username}</td>
+                    <td onClick={(e) => e.stopPropagation()}>
+                      <button className={styles.deleteBtn} title="Manage admin">
+                        <FiShield />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
       )}
 
       {/* USER CONTROLS */}
@@ -561,251 +515,139 @@ export default function UsersPage() {
 
       {/* Users Table */}
       {activeTab === "users" && (
-        <DataTable
-          title="Users"
-          subtitle="Manage registered users"
-          columns={[
-            {
-              header: "User",
-              accessor: "username",
-              render: (_: any, row) => (
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <div
+        <section className={styles.card}>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardTitle}>
+              <FiUsers className={styles.icon} /> Users
+            </div>
+            <p className={styles.cardSubText}>Manage users</p>
+          </div>
+
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Referral Code</th>
+                <th>Provider</th>
+                <th>Profile Status</th>
+                <th>KYC Status</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayedUsers.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={9}
                     style={{
-                      width: "2rem",
-                      height: "2rem",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.75rem",
-                      fontWeight: "600",
-                      backgroundColor: "rgba(130, 234, 128, 0.1)",
-                      color: "#82ea80",
-                      flexShrink: 0,
+                      textAlign: "center",
+                      padding: "2rem",
+                      color: "#888",
+                      fontStyle: "italic",
                     }}
                   >
-                    {row.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.username}
-                    </p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      ID: {row.id}
-                    </p>
-                  </div>
-                </div>
-              ),
-            },
-            {
-              header: "Referral",
-              accessor: "referral_code",
-              render: (v) => (
-                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>{v || "—"}</span>
-              ),
-            },
-            {
-              header: "Provider",
-              accessor: "social_provider",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: "rgba(156, 163, 175, 0.1)",
-                  color: "rgb(156, 163, 175)",
-                  textTransform: "capitalize",
-                }}>
-                  {v.toLowerCase()}
-                </span>
-              ),
-            },
-            {
-              header: "Profile",
-              accessor: "profile_complete",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: v ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
-                  color: v ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
-                }}>
-                  {v ? "Complete" : "Incomplete"}
-                </span>
-              ),
-            },
-            {
-              header: "KYC Status",
-              accessor: "kyc_status",
-              render: (v) => {
-                const getKYCStyle = (status: string) => {
-                  if (status === "APPROVED") return { bg: "rgba(34, 197, 94, 0.1)", color: "rgb(34, 197, 94)" };
-                  if (status === "PENDING") return { bg: "rgba(234, 179, 8, 0.1)", color: "rgb(234, 179, 8)" };
-                  return { bg: "rgba(156, 163, 175, 0.1)", color: "rgb(156, 163, 175)" };
-                };
-                const style = getKYCStyle(v);
-                return (
-                  <span style={{
-                    display: "inline-block",
-                    padding: "0.25rem 0.5rem",
-                    borderRadius: "4px",
-                    fontSize: "0.75rem",
-                    fontWeight: "500",
-                    backgroundColor: style.bg,
-                    color: style.color,
-                  }}>
-                    {v.replace("_", " ")}
-                  </span>
-                );
-              },
-            },
-            {
-              header: "Status",
-              accessor: "status",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: v === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                  color: v === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                }}>
-                  {v}
-                </span>
-              ),
-            },
-            {
-              header: "Joined",
-              accessor: "date_joined",
-              render: (v) => (
-                <span style={{ color: "#ccc", fontSize: "0.85rem" }}>
-                  {new Date(v).toLocaleDateString()}
-                </span>
-              ),
-            },
-            {
-              header: "Actions",
-              accessor: "actions",
-              align: "right",
-              render: (_: any, row) => (
-                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                  <button
-                    onClick={() => handleOpenAddBalance(row)}
-                    title="Add Balance"
-                    className={styles.actionButtonGreen}
-                  >
-                    <FiDollarSign size={14} /> Add Balance
-                  </button>
-                  <button
-                    onClick={() => handleOpenStatusModal(row)}
-                    title="Update Status"
-                    className={styles.actionButtonOrange}
-                  >
-                    <FiUserCheck size={14} /> Status
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          data={displayedUsers}
-          emptyMessage={search ? "No users match your search." : "No users found."}
-          loading={loading}
-          mobileCardRender={(row) => (
-            <>
-              <div style={{ display: "flex", alignItems: "start", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      width: "2.5rem",
-                      height: "2.5rem",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.875rem",
-                      fontWeight: "600",
-                      backgroundColor: "rgba(130, 234, 128, 0.1)",
-                      color: "#82ea80",
-                      flexShrink: 0,
-                    }}
-                  >
-                    {row.username.charAt(0).toUpperCase()}
-                  </div>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.username}
-                    </p>
-                    <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      ID: {row.id}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
-                <span style={{
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.7rem",
-                  fontWeight: "500",
-                  backgroundColor: "rgba(156, 163, 175, 0.1)",
-                  color: "rgb(156, 163, 175)",
-                  textTransform: "capitalize",
-                }}>
-                  {row.social_provider.toLowerCase()}
-                </span>
-                <span style={{
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.7rem",
-                  fontWeight: "500",
-                  backgroundColor: row.profile_complete ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
-                  color: row.profile_complete ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
-                }}>
-                  {row.profile_complete ? "Complete" : "Incomplete"}
-                </span>
-                <span style={{
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.7rem",
-                  fontWeight: "500",
-                  backgroundColor: row.status === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                  color: row.status === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                }}>
-                  {row.status}
-                </span>
-              </div>
-              <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-                Joined {new Date(row.date_joined).toLocaleDateString()}
-              </p>
-              <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid #222" }}>
-                <button
-                  onClick={() => handleOpenAddBalance(row)}
-                  title="Add Balance"
-                  className={styles.actionButtonGreen}
-                  style={{ flex: 1, fontSize: "0.8rem" }}
-                >
-                  <FiDollarSign size={14} /> Balance
-                </button>
-                <button
-                  onClick={() => handleOpenStatusModal(row)}
-                  title="Update Status"
-                  className={styles.actionButtonOrange}
-                  style={{ flex: 1, fontSize: "0.8rem" }}
-                >
-                  <FiUserCheck size={14} /> Status
-                </button>
-              </div>
-            </>
-          )}
-        />
+                    {search ? "No users match your search." : "No users found."}
+                  </td>
+                </tr>
+              ) : (
+                displayedUsers.map((user) => (
+                  <tr key={user.id}>
+                    <td>{user.id}</td>
+                    <td>{user.username}</td>
+                    <td>{user.referral_code || "—"}</td>
+                    <td>
+                      <span style={{ textTransform: "capitalize" }}>
+                        {user.social_provider.toLowerCase()}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          color: user.profile_complete ? "#32cd32" : "#ff8c00",
+                        }}
+                      >
+                        {user.profile_complete ? "Complete" : "Incomplete"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        style={{
+                          color:
+                            user.kyc_status === "APPROVED"
+                              ? "#32cd32"
+                              : user.kyc_status === "PENDING"
+                                ? "#ff8c00"
+                                : "#888",
+                        }}
+                      >
+                        {user.kyc_status.replace("_", " ")}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          user.status === "ACTIVE"
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }
+                      >
+                        {user.status}
+                      </span>
+                    </td>
+                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
+                    <td>
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        <button
+                          onClick={() => handleOpenAddBalance(user)}
+                          title="Add Balance"
+                          style={{
+                            padding: "0.4rem 0.6rem",
+                            background: "rgba(130, 234, 128, 0.1)",
+                            border: "1px solid #82ea80",
+                            borderRadius: "6px",
+                            color: "#82ea80",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.85rem",
+                            transition: "all 0.2s",
+                          }}
+                        >
+                          <FiDollarSign size={14} />
+                          Add Balance
+                        </button>
+                        <button
+                          onClick={() => handleOpenStatusModal(user)}
+                          title="Update Status"
+                          style={{
+                            padding: "0.4rem 0.6rem",
+                            background: "rgba(255, 165, 0, 0.1)",
+                            border: "1px solid #ffa500",
+                            borderRadius: "6px",
+                            color: "#ffa500",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
+                            fontSize: "0.85rem",
+                            transition: "all 0.2s",
+                          }}
+                        >
+                          <FiUserCheck size={14} />
+                          Status
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </section>
       )}
 
       {showModal && (
