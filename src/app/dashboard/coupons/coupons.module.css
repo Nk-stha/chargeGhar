@@ -250,38 +250,7 @@
     font-size: 0.9rem;
 }
 
-.tableContainer {
-    overflow-x: auto;
-}
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1000px;
-}
-
-.table th,
-.table td {
-    text-align: left;
-    padding: 1rem;
-    border-bottom: 1px solid #2a2a2a;
-}
-
-.table th {
-    color: #aaa;
-    font-weight: 600;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.table tbody tr {
-    transition: background-color 0.2s ease;
-}
-
-.table tbody tr:hover {
-    background-color: #222;
-}
 
 .codeCell {
     font-family: monospace;
@@ -737,10 +706,7 @@
         gap: 1rem;
     }
 
-    .table th,
-    .table td {
-        padding: 0.75rem;
-    }
+
 }
 
 @media (max-width: 768px) {
@@ -792,9 +758,7 @@
         padding: 1rem;
     }
 
-    .tableContainer {
-        overflow-x: scroll;
-    }
+
 
     .modalContent,
     .largeModalContent,

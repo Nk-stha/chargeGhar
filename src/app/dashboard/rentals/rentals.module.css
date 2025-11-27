@@ -4,8 +4,6 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
-    padding: 2rem;
 }
 
 .title {
@@ -110,40 +108,7 @@
     color: #fff;
 }
 
-.table {
-    width: 100%;
-    border-collapse: collapse;
-    color: #ddd;
-    font-size: 0.9rem;
-}
 
-.table th {
-    text-align: left;
-    padding: 10px 12px;
-    border-bottom: 1px solid #333;
-    color: #999;
-    font-weight: 500;
-}
-
-.table td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #222;
-}
-
-.clickableRow {
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.clickableRow:hover {
-    background-color: #1a1a1a;
-    border-left: 2px solid #82ea80;
-}
-
-.clickableRow:focus {
-    outline: 2px solid #82ea80;
-    outline-offset: -2px;
-}
 
 .status {
     display: flex;
@@ -302,29 +267,7 @@
     cursor: not-allowed;
 }
 
-/* Table Wrapper */
-.tableWrapper {
-    overflow-x: auto;
-    margin: 0 -1.25rem;
-    padding: 0 1.25rem;
-}
 
-.tableWrapper::-webkit-scrollbar {
-    height: 6px;
-}
-
-.tableWrapper::-webkit-scrollbar-track {
-    background: #0b0b0b;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb {
-    background: #2a2a2a;
-    border-radius: 3px;
-}
-
-.tableWrapper::-webkit-scrollbar-thumb:hover {
-    background: #333;
-}
 
 /* Table Cell Content */
 .rentalCode {
@@ -565,27 +508,9 @@
     border-color: #82ea80;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 3rem 2rem;
-        margin-left: 0;
-    }
-
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 8px 10px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 2rem 1rem;
-        margin-top: 1rem;
     }
 
     .title {
@@ -620,46 +545,8 @@
         border-radius: 2px;
     }
 
-    .tableWrapper {
-        margin: 0 -1rem;
-        padding: 0 1rem;
-    }
-
-    .table {
-        font-size: 0.8rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 6px 8px;
-    }
-
     .pagination {
         flex-direction: column;
         gap: 0.75rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 1.5rem 0.75rem;
-    }
-
-    .title {
-        font-size: 1.3rem;
-    }
-
-    .card {
-        padding: 0.75rem;
-    }
-
-    .rentalCode {
-        font-size: 0.85rem;
-    }
-
-    .paymentStatus,
-    .status {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
     }
 }

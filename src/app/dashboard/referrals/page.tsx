@@ -17,6 +17,7 @@ import {
   FiAward,
 } from "react-icons/fi";
 import { rewardsService } from "../../../lib/api";
+import DataTable from "../../../components/dataTable/dataTable";
 import type { ReferralsAnalytics } from "../../../types/rewards.types";
 
 const ReferralsPage: React.FC = () => {
@@ -243,49 +244,50 @@ const ReferralsPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Username</th>
-                      <th>Total Referrals</th>
-                      <th>Success Rate</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTopReferrers?.map((referrer, index) => (
-                      <tr key={referrer.user_id}>
-                        <td>
-                          <span className={styles.rank}>#{index + 1}</span>
-                        </td>
-                        <td>
-                          <span className={styles.username}>
-                            {referrer.username}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.referralCount}>
-                            {referrer.referral_count.toLocaleString()}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.successRate}>
-                            {analytics.total_referrals > 0
-                              ? (
-                                (referrer.referral_count /
-                                  analytics.total_referrals) *
-                                100
-                              ).toFixed(1)
-                              : 0}
-                            %
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={[
+                  {
+                    key: "rank",
+                    label: "Rank",
+                    render: (_: any, __: any, index: number) => (
+                      <span className={styles.rank}>#{index + 1}</span>
+                    ),
+                  },
+                  {
+                    key: "username",
+                    label: "Username",
+                    render: (value: string) => (
+                      <span className={styles.username}>{value}</span>
+                    ),
+                  },
+                  {
+                    key: "referral_count",
+                    label: "Total Referrals",
+                    render: (value: number) => (
+                      <span className={styles.referralCount}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "success_rate",
+                    label: "Success Rate",
+                    render: (_: any, referrer: any) => (
+                      <span className={styles.successRate}>
+                        {analytics && analytics.total_referrals > 0
+                          ? (
+                            (referrer.referral_count /
+                              analytics.total_referrals) *
+                            100
+                          ).toFixed(1)
+                          : 0}
+                        %
+                      </span>
+                    ),
+                  },
+                ]}
+                data={filteredTopReferrers || []}
+              />
             )}
           </section>
 

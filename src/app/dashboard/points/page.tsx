@@ -18,6 +18,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { rewardsService } from "../../../lib/api";
+import DataTable from "../../../components/dataTable/dataTable";
 import type {
   PointsAnalytics,
   AdjustPointsInput,
@@ -363,40 +364,39 @@ const PointsPage: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className={styles.tableWrapper}>
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th>Rank</th>
-                        <th>Username</th>
-                        <th>User ID</th>
-                        <th>Total Points Earned</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredTopEarners?.map((earner, index) => (
-                        <tr key={earner.user_id}>
-                          <td>{index + 1}</td>
-                          <td>
-                            <span className={styles.username}>
-                              {earner.username}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={styles.userId}>
-                              ID: {earner.user_id}
-                            </span>
-                          </td>
-                          <td>
-                            <span className={styles.points}>
-                              {earner.total_earned.toLocaleString()} pts
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  columns={[
+                    {
+                      key: "rank",
+                      label: "Rank",
+                      render: (_: any, __: any, index: number) => index + 1,
+                    },
+                    {
+                      key: "username",
+                      label: "Username",
+                      render: (value: string) => (
+                        <span className={styles.username}>{value}</span>
+                      ),
+                    },
+                    {
+                      key: "user_id",
+                      label: "User ID",
+                      render: (value: number) => (
+                        <span className={styles.userId}>ID: {value}</span>
+                      ),
+                    },
+                    {
+                      key: "total_earned",
+                      label: "Total Points Earned",
+                      render: (value: number) => (
+                        <span className={styles.points}>
+                          {value.toLocaleString()} pts
+                        </span>
+                      ),
+                    },
+                  ]}
+                  data={filteredTopEarners || []}
+                />
               )}
             </section>
           </>

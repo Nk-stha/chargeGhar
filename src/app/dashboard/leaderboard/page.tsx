@@ -15,6 +15,7 @@ import {
   FiX,
 } from "react-icons/fi";
 import { rewardsService } from "../../../lib/api";
+import DataTable from "../../../components/dataTable/dataTable";
 import type {
   Leaderboard,
   LeaderboardCategory,
@@ -289,66 +290,79 @@ const LeaderboardPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>User</th>
-                      <th>Total Rentals</th>
-                      <th>Total Points</th>
-                      <th>Referrals</th>
-                      <th>Timely Returns</th>
-                      <th>Achievements</th>
-                      <th>Last Updated</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLeaderboard?.map((entry, index) => (
-                      <tr key={index}>
-                        <td>
-                          <span className={getRankColor(entry.rank)}>
-                            {getRankIcon(entry.rank)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.username}>
-                            {entry.username}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.value}>
-                            {entry.total_rentals.toLocaleString()}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.pointsValue}>
-                            {entry.total_points_earned.toLocaleString()} pts
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.value}>
-                            {entry.referrals_count.toLocaleString()}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.value}>
-                            {entry.timely_returns.toLocaleString()}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.value}>
-                            {entry.achievements_count.toLocaleString()}
-                          </span>
-                        </td>
-                        <td className={styles.date}>
-                          {formatDate(entry.last_updated)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DataTable
+                columns={[
+                  {
+                    key: "rank",
+                    label: "Rank",
+                    render: (value: number) => (
+                      <span className={getRankColor(value)}>
+                        {getRankIcon(value)}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "username",
+                    label: "User",
+                    render: (value: string) => (
+                      <span className={styles.username}>{value}</span>
+                    ),
+                  },
+                  {
+                    key: "total_rentals",
+                    label: "Total Rentals",
+                    render: (value: number) => (
+                      <span className={styles.value}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "total_points_earned",
+                    label: "Total Points",
+                    render: (value: number) => (
+                      <span className={styles.pointsValue}>
+                        {value.toLocaleString()} pts
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "referrals_count",
+                    label: "Referrals",
+                    render: (value: number) => (
+                      <span className={styles.value}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "timely_returns",
+                    label: "Timely Returns",
+                    render: (value: number) => (
+                      <span className={styles.value}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "achievements_count",
+                    label: "Achievements",
+                    render: (value: number) => (
+                      <span className={styles.value}>
+                        {value.toLocaleString()}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "last_updated",
+                    label: "Last Updated",
+                    render: (value: string) => (
+                      <span className={styles.date}>{formatDate(value)}</span>
+                    ),
+                  },
+                ]}
+                data={filteredLeaderboard || []}
+              />
             )}
           </section>
 

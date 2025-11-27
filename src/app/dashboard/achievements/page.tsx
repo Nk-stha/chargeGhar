@@ -22,6 +22,7 @@ import {
   FiActivity,
 } from "react-icons/fi";
 import { rewardsService } from "../../../lib/api";
+import DataTable from "../../../components/dataTable/dataTable";
 import type {
   Achievement,
   AchievementsAnalytics,
@@ -422,17 +423,17 @@ const AchievementsPage: React.FC = () => {
                 {(searchTerm ||
                   filterCriteria !== "all" ||
                   filterActive !== "all") && (
-                  <button
-                    className={styles.clearSearch}
-                    onClick={() => {
-                      setSearchTerm("");
-                      setFilterCriteria("all");
-                      setFilterActive("all");
-                    }}
-                  >
-                    Clear Filters
-                  </button>
-                )}
+                    <button
+                      className={styles.clearSearch}
+                      onClick={() => {
+                        setSearchTerm("");
+                        setFilterCriteria("all");
+                        setFilterActive("all");
+                      }}
+                    >
+                      Clear Filters
+                    </button>
+                  )}
               </div>
             ) : (
               <div className={styles.achievementsGrid}>
@@ -540,41 +541,36 @@ const AchievementsPage: React.FC = () => {
                     Achievements with the highest unlock count
                   </p>
                 </div>
-                <div className={styles.tableWrapper}>
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th>Achievement</th>
-                        <th>Unlock Count</th>
-                        <th>Reward</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {analytics.most_unlocked_achievements.map(
-                        (achievement) => (
-                          <tr key={achievement.achievement_id}>
-                            <td>
-                              <span className={styles.achievementNameTable}>
-                                {achievement.name}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={styles.unlockCount}>
-                                {achievement.unlock_count.toLocaleString()}{" "}
-                                unlocks
-                              </span>
-                            </td>
-                            <td>
-                              <span className={styles.rewardValue}>
-                                {achievement.reward_value} pts
-                              </span>
-                            </td>
-                          </tr>
-                        ),
-                      )}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  columns={[
+                    {
+                      key: "name",
+                      label: "Achievement",
+                      render: (value: string) => (
+                        <span className={styles.achievementNameTable}>
+                          {value}
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "unlock_count",
+                      label: "Unlock Count",
+                      render: (value: number) => (
+                        <span className={styles.unlockCount}>
+                          {value.toLocaleString()} unlocks
+                        </span>
+                      ),
+                    },
+                    {
+                      key: "reward_value",
+                      label: "Reward",
+                      render: (value: number) => (
+                        <span className={styles.rewardValue}>{value} pts</span>
+                      ),
+                    },
+                  ]}
+                  data={analytics.most_unlocked_achievements}
+                />
               </section>
             )}
           </>

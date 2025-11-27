@@ -18,6 +18,7 @@ import {
   FiTrendingUp,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
+import DataTable from "../../../components/dataTable/dataTable";
 
 interface Coupon {
   id: string;
@@ -419,75 +420,101 @@ const CouponsPage: React.FC = () => {
             <p>No coupons found</p>
           </div>
         ) : (
-          <div className={styles.tableContainer}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Name</th>
-                  <th>Points Value</th>
-                  <th>Max Uses/User</th>
-                  <th>Total Uses</th>
-                  <th>Status</th>
-                  <th>Valid Until</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCoupons.map((coupon) => (
-                  <tr key={coupon.id}>
-                    <td className={styles.codeCell}>{coupon.code}</td>
-                    <td>{coupon.name}</td>
-                    <td className={styles.pointsCell}>
-                      {coupon.points_value} pts
-                    </td>
-                    <td>{coupon.max_uses_per_user}</td>
-                    <td>{coupon.total_uses || 0}</td>
-                    <td>
-                      <span
-                        className={styles.statusBadge}
-                        style={{
-                          backgroundColor: `${getStatusColor(coupon.status)}22`,
-                          color: getStatusColor(coupon.status),
-                          borderColor: getStatusColor(coupon.status),
-                        }}
-                      >
-                        {coupon.status}
-                      </span>
-                    </td>
-                    <td className={styles.dateCell}>
-                      {new Date(coupon.valid_until).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.actionButton}
-                          onClick={() => fetchCouponDetails(coupon.code)}
-                          title="View Details"
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className={styles.actionButton}
-                          onClick={() => openStatusModal(coupon)}
-                          title="Update Status"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className={`${styles.actionButton} ${styles.deleteButton}`}
-                          onClick={() => handleDelete(coupon.code)}
-                          title="Delete"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={[
+              {
+                key: "code",
+                label: "Code",
+                render: (value: string) => (
+                  <span className={styles.codeCell}>{value}</span>
+                ),
+              },
+              {
+                key: "name",
+                label: "Name",
+              },
+              {
+                key: "points_value",
+                label: "Points Value",
+                render: (value: number) => (
+                  <span className={styles.pointsCell}>{value} pts</span>
+                ),
+              },
+              {
+                key: "max_uses_per_user",
+                label: "Max Uses/User",
+              },
+              {
+                key: "total_uses",
+                label: "Total Uses",
+                render: (value: number) => value || 0,
+              },
+              {
+                key: "status",
+                label: "Status",
+                render: (value: string) => (
+                  <span
+                    className={styles.statusBadge}
+                    style={{
+                      backgroundColor: `${getStatusColor(value)}22`,
+                      color: getStatusColor(value),
+                      borderColor: getStatusColor(value),
+                    }}
+                  >
+                    {value}
+                  </span>
+                ),
+              },
+              {
+                key: "valid_until",
+                label: "Valid Until",
+                render: (value: string) => (
+                  <span className={styles.dateCell}>
+                    {new Date(value).toLocaleDateString()}
+                  </span>
+                ),
+              },
+              {
+                key: "actions",
+                label: "Actions",
+                render: (_: any, coupon: Coupon) => (
+                  <div className={styles.actions}>
+                    <button
+                      className={styles.actionButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fetchCouponDetails(coupon.code);
+                      }}
+                      title="View Details"
+                    >
+                      <FiEye />
+                    </button>
+                    <button
+                      className={styles.actionButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openStatusModal(coupon);
+                      }}
+                      title="Update Status"
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(coupon.code);
+                      }}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={filteredCoupons}
+          />
         )}
       </div>
 

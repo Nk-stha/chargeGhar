@@ -18,6 +18,7 @@ import {
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
 import stationsService from "../../../lib/api/stations.service";
 import { Station } from "../../../types/station.types";
+import DataTable from "../../../components/dataTable/dataTable";
 
 const StationsPage: React.FC = () => {
   const router = useRouter();
@@ -70,7 +71,7 @@ const StationsPage: React.FC = () => {
       console.error("Error deleting station:", err);
       setDeleteError(
         err.response?.data?.message ||
-          "Failed to delete station. It may have active rentals.",
+        "Failed to delete station. It may have active rentals.",
       );
     } finally {
       setDeleting(false);
@@ -166,88 +167,69 @@ const StationsPage: React.FC = () => {
           </div>
         </div>
 
-        <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Station Name</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Chargers</th>
-                <th>Utilization</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredStations.length > 0 ? (
-                filteredStations.map((station: Station, index: number) => {
-                  const utilizationPercent =
-                    stationsService.calculateUtilization(station);
-
-                  return (
-                    <tr
-                      key={station.id}
-                      className={styles.clickableRow}
-                      onClick={() => handleRowClick(station)}
-                    >
-                      <td>{index + 1}</td>
-                      <td>
-                        <FiMapPin className={styles.icon} />{" "}
-                        {station.station_name}
-                      </td>
-                      <td>{station.address}</td>
-                      <td>
-                        <span
-                          className={`${styles.status} ${
-                            styles[station.status.toLowerCase()]
-                          }`}
-                        >
-                          {station.status}
-                        </span>
-                      </td>
-                      <td>{station.total_slots}</td>
-                      <td>
-                        <div className={styles.utilizationBar}>
-                          <div
-                            className={styles.utilizationFill}
-                            style={{ width: `${utilizationPercent}%` }}
-                          />
-                        </div>
-                        <span className={styles.utilizationText}>
-                          {utilizationPercent}%
-                        </span>
-                      </td>
-                      <td className={styles.actions}>
-                        <button
-                          className={styles.editButton}
-                          onClick={(e) => handleEdit(station, e)}
-                          title="Edit station"
-                        >
-                          <FiEdit />
-                        </button>
-                        <button
-                          className={styles.deleteButton}
-                          onClick={(e) => handleDeleteClick(station, e)}
-                          title="Delete station"
-                        >
-                          <FiTrash2 />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan={7} className={styles.noResults}>
-                    No stations found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <DataTable
+          columns={[
+            {
+              key: "id",
+              label: "#",
+              render: (_: any, __: any, index: number) => index + 1,
+            },
+            {
+              key: "station_name",
+              label: "Station Name",
+              render: (value: string) => (
+                <>
+                  <FiMapPin className={styles.icon} /> {value}
+                </>
+              ),
+            },
+            {
+              key: "address",
+              label: "Location",
+            },
+            {
+              key: "status",
+              label: "Status",
+              render: (value: string) => (
+                <span
+                  className={`${styles.status} ${styles[value.toLowerCase()]
+                    }`}
+                >
+                  {value}
+                </span>
+              ),
+            },
+            {
+              key: "total_slots",
+              label: "Chargers",
+            },
+            {
+              key: "utilization",
+              label: "Utilization",
+              render: (_: any, station: Station) => {
+                const utilizationPercent =
+                  stationsService.calculateUtilization(station);
+                return (
+                  <>
+                    <div className={styles.utilizationBar}>
+                      <div
+                        className={styles.utilizationFill}
+                        style={{ width: `${utilizationPercent}%` }}
+                      />
+                    </div>
+                    <span className={styles.utilizationText}>
+                      {utilizationPercent}%
+                    </span>
+                  </>
+                );
+              },
+            },
+          ]}
+          data={filteredStations}
+          onRowClick={handleRowClick}
+          onEdit={(station: Station) => handleEdit(station, { stopPropagation: () => { } } as any)}
+          onDelete={(station: Station) => handleDeleteClick(station, { stopPropagation: () => { } } as any)}
+        />
 
         {/* Delete Confirmation Modal */}
         {deleteModal.show && (

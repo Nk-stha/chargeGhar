@@ -19,6 +19,7 @@ import { userService } from "../../../lib/api/user.service";
 import AddAdminModal from "./addadmin/AddAdminModal";
 import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfileModal";
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
+import DataTable from "../../../components/dataTable/dataTable";
 
 interface User {
   id: number;
@@ -307,77 +308,71 @@ export default function UsersPage() {
             </p>
           </div>
 
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th>Created By</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {admins.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={8}
+          <DataTable
+            columns={[
+              {
+                key: "id",
+                label: "ID",
+                render: (value: string) => `${value.slice(0, 8)}...`,
+              },
+              {
+                key: "username",
+                label: "Username",
+              },
+              {
+                key: "email",
+                label: "Email",
+              },
+              {
+                key: "role",
+                label: "Role",
+                render: (value: string, row: AdminProfile) => (
+                  <span
                     style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "#888",
+                      textTransform: "capitalize",
+                      color: row.is_super_admin ? "#82ea80" : "#ccc",
                     }}
                   >
-                    No admins found
-                  </td>
-                </tr>
-              ) : (
-                admins.map((admin: AdminProfile) => (
-                  <tr
-                    key={admin.id}
-                    onClick={() => handleAdminClick(admin.id)}
-                    style={{ cursor: "pointer" }}
-                    className={styles.clickableRow}
+                    {value.replace("_", " ")}
+                  </span>
+                ),
+              },
+              {
+                key: "is_active",
+                label: "Status",
+                render: (value: boolean) => (
+                  <span
+                    className={
+                      value ? styles.statusActive : styles.statusInactive
+                    }
                   >
-                    <td>{admin.id.slice(0, 8)}...</td>
-                    <td>{admin.username}</td>
-                    <td>{admin.email}</td>
-                    <td>
-                      <span
-                        style={{
-                          textTransform: "capitalize",
-                          color: admin.is_super_admin ? "#82ea80" : "#ccc",
-                        }}
-                      >
-                        {admin.role.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          admin.is_active
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {admin.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td>{new Date(admin.created_at).toLocaleDateString()}</td>
-                    <td>{admin.created_by_username}</td>
-                    <td onClick={(e) => e.stopPropagation()}>
-                      <button className={styles.deleteBtn} title="Manage admin">
-                        <FiShield />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    {value ? "Active" : "Inactive"}
+                  </span>
+                ),
+              },
+              {
+                key: "created_at",
+                label: "Created Date",
+                render: (value: string) =>
+                  new Date(value).toLocaleDateString(),
+              },
+              {
+                key: "created_by_username",
+                label: "Created By",
+              },
+              {
+                key: "actions",
+                label: "",
+                render: () => (
+                  <button className={styles.deleteBtn} title="Manage admin">
+                    <FiShield />
+                  </button>
+                ),
+              },
+            ]}
+            data={admins}
+            onRowClick={(row: AdminProfile) => handleAdminClick(row.id)}
+          />
         </section>
       )}
 
@@ -523,130 +518,139 @@ export default function UsersPage() {
             <p className={styles.cardSubText}>Manage users</p>
           </div>
 
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Referral Code</th>
-                <th>Provider</th>
-                <th>Profile Status</th>
-                <th>KYC Status</th>
-                <th>Status</th>
-                <th>Created Date</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {displayedUsers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={9}
+          <DataTable
+            columns={[
+              {
+                key: "id",
+                label: "ID",
+              },
+              {
+                key: "username",
+                label: "Username",
+              },
+              {
+                key: "referral_code",
+                label: "Referral Code",
+                render: (value: string | null) => value || "—",
+              },
+              {
+                key: "social_provider",
+                label: "Provider",
+                render: (value: string) => (
+                  <span style={{ textTransform: "capitalize" }}>
+                    {value.toLowerCase()}
+                  </span>
+                ),
+              },
+              {
+                key: "profile_complete",
+                label: "Profile Status",
+                render: (value: boolean) => (
+                  <span
                     style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "#888",
-                      fontStyle: "italic",
+                      color: value ? "#32cd32" : "#ff8c00",
                     }}
                   >
-                    {search ? "No users match your search." : "No users found."}
-                  </td>
-                </tr>
-              ) : (
-                displayedUsers.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.username}</td>
-                    <td>{user.referral_code || "—"}</td>
-                    <td>
-                      <span style={{ textTransform: "capitalize" }}>
-                        {user.social_provider.toLowerCase()}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        style={{
-                          color: user.profile_complete ? "#32cd32" : "#ff8c00",
-                        }}
-                      >
-                        {user.profile_complete ? "Complete" : "Incomplete"}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            user.kyc_status === "APPROVED"
-                              ? "#32cd32"
-                              : user.kyc_status === "PENDING"
-                                ? "#ff8c00"
-                                : "#888",
-                        }}
-                      >
-                        {user.kyc_status.replace("_", " ")}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          user.status === "ACTIVE"
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {user.status}
-                      </span>
-                    </td>
-                    <td>{new Date(user.date_joined).toLocaleDateString()}</td>
-                    <td>
-                      <div style={{ display: "flex", gap: "0.5rem" }}>
-                        <button
-                          onClick={() => handleOpenAddBalance(user)}
-                          title="Add Balance"
-                          style={{
-                            padding: "0.4rem 0.6rem",
-                            background: "rgba(130, 234, 128, 0.1)",
-                            border: "1px solid #82ea80",
-                            borderRadius: "6px",
-                            color: "#82ea80",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                            fontSize: "0.85rem",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          <FiDollarSign size={14} />
-                          Add Balance
-                        </button>
-                        <button
-                          onClick={() => handleOpenStatusModal(user)}
-                          title="Update Status"
-                          style={{
-                            padding: "0.4rem 0.6rem",
-                            background: "rgba(255, 165, 0, 0.1)",
-                            border: "1px solid #ffa500",
-                            borderRadius: "6px",
-                            color: "#ffa500",
-                            cursor: "pointer",
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                            fontSize: "0.85rem",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          <FiUserCheck size={14} />
-                          Status
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    {value ? "Complete" : "Incomplete"}
+                  </span>
+                ),
+              },
+              {
+                key: "kyc_status",
+                label: "KYC Status",
+                render: (value: string) => (
+                  <span
+                    style={{
+                      color:
+                        value === "APPROVED"
+                          ? "#32cd32"
+                          : value === "PENDING"
+                            ? "#ff8c00"
+                            : "#888",
+                    }}
+                  >
+                    {value.replace("_", " ")}
+                  </span>
+                ),
+              },
+              {
+                key: "status",
+                label: "Status",
+                render: (value: string) => (
+                  <span
+                    className={
+                      value === "ACTIVE"
+                        ? styles.statusActive
+                        : styles.statusInactive
+                    }
+                  >
+                    {value}
+                  </span>
+                ),
+              },
+              {
+                key: "date_joined",
+                label: "Created Date",
+                render: (value: string) =>
+                  new Date(value).toLocaleDateString(),
+              },
+              {
+                key: "actions",
+                label: "",
+                render: (_, user: User) => (
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenAddBalance(user);
+                      }}
+                      title="Add Balance"
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        background: "rgba(130, 234, 128, 0.1)",
+                        border: "1px solid #82ea80",
+                        borderRadius: "6px",
+                        color: "#82ea80",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        fontSize: "0.85rem",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <FiDollarSign size={14} />
+                      Add Balance
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenStatusModal(user);
+                      }}
+                      title="Update Status"
+                      style={{
+                        padding: "0.4rem 0.6rem",
+                        background: "rgba(255, 165, 0, 0.1)",
+                        border: "1px solid #ffa500",
+                        borderRadius: "6px",
+                        color: "#ffa500",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        fontSize: "0.85rem",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      <FiUserCheck size={14} />
+                      Status
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={displayedUsers}
+          />
         </section>
       )}
 

@@ -19,6 +19,7 @@ import {
   PaymentStatus,
 } from "../../../types/rentals.types";
 import RentalDetailModal from "../../../components/RentalDetailModal/RentalDetailModal";
+import DataTable from "../../../components/dataTable/dataTable";
 
 const statusTabs: (RentalStatus | "ALL")[] = [
   "ALL",
@@ -235,9 +236,8 @@ export default function RentalsPage() {
           {statusTabs.map((tab) => (
             <button
               key={tab}
-              className={`${styles.tab} ${
-                activeTab === tab ? styles.activeTab : ""
-              }`}
+              className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""
+                }`}
               onClick={() => handleTabClick(tab)}
               disabled={loading}
             >
@@ -292,110 +292,112 @@ export default function RentalsPage() {
             </div>
           ) : (
             <>
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Rental Code</th>
-                      <th>User</th>
-                      <th>Station</th>
-                      <th>Return Station</th>
-                      <th>Package</th>
-                      <th>Due Date</th>
-                      <th>Amount</th>
-                      <th>Payment</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {rentals.map((rental) => (
-                      <tr
-                        key={rental.id}
-                        onClick={() => handleRowClick(rental.id)}
-                        className={styles.clickableRow}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            handleRowClick(rental.id);
-                          }
-                        }}
+              <DataTable
+                columns={[
+                  {
+                    key: "rental_code",
+                    label: "Rental Code",
+                    render: (value: string) => (
+                      <span className={styles.rentalCode}>{value}</span>
+                    ),
+                  },
+                  {
+                    key: "username",
+                    label: "User",
+                    render: (_: any, rental: RentalListItem) => (
+                      <div className={styles.userInfo}>
+                        <span className={styles.username}>
+                          {rental.username}
+                        </span>
+                        {rental.user_phone && (
+                          <span className={styles.phone}>
+                            {rental.user_phone}
+                          </span>
+                        )}
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "station_name",
+                    label: "Station",
+                    render: (_: any, rental: RentalListItem) => (
+                      <div className={styles.stationInfo}>
+                        <span>{rental.station_name}</span>
+                        <span className={styles.stationSerial}>
+                          {rental.station_serial}
+                        </span>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "return_station_name",
+                    label: "Return Station",
+                    render: (value: string) => (
+                      <div className={styles.stationInfo}>
+                        <span>{value}</span>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "package_name",
+                    label: "Package",
+                    render: (_: any, rental: RentalListItem) => (
+                      <div className={styles.packageInfo}>
+                        <span>{rental.package_name}</span>
+                        <span className={styles.duration}>
+                          {rentalsService.formatDuration(
+                            rental.package_duration,
+                          )}
+                        </span>
+                      </div>
+                    ),
+                  },
+                  {
+                    key: "due_at",
+                    label: "Due Date",
+                    render: (value: string) => (
+                      <span className={styles.date}>
+                        {rentalsService.formatDateTime(value)}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "amount_paid",
+                    label: "Amount",
+                    render: (value: number) => (
+                      <span className={styles.amount}>
+                        {rentalsService.formatAmount(String(value))}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "payment_status",
+                    label: "Payment",
+                    render: (value: PaymentStatus) => (
+                      <span
+                        className={`${styles.paymentStatus} ${getPaymentStatusClass(
+                          value,
+                        )}`}
                       >
-                        <td>
-                          <span className={styles.rentalCode}>
-                            {rental.rental_code}
-                          </span>
-                        </td>
-                        <td>
-                          <div className={styles.userInfo}>
-                            <span className={styles.username}>
-                              {rental.username}
-                            </span>
-                            {rental.user_phone && (
-                              <span className={styles.phone}>
-                                {rental.user_phone}
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.stationInfo}>
-                            <span>{rental.station_name}</span>
-                            <span className={styles.stationSerial}>
-                              {rental.station_serial}
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.stationInfo}>
-                            <span>{rental.return_station_name}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <div className={styles.packageInfo}>
-                            <span>{rental.package_name}</span>
-                            <span className={styles.duration}>
-                              {rentalsService.formatDuration(
-                                rental.package_duration,
-                              )}
-                            </span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={styles.date}>
-                            {rentalsService.formatDateTime(rental.due_at)}
-                          </span>
-                        </td>
-                        <td>
-                          <span className={styles.amount}>
-                            {rentalsService.formatAmount(rental.amount_paid)}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.paymentStatus} ${getPaymentStatusClass(
-                              rental.payment_status,
-                            )}`}
-                          >
-                            {rentalsService.getPaymentStatusLabel(
-                              rental.payment_status,
-                            )}
-                          </span>
-                        </td>
-                        <td>
-                          <span
-                            className={`${styles.status} ${getStatusClass(
-                              rental.status,
-                            )}`}
-                          >
-                            {rentalsService.getStatusLabel(rental.status)}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        {rentalsService.getPaymentStatusLabel(value)}
+                      </span>
+                    ),
+                  },
+                  {
+                    key: "status",
+                    label: "Status",
+                    render: (value: RentalStatus) => (
+                      <span
+                        className={`${styles.status} ${getStatusClass(value)}`}
+                      >
+                        {rentalsService.getStatusLabel(value)}
+                      </span>
+                    ),
+                  },
+                ]}
+                data={rentals}
+                onRowClick={(rental: RentalListItem) => handleRowClick(rental.id)}
+              />
 
               {/* Pagination */}
               {totalPages > 1 && (

@@ -4,8 +4,6 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
-    padding: 2rem;
 }
 
 .title {
@@ -738,26 +736,9 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 3rem 2rem;
-        margin-left: 0;
-    }
-
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 8px 10px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 2rem 1rem;
-        margin-top: 1rem;
     }
 
     .title {
@@ -791,42 +772,7 @@
         background: #2a2a2a;
         border-radius: 2px;
     }
-
-    .tableWrapper {
-        margin: 0 -1rem;
-        padding: 0 1rem;
-    }
-
-    .table {
-        font-size: 0.8rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 6px 8px;
-    }
-
-    .detailGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .modalActions {
-        flex-direction: column;
-    }
-
-    .modalContent {
-        max-height: 95vh;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 1.5rem 0.75rem;
-    }
-
-    .title {
-        font-size: 1.3rem;
-    }
+    
 
     .card {
         padding: 0.75rem;
@@ -852,5 +798,19 @@
 
     .modalHeader h2 {
         font-size: 1.2rem;
+    }
+
+    
+
+    .detailGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .modalActions {
+        flex-direction: column;
+    }
+
+    .modalContent {
+        max-height: 95vh;
     }
 }

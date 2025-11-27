@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import PackageModal from "./PackageModal";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
+import DataTable from "../../../components/dataTable/dataTable";
 
 interface RentalPackage {
   id: string;
@@ -256,88 +257,79 @@ export default function PackagesPage() {
             )}
           </div>
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Package Name</th>
-                  <th>Description</th>
-                  <th>Duration</th>
-                  <th>Price</th>
-                  <th>Type</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPackages.map((pkg) => (
-                  <tr key={pkg.id}>
-                    <td>
-                      <div className={styles.nameCell}>
-                        <span className={styles.packageName}>{pkg.name}</span>
-                      </div>
-                    </td>
-                    <td className={styles.description}>{pkg.description}</td>
-                    <td>
-                      <span className={styles.duration}>
-                        {pkg.duration_display}
-                      </span>
-                    </td>
-                    <td className={styles.price}>₹{pkg.price}</td>
-                    <td>
-                      <span className={styles.typeTag}>
-                        {pkg.package_type}
-                      </span>
-                    </td>
-                    <td>
-                      <span className={styles.paymentTag}>
-                        {pkg.payment_model}
-                      </span>
-                    </td>
-                    <td>
-                      <span
-                        className={
-                          pkg.is_active
-                            ? styles.statusActive
-                            : styles.statusInactive
-                        }
-                      >
-                        {pkg.is_active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
-                    <td className={styles.date}>
-                      {new Date(pkg.created_at).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <div className={styles.actions}>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEdit(pkg)}
-                          title="Edit package"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          className={styles.deleteBtn}
-                          onClick={() => handleDelete(pkg.id, pkg.name)}
-                          disabled={deleteLoading === pkg.id}
-                          title="Delete package"
-                        >
-                          {deleteLoading === pkg.id ? (
-                            <FiLoader className={styles.spinner} />
-                          ) : (
-                            <FiTrash2 />
-                          )}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={[
+              {
+                key: "name",
+                label: "Package Name",
+                render: (value: string) => (
+                  <div className={styles.nameCell}>
+                    <span className={styles.packageName}>{value}</span>
+                  </div>
+                ),
+              },
+              {
+                key: "description",
+                label: "Description",
+                render: (value: string) => (
+                  <span className={styles.description}>{value}</span>
+                ),
+              },
+              {
+                key: "duration_display",
+                label: "Duration",
+                render: (value: string) => (
+                  <span className={styles.duration}>{value}</span>
+                ),
+              },
+              {
+                key: "price",
+                label: "Price",
+                render: (value: string) => (
+                  <span className={styles.price}>₹{value}</span>
+                ),
+              },
+              {
+                key: "package_type",
+                label: "Type",
+                render: (value: string) => (
+                  <span className={styles.typeTag}>{value}</span>
+                ),
+              },
+              {
+                key: "payment_model",
+                label: "Payment",
+                render: (value: string) => (
+                  <span className={styles.paymentTag}>{value}</span>
+                ),
+              },
+              {
+                key: "is_active",
+                label: "Status",
+                render: (value: boolean) => (
+                  <span
+                    className={
+                      value ? styles.statusActive : styles.statusInactive
+                    }
+                  >
+                    {value ? "Active" : "Inactive"}
+                  </span>
+                ),
+              },
+              {
+                key: "created_at",
+                label: "Created",
+                render: (value: string) => (
+                  <span className={styles.date}>
+                    {new Date(value).toLocaleDateString()}
+                  </span>
+                ),
+              },
+            ]}
+            data={filteredPackages}
+            onEdit={handleEdit}
+            onDelete={(pkg: RentalPackage) => handleDelete(pkg.id, pkg.name)}
+          />
         )}
       </section>
 

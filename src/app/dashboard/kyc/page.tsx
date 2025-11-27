@@ -15,6 +15,7 @@ import {
   FiXCircle,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
+import DataTable from "../../../components/dataTable/dataTable";
 
 interface KYCSubmission {
   id: string;
@@ -305,85 +306,80 @@ export default function KYCPage() {
         </div>
 
         <div className={styles.tableWrapper}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Document Type</th>
-                <th>Document Number</th>
-                <th>Status</th>
-                <th>Submitted Date</th>
-                <th>Verified By</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSubmissions.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className={styles.emptyState}>
-                    {search || statusFilter !== "ALL"
-                      ? "No submissions match your filters"
-                      : "No KYC submissions found"}
-                  </td>
-                </tr>
-              ) : (
-                filteredSubmissions.map((submission) => (
-                  <tr key={submission.id}>
-                    <td>
-                      <div className={styles.userInfo}>
-                        <div className={styles.userName}>
-                          {submission.username}
-                        </div>
-                        <div className={styles.userEmail}>
-                          {submission.email}
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <span className={styles.docType}>
-                        {submission.document_type}
-                      </span>
-                    </td>
-                    <td>{submission.document_number}</td>
-                    <td>
-                      <span
-                        className={`${styles.statusBadge} ${submission.status === "APPROVED"
-                          ? styles.statusApproved
-                          : submission.status === "REJECTED"
-                            ? styles.statusRejected
-                            : styles.statusPending
-                          }`}
-                      >
-                        {submission.status}
-                      </span>
-                    </td>
-                    <td>
-                      {new Date(submission.created_at).toLocaleDateString()}
-                    </td>
-                    <td>{submission.verified_by_username || "—"}</td>
-                    <td>
-                      <div className={styles.actionButtons}>
-                        <button
-                          className={styles.viewBtn}
-                          onClick={() => handleViewSubmission(submission)}
-                          title="View details"
-                        >
-                          <FiEye />
-                        </button>
-                        <button
-                          className={styles.editBtn}
-                          onClick={() => handleEditClick(submission)}
-                          title="Edit KYC status"
-                        >
-                          <FiEdit />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+          <DataTable
+            columns={[
+              {
+                key: "user",
+                label: "User",
+                render: (_: any, submission: KYCSubmission) => (
+                  <div className={styles.userInfo}>
+                    <div className={styles.userName}>{submission.username}</div>
+                    <div className={styles.userEmail}>{submission.email}</div>
+                  </div>
+                ),
+              },
+              {
+                key: "document_type",
+                label: "Document Type",
+                render: (value: string) => (
+                  <span className={styles.docType}>{value}</span>
+                ),
+              },
+              {
+                key: "document_number",
+                label: "Document Number",
+              },
+              {
+                key: "status",
+                label: "Status",
+                render: (value: string) => (
+                  <span
+                    className={`${styles.statusBadge} ${value === "APPROVED"
+                      ? styles.statusApproved
+                      : value === "REJECTED"
+                        ? styles.statusRejected
+                        : styles.statusPending
+                      }`}
+                  >
+                    {value}
+                  </span>
+                ),
+              },
+              {
+                key: "created_at",
+                label: "Submitted Date",
+                render: (value: string) => new Date(value).toLocaleDateString(),
+              },
+              {
+                key: "verified_by_username",
+                label: "Verified By",
+                render: (value: string | null) => value || "—",
+              },
+              {
+                key: "actions",
+                label: "Actions",
+                render: (_: any, submission: KYCSubmission) => (
+                  <div className={styles.actionButtons}>
+                    <button
+                      className={styles.viewBtn}
+                      onClick={() => handleViewSubmission(submission)}
+                      title="View details"
+                    >
+                      <FiEye />
+                    </button>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleEditClick(submission)}
+                      title="Edit KYC status"
+                    >
+                      <FiEdit />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            data={filteredSubmissions}
+          />
         </div>
       </section>
 
