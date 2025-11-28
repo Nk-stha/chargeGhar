@@ -5,7 +5,6 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
-    margin-left: 1rem;
 }
 
 .header {
@@ -20,7 +19,6 @@
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
-    margin: 0;
 }
 
 .subtitle {
@@ -427,37 +425,15 @@
     font-weight: 500;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 20px;
-    }
-
-    .controls {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .rightControls {
-        width: 100%;
-    }
-
-    .searchBox {
-        flex: 1;
-        min-width: auto;
-    }
-
-    .sortWrapper {
-        flex: 1;
-    }
-
-    .sortButton {
-        width: 100%;
-        justify-content: center;
-    }
-}
-
 @media (max-width: 768px) {
+    .container {
+        padding: 2rem 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
     .headerSection {
         flex-direction: column;
         gap: 16px;
@@ -492,15 +468,6 @@
         justify-content: center;
     }
 
-    .table {
-        font-size: 13px;
-    }
-
-    .table th,
-    .table td {
-        padding: 12px 10px;
-    }
-
     .pagination {
         flex-wrap: wrap;
         gap: 12px;
@@ -510,34 +477,27 @@
         flex: 1;
         min-width: 100px;
     }
-}
 
-@media (max-width: 480px) {
-    .container {
-        padding: 16px;
-    }
-
-    .title {
-        font-size: 20px;
-    }
-
-    .filters {
+    .controls {
         flex-direction: column;
+        align-items: stretch;
     }
 
-    .filterButton {
+    .rightControls {
         width: 100%;
     }
 
-    .table {
-        display: block;
-        overflow-x: auto;
+    .searchBox {
+        flex: 1;
+        min-width: auto;
     }
 
-    .table th,
-    .table td {
-        white-space: nowrap;
-        padding: 10px 8px;
-        font-size: 12px;
+    .sortWrapper {
+        flex: 1;
+    }
+
+    .sortButton {
+        width: 100%;
+        justify-content: center;
     }
 }

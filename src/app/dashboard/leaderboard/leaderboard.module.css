@@ -5,7 +5,6 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
-    margin-left: 1rem;
 }
 
 /* Header */
@@ -21,7 +20,6 @@
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
-    margin: 0;
 }
 
 .subtitle {
@@ -482,52 +480,12 @@
     font-weight: 700;
 }
 
-/* Tablet Responsive (1024px and below) */
-@media (max-width: 1024px) {
-    .container {
-        margin-left: 60px;
-        max-width: calc(100% - 60px);
-        padding: 1.5rem 2rem;
-    }
-
-    .title {
-        font-size: 1.75rem;
-    }
-
-    .statsGrid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.25rem;
-    }
-
-    .statIcon {
-        width: 55px;
-        height: 55px;
-        font-size: 1.7rem;
-    }
-
-    .statValue {
-        font-size: 1.65rem;
-    }
-
-    .filtersContainer {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-
-    .podium {
-        gap: 1.5rem;
-    }
-
-    .podiumItem {
-        min-width: 180px;
-    }
-}
-
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
     .container {
         margin-left: 0;
         max-width: 100%;
-        padding: 1.25rem 1.5rem;
+        padding: 2rem 1rem;
     }
 
     .header {
@@ -593,65 +551,5 @@
     .table th,
     .table td {
         padding: 0.75rem 0.5rem;
-    }
-}
-
-/* Mobile Portrait (480px and below) */
-@media (max-width: 480px) {
-    .container {
-        padding: 1rem;
-    }
-
-    .title {
-        font-size: 1.25rem;
-    }
-
-    .subtitle {
-        font-size: 0.85rem;
-    }
-
-    .card {
-        padding: 1rem;
-    }
-
-    .statsGrid {
-        grid-template-columns: 1fr;
-        gap: 0.875rem;
-    }
-
-    .statCard {
-        padding: 1rem;
-    }
-
-    .statIcon {
-        width: 48px;
-        height: 48px;
-        font-size: 1.5rem;
-    }
-
-    .statValue {
-        font-size: 1.4rem;
-    }
-
-    .podiumItem {
-        padding: 1.5rem 1rem;
-    }
-
-    .podiumRank {
-        font-size: 2.5rem;
-    }
-
-    .tableWrapper {
-        overflow-x: scroll;
-    }
-
-    .table {
-        min-width: 800px;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.625rem 0.375rem;
-        font-size: 0.8rem;
     }
 }

@@ -5,14 +5,12 @@
     display: flex;
     flex-direction: column;
     padding: 2rem;
-    margin-left: 1rem;
 }
 
 .title {
     font-size: 2rem;
     font-weight: 600;
     color: #82ea80;
-    margin: 0;
 }
 
 .subtitle {
@@ -510,19 +508,17 @@
     font-weight: 500;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 20px;
-    }
-
-    .statsBar {
-        flex-wrap: wrap;
-        gap: 20px;
-    }
-}
-
 @media (max-width: 768px) {
+    .container {
+        margin-left: 0;
+        max-width: 100%;
+        padding: 2rem 1rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
     .header {
         flex-direction: column;
         align-items: stretch;
@@ -574,28 +570,5 @@
     .pageButton {
         flex: 1;
         min-width: 100px;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 16px;
-    }
-
-    .header h1 {
-        font-size: 24px;
-    }
-
-    .levelFilters {
-        flex-direction: column;
-    }
-
-    .levelButton {
-        width: 100%;
-        text-align: center;
-    }
-
-    .logCard {
-        padding: 12px 16px;
     }
 }

@@ -1,14 +1,16 @@
-.achievementsPage {
-  display: flex;
+.container {
+  color: #fff;
+  background-color: #0b0b0b;
   min-height: 100vh;
-  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 3rem;
 }
 
-.container {
-  flex: 1;
-  margin-left: 1rem;
-  padding: 2rem;
-  max-width: calc(100% - 70px);
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #82ea80;
 }
 
 .header {
@@ -18,13 +20,6 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
-}
-
-.title {
-  font-size: 2rem;
-  font-weight: 600;
-  color: #82ea80;
-  margin: 0 0 0.5rem 0;
 }
 
 .subtitle {
@@ -516,54 +511,19 @@
   display: none;
 }
 
-/* Tablet Responsive (1024px and below) */
-@media (max-width: 1024px) {
-  .container {
-    margin-left: 60px;
-    max-width: calc(100% - 60px);
-    padding: 1.5rem 2rem;
-  }
-
-  .title {
-    font-size: 1.75rem;
-  }
-
-  .statsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.25rem;
-  }
-
-  .statIcon {
-    width: 55px;
-    height: 55px;
-    font-size: 1.7rem;
-  }
-
-  .statValue {
-    font-size: 1.65rem;
-  }
-
-  .achievementsGrid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-  }
-}
-
 /* Mobile (768px and below) */
 @media (max-width: 768px) {
   .container {
-    margin-left: 0;
-    max-width: 100%;
-    padding: 1.25rem 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
   }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
-  }
-
-  .title {
-    font-size: 1.5rem;
   }
 
   .addButton {
@@ -609,56 +569,6 @@
   }
 }
 
-/* Mobile Portrait (480px and below) */
-@media (max-width: 480px) {
-  .container {
-    padding: 1rem;
-  }
-
-  .title {
-    font-size: 1.25rem;
-  }
-
-  .subtitle {
-    font-size: 0.85rem;
-  }
-
-  .statsGrid {
-    grid-template-columns: 1fr;
-    gap: 0.875rem;
-  }
-
-  .statCard {
-    padding: 1rem;
-  }
-
-  .statIcon {
-    width: 48px;
-    height: 48px;
-    font-size: 1.5rem;
-  }
-
-  .statValue {
-    font-size: 1.4rem;
-  }
-
-  .achievementCard {
-    padding: 1rem;
-  }
-
-  .achievementIcon {
-    font-size: 2.5rem;
-  }
-
-  .achievementName {
-    font-size: 1.1rem;
-  }
-
-  .achievementActions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-}
 
 /* ============================================
    CARD & TABLE STYLES

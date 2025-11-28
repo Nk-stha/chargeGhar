@@ -1,11 +1,10 @@
 .container {
     color: #fff;
-    background-color: #0a0a0a;
+    background-color: #0b0b0b;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
-    padding: 2rem;
+    padding: 2rem 3rem;
 }
 
 .title {
@@ -882,27 +881,9 @@
     cursor: not-allowed;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 3rem 2rem;
-        margin-left: 0;
-    }
-
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 8px 10px;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 2rem 1rem;
-        margin-top: 1rem;
     }
 
     .title {
@@ -961,41 +942,5 @@
 
     .modalContent {
         max-height: 95vh;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 1.5rem 0.75rem;
-    }
-
-    .title {
-        font-size: 1.3rem;
-    }
-
-    .card {
-        padding: 0.75rem;
-    }
-
-    .rentalCode {
-        font-size: 0.85rem;
-    }
-
-    .issueType,
-    .status {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-
-    .modalHeader {
-        padding: 1rem;
-    }
-
-    .modalBody {
-        padding: 1rem;
-    }
-
-    .modalHeader h2 {
-        font-size: 1.2rem;
     }
 }

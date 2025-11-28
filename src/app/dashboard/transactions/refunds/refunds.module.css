@@ -748,27 +748,9 @@
     animation: spin 0.8s linear infinite;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .container {
-        padding: 1.5rem;
-        margin-left: 20px;
-    }
-
-    .analyticsGrid {
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.75rem;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
-        padding: 1rem;
+        padding: 2rem 1rem;
         margin-left: 0;
     }
 
@@ -847,54 +829,5 @@
     .confirmButton {
         width: 100%;
         justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .container {
-        padding: 0.75rem;
-    }
-
-    .title {
-        font-size: 1.3rem;
-    }
-
-    .subtitle {
-        font-size: 0.85rem;
-    }
-
-    .analyticsIcon {
-        width: 40px;
-        height: 40px;
-        font-size: 1.2rem;
-    }
-
-    .analyticsLabel {
-        font-size: 0.75rem;
-    }
-
-    .analyticsValue {
-        font-size: 1.3rem;
-    }
-
-    .tableWrapper {
-        padding: 0.75rem;
-    }
-
-    .table {
-        font-size: 0.85rem;
-    }
-
-    .table th,
-    .table td {
-        padding: 0.5rem;
-    }
-
-    .modalHeader h2 {
-        font-size: 1.1rem;
-    }
-
-    .detailSection h3 {
-        font-size: 1rem;
     }
 }

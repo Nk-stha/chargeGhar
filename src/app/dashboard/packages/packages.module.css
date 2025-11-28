@@ -4,7 +4,6 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    margin-left: 1rem;
     padding: 2rem;
 }
 
@@ -325,17 +324,13 @@
     }
 }
 
-/* Responsive */
-@media (max-width: 1400px) {
-    .container {
-        padding: 3rem;
-    }
-}
-
 @media (max-width: 768px) {
     .container {
         padding: 2rem 1rem;
-        margin-left: 0;
+    }
+
+    .title {
+        font-size: 1.5rem;
     }
 
     .header {
@@ -356,8 +351,6 @@
     .stats {
         justify-content: space-around;
     }
-
-
 
     .description {
         max-width: 150px;

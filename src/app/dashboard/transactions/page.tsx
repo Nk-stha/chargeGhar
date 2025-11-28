@@ -186,7 +186,7 @@ const Transactions: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>All Transactions</h1>
+          <h1 className={styles.title}>Transactions</h1>
           <p className={styles.subtitle}>
             View and manage all current and past transactions
           </p>

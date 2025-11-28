@@ -1,9 +1,10 @@
 .container {
     color: #fff;
-    background-color: #0a0a0a;
+    background-color: #0b0b0b;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    padding: 2rem 3rem;
 }
 
 .title {
@@ -772,7 +773,7 @@
         background: #2a2a2a;
         border-radius: 2px;
     }
-    
+
 
     .card {
         padding: 0.75rem;
@@ -800,7 +801,7 @@
         font-size: 1.2rem;
     }
 
-    
+
 
     .detailGrid {
         grid-template-columns: 1fr;
