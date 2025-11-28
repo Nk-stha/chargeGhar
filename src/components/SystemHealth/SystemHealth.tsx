@@ -82,8 +82,9 @@ export const SystemHealth: React.FC = () => {
   }, [autoRefresh, fetchHealthData]);
 
   const getUsageColor = (usage: number) => {
-    if (usage < 60) return "#47b216";
-    if (usage < 80) return "#ffc107";
+    if (usage < 50) return "#47b216";
+    if (usage < 75) return "#ffc107";
+    if (usage < 90) return "#BB2D3B"
     return "#dc3545";
   };
 
