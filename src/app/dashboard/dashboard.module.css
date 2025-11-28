@@ -29,6 +29,7 @@
     min-height: 100vh;
     font-family: "Poppins", sans-serif;
     color: #fff;
+    overflow-x: hidden;
 }
 
 /* Main container beside sidebar */
@@ -36,6 +37,8 @@
     flex: 1;
     padding: 2rem 3rem;
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Header */
@@ -64,7 +67,7 @@
 /* Top Statistics Section */
 .topStats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1.5rem;
     margin-bottom: 2rem;
 }
@@ -78,11 +81,24 @@
     border: 1px solid #1a1a1a;
 }
 
-/* Two column sections (Popular Packages + Recent Transactions etc.) */
+/* Two column large (Revenue + System Health) */
+.twoColumnLarge {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Two column sections (Rental + Station Utilization - same as Revenue layout) */
 .twoColumn {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
+    grid-template-columns: 1.6fr 1fr;
     gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Full width section */
+.fullWidth {
     margin-bottom: 2rem;
 }
 

@@ -4,10 +4,15 @@ import React, { useState, useRef, useEffect } from "react";
 import styles from "./Header.module.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FiBell, FiUser, FiLogOut, FiSettings } from "react-icons/fi";
+import { FiBell, FiUser, FiLogOut, FiMenu, FiX } from "react-icons/fi";
 import logo from "../../../public/ChargeGharLogo.png";
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    onMenuToggle?: () => void;
+    menuOpen?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({ onMenuToggle, menuOpen = false }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
@@ -48,6 +53,17 @@ const Header: React.FC = () => {
 
     return (
         <header className={styles.header}>
+            {/* Mobile Menu Toggle */}
+            {onMenuToggle && (
+                <button
+                    className={styles.menuToggle}
+                    onClick={onMenuToggle}
+                    aria-label="Toggle menu"
+                >
+                    {menuOpen ? <FiX /> : <FiMenu />}
+                </button>
+            )}
+
             {/* Logo Section */}
             <div className={styles.logoContainer}>
                 <Image src={logo} alt="ChargeGhar Logo" className={styles.logo} priority />

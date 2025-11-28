@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./RentalsOverTime.module.css";
+import TotalBadge from "../common/TotalBadge";
 import {
   BarChart,
   Bar,
@@ -23,6 +24,18 @@ const RentalOverTime: React.FC = () => {
   const [data, setData] = useState<RentalAnalyticsData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  // Detect screen size for responsive labels
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const fetchRentalsData = async (selectedPeriod: AnalyticsPeriod) => {
     try {
@@ -55,6 +68,29 @@ const RentalOverTime: React.FC = () => {
 
   const handlePeriodChange = (newPeriod: AnalyticsPeriod) => {
     setPeriod(newPeriod);
+  };
+
+  // Format X-axis tick to show shorter dates
+  const formatXAxisTick = (value: string) => {
+    if (!value) return "";
+    try {
+      const date = new Date(value);
+      // For daily: show "18 Oct" format
+      if (period === "daily") {
+        return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+      }
+      // For weekly: keep as is or shorten
+      if (period === "weekly") {
+        return value.replace("Week ", "W");
+      }
+      // For monthly: show "Jan" format
+      if (period === "monthly") {
+        return date.toLocaleDateString("en-US", { month: "short" });
+      }
+      return value;
+    } catch {
+      return value;
+    }
   };
 
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -120,9 +156,11 @@ const RentalOverTime: React.FC = () => {
       <div className={styles.header}>
         <div className={styles.titleSection}>
           <h2>Rental Over Time</h2>
-          <p className={styles.totalRentals}>
-            Total Rentals: {data.total_rentals.toLocaleString()}
-          </p>
+          <TotalBadge
+            label="Total Rentals"
+            value={data.total_rentals.toLocaleString()}
+            color="blue"
+          />
         </div>
         <div className={styles.toggle}>
           {(["daily", "weekly", "monthly"] as AnalyticsPeriod[]).map((p) => (
@@ -138,28 +176,42 @@ const RentalOverTime: React.FC = () => {
       </div>
 
       <div className={styles.chartContainer}>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data.chart_data}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+            margin={{
+              top: 10,
+              right: isMobile ? 5 : 10,
+              left: isMobile ? -10 : 0,
+              bottom: 0
+            }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#222" />
             <XAxis
               dataKey="label"
               stroke="#aaa"
-              style={{ fontSize: "12px" }}
+              style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: 500 }}
               angle={-45}
               textAnchor="end"
-              height={80}
+              height={isMobile ? 60 : 70}
+              interval={isMobile ? 2 : 1}
+              tick={{ fill: "#aaa" }}
+              tickFormatter={formatXAxisTick}
             />
-            <YAxis stroke="#aaa" style={{ fontSize: "12px" }} />
+            <YAxis
+              stroke="#aaa"
+              style={{ fontSize: isMobile ? "11px" : "12px", fontWeight: 500 }}
+              width={isMobile ? 45 : 55}
+            />
             <Tooltip content={<CustomTooltip />} />
             <Legend
               wrapperStyle={{
-                paddingTop: "10px",
-                fontSize: "12px",
+                paddingTop: isMobile ? "12px" : "18px",
+                fontSize: isMobile ? "11px" : "13px",
+                fontWeight: 500,
               }}
               iconType="circle"
+              iconSize={isMobile ? 9 : 11}
             />
             <Bar
               dataKey="completed"
@@ -200,30 +252,19 @@ const RentalOverTime: React.FC = () => {
         </ResponsiveContainer>
       </div>
 
-      {/* Summary Stats */}
-      {data.summary && (
-        <div className={styles.summaryContainer}>
-          <div className={styles.summaryItem}>
-            <span className={styles.summaryLabel}>Avg per period:</span>
-            <span className={styles.summaryValue}>
-              {data.summary.avg_per_period.toFixed(1)}
-            </span>
-          </div>
-          {data.summary.peak_date && (
-            <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Peak:</span>
-              <span className={styles.summaryValue}>
-                {data.summary.peak_count} on{" "}
-                {new Date(data.summary.peak_date).toLocaleDateString()}
-              </span>
-              {/* Date Range Info */}
-              <span className={styles.dateRange}>
-                Showing data from {data.start_date} to {data.end_date}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
+      {/* Compact Summary */}
+      <div className={styles.dateRange}>
+        {data.summary && (
+          <>
+            Avg: {data.summary.avg_per_period.toFixed(1)} per period
+            {data.summary.peak_date && (
+              <> • Peak: {data.summary.peak_count} on {new Date(data.summary.peak_date).toLocaleDateString()}</>
+            )}
+            {" • "}
+          </>
+        )}
+        {data.start_date} to {data.end_date}
+      </div>
     </div>
   );
 };

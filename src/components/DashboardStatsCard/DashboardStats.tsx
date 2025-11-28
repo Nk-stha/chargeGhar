@@ -1,11 +1,11 @@
 import React from "react";
 import {
-  FiDollarSign,
   FiUsers,
   FiAlertCircle,
   FiCheckCircle,
 } from "react-icons/fi";
 import StatsCard from "./StatsCard";
+import RevenueCard from "./RevenueCard";
 import { useDashboardData } from "../../contexts/DashboardDataContext";
 import styles from "./DashboardStats.module.css";
 
@@ -15,29 +15,28 @@ interface Station {
 }
 
 const DashboardStats: React.FC = () => {
-  const { dashboardData, loading, error } = useDashboardData();
+  const { dashboardData, profilesData, loading, error } = useDashboardData();
   console.log(dashboardData);
   if (loading) {
     return (
       <>
-        <StatsCard
-          icon={<FiDollarSign />}
-          title="Revenue Today"
-          value="Loading..."
-        />
-        <StatsCard icon={<FiUsers />} title="Total Users" value="Loading..." />
-        <StatsCard
-          icon={<FiAlertCircle />}
-          title="Pending Issues"
-          value="Loading..."
-        />
-        <StatsCard icon={<FiUsers />} title="Admin Users" value="Loading..." />;
-        <StatsCard
-          icon={<FiCheckCircle />}
-          title="Stations Active"
-          value="Loading..."
-        />
-        ;
+        <section className={styles.revenueCard}>
+          <RevenueCard value="Loading..." />
+        </section>
+        <section className={styles.statsGrid}>
+          <div className={styles.card}>
+            <StatsCard icon={<FiUsers />} title="Total Users" value="Loading..." />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiAlertCircle />} title="Pending Issues" value="Loading..." />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiUsers />} title="Admin Users" value="Loading..." />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiCheckCircle />} title="Total Stations" value="Loading..." />
+          </div>
+        </section>
       </>
     );
   }
@@ -45,24 +44,23 @@ const DashboardStats: React.FC = () => {
   if (error) {
     return (
       <>
-        <StatsCard
-          icon={<FiDollarSign />}
-          title="Revenue Today"
-          value="Error"
-        />
-        <StatsCard icon={<FiUsers />} title="Total Users" value="Error" />
-        <StatsCard
-          icon={<FiAlertCircle />}
-          title="Pending Issues"
-          value="Error"
-        />
-        <StatsCard icon={<FiUsers />} title="Admin Users" value="Error" />;
-        <StatsCard
-          icon={<FiCheckCircle />}
-          title="Stations Active"
-          value="Error"
-        />
-        ;
+        <section className={styles.revenueCard}>
+          <RevenueCard value="Error" />
+        </section>
+        <section className={styles.statsGrid}>
+          <div className={styles.card}>
+            <StatsCard icon={<FiUsers />} title="Total Users" value="Error" />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiAlertCircle />} title="Pending Issues" value="Error" />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiUsers />} title="Admin Users" value="Error" />
+          </div>
+          <div className={styles.card}>
+            <StatsCard icon={<FiCheckCircle />} title="Total Stations" value="Error" />
+          </div>
+        </section>
       </>
     );
   }
@@ -71,45 +69,48 @@ const DashboardStats: React.FC = () => {
     dashboardData?.stations?.results?.filter(
       (station: Station) => station.status === "ONLINE",
     ) || [];
-  
+
   return (
-    <section className={styles.topStats}>
-      <div className={styles.card}>
-        <StatsCard
-          icon={<FiDollarSign />}
-          title="Revenue Today"
-          value={`Rs.${dashboardData?.revenue_today || 0}`}
+    <>
+      {/* Revenue Card - Full Width on Mobile */}
+      <section className={styles.revenueCard}>
+        <RevenueCard
+          value={`Rs. ${dashboardData?.revenue_today?.toLocaleString() || 0}`}
         />
-      </div>
-      <div className={styles.card}>
-        <StatsCard
-          icon={<FiUsers />}
-          title="Total Users"
-          value={dashboardData?.total_users || 0}
-        />
-      </div>
-      <div className={styles.card}>
-        <StatsCard
-          icon={<FiAlertCircle />}
-          title="Pending Issues"
-          value={dashboardData?.recent_issues?.length || 0}
-        />
-      </div>
-      <div className={styles.card}>
-        <StatsCard
-          icon={<FiUsers />}
-          title="Admin Users"
-          value={dashboardData?.profiles?.length || 0}
-        />
-      </div>
-      <div className={styles.card}>
-        <StatsCard
-          icon={<FiCheckCircle />}
-          title="Total Stations"
-          value={dashboardData?.total_stations}
-        />
-      </div>
-    </section>
+      </section>
+
+      {/* Other Stats - 2x2 Grid on Mobile */}
+      <section className={styles.statsGrid}>
+        <div className={styles.card}>
+          <StatsCard
+            icon={<FiUsers />}
+            title="Total Users"
+            value={dashboardData?.total_users || 0}
+          />
+        </div>
+        <div className={styles.card}>
+          <StatsCard
+            icon={<FiAlertCircle />}
+            title="Pending Issues"
+            value={dashboardData?.recent_issues?.length || 0}
+          />
+        </div>
+        <div className={styles.card}>
+          <StatsCard
+            icon={<FiUsers />}
+            title="Admin Users"
+            value={Array.isArray(profilesData) ? profilesData.length : 0}
+          />
+        </div>
+        <div className={styles.card}>
+          <StatsCard
+            icon={<FiCheckCircle />}
+            title="Total Stations"
+            value={dashboardData?.total_stations}
+          />
+        </div>
+      </section>
+    </>
   );
 };
 

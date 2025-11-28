@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import styles from "./dashboard.module.css";
-import Navbar from "../../components/Navbar/Navbar";
+import Header from "../../components/Header/Header";
+import DashboardSidebar from "../../components/DashboardSideBar/DashboardSideBar";
 import DashboardStats from "../../components/DashboardStatsCard/DashboardStats";
 import RevenueChart from "../../components/RevenueChart";
 import PopularPackages from "../../components/PopularPackageCard/PopularPackages";
@@ -14,10 +15,32 @@ import RecentUpdates from "../../components/RecentUpdates/RecentUpdates";
 import SystemHealth from "../../components/SystemHealth/SystemHealth";
 
 const Dashboard: React.FC = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  const handleContentClick = () => {
+    // Close sidebar when clicking on main content area
+    if (mobileMenuOpen) {
+      closeMobileMenu();
+    }
+  };
+
   return (
     <div className={styles.dashboardPage}>
-      <Navbar />
-      <div className={styles.dashboardContainer}>
+      <Header onMenuToggle={toggleMobileMenu} menuOpen={mobileMenuOpen} />
+      <DashboardSidebar mobileOpen={mobileMenuOpen} onMobileClose={closeMobileMenu} />
+      <div
+        className={styles.dashboardContainer}
+        onClick={handleContentClick}
+        style={{ cursor: mobileMenuOpen ? 'pointer' : 'default' }}
+      >
         <header className={styles.header}>
           <h1>Dashboard</h1>
           <p>
@@ -30,20 +53,10 @@ const Dashboard: React.FC = () => {
           <DashboardStats />
         </section>
 
-        {/* System Health */}
-        <section className={styles.systemHealthSection}>
-          <SystemHealth />
-        </section>
-
-        {/* Revenue Section */}
-        <section className={styles.revenueSection}>
+        {/* Revenue Chart + System Health side by side */}
+        <section className={styles.twoColumnLarge}>
           <RevenueChart />
-        </section>
-
-        {/* Popular Packages + Recent Transactions side by side */}
-        <section className={styles.twoColumn}>
-          <PopularPackages />
-          <RecentTransactions />
+          <SystemHealth />
         </section>
 
         {/* Rental Over Time + Station Utilization side by side */}
@@ -52,9 +65,15 @@ const Dashboard: React.FC = () => {
           <StationUtilizationChart />
         </section>
 
-        {/* Monitor Rentals and Recent Updates stacked */}
-        <section className={styles.bottomSection}>
+        {/* Monitor Rentals + Popular Packages side by side */}
+        <section className={styles.twoColumn}>
           <MonitorRentals />
+          <PopularPackages />
+        </section>
+
+        {/* Recent Transactions + Recent Updates side by side */}
+        <section className={styles.twoColumn}>
+          <RecentTransactions />
           <RecentUpdates />
         </section>
       </div>
