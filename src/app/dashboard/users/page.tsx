@@ -20,15 +20,27 @@ import AdminProfileModal from "../../../components/AdminProfileModal/AdminProfil
 import { useDashboardData } from "../../../contexts/DashboardDataContext";
 import DataTable from "../../../components/DataTable/dataTable";
 
+interface UserProfile {
+  full_name: string | null;
+  date_of_birth: string | null;
+  address: string | null;
+  is_profile_complete: boolean;
+}
+
 interface User {
   id: number;
+  email: string | null;
+  phone_number: string | null;
   username: string;
   profile_picture: string | null;
   referral_code: string | null;
   status: string;
+  is_active: boolean;
   date_joined: string;
+  last_login: string | null;
   profile_complete: boolean;
   kyc_status: string;
+  profile: UserProfile;
   social_provider: string;
 }
 
@@ -209,7 +221,7 @@ export default function UsersPage() {
   const displayedUsers = useMemo((): User[] => {
     let list: User[] = [...users];
 
-    // Search: filter by ID, username, status
+    // Search: filter by ID, username, status, email, phone
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter(
@@ -217,27 +229,38 @@ export default function UsersPage() {
           u.id.toString().includes(q) ||
           u.username.toLowerCase().includes(q) ||
           u.status.toLowerCase().includes(q) ||
-          (u.referral_code && u.referral_code.toLowerCase().includes(q)),
+          (u.referral_code && u.referral_code.toLowerCase().includes(q)) ||
+          (u.email && u.email.toLowerCase().includes(q)) ||
+          (u.phone_number && u.phone_number.toLowerCase().includes(q)) ||
+          (u.profile?.full_name && u.profile.full_name.toLowerCase().includes(q)),
       );
     }
 
     // Sort
     return list.sort((a, b) => {
-      let aVal: string | number | boolean | null = a[sortKey];
-      let bVal: string | number | boolean | null = b[sortKey];
+      let aVal: string | number | boolean | null;
+      let bVal: string | number | boolean | null;
 
-      if (sortKey === "id") {
-        aVal = Number(aVal);
-        bVal = Number(bVal);
-      } else if (sortKey === "date_joined") {
-        aVal = new Date(aVal as string).getTime();
-        bVal = new Date(bVal as string).getTime();
-      } else if (sortKey === "profile_complete") {
-        aVal = aVal ? 1 : 0;
-        bVal = bVal ? 1 : 0;
+      // Handle sortKey that could be 'profile' (object) - skip sorting for that
+      const aValue = a[sortKey];
+      const bValue = b[sortKey];
+
+      if (sortKey === "profile") {
+        // Sort by full_name when profile is selected
+        aVal = a.profile?.full_name || "";
+        bVal = b.profile?.full_name || "";
+      } else if (sortKey === "id") {
+        aVal = Number(aValue);
+        bVal = Number(bValue);
+      } else if (sortKey === "date_joined" || sortKey === "last_login") {
+        aVal = aValue ? new Date(aValue as string).getTime() : 0;
+        bVal = bValue ? new Date(bValue as string).getTime() : 0;
+      } else if (sortKey === "profile_complete" || sortKey === "is_active") {
+        aVal = aValue ? 1 : 0;
+        bVal = bValue ? 1 : 0;
       } else {
-        aVal = String(aVal || "").toLowerCase();
-        bVal = String(bVal || "").toLowerCase();
+        aVal = String(aValue || "").toLowerCase();
+        bVal = String(bValue || "").toLowerCase();
       }
 
       if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
@@ -589,59 +612,59 @@ export default function UsersPage() {
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.username}
+                      {row.profile?.full_name || row.username}
                     </p>
                     <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      ID: {row.id}
+                      @{row.username}
                     </p>
                   </div>
                 </div>
               ),
             },
             {
-              header: "Referral",
-              accessor: "referral_code",
+              header: "Contact",
+              accessor: "phone_number",
               render: (v) => (
-                <span style={{ color: "#aaa", fontSize: "0.85rem" }}>{v || "—"}</span>
+                <span style={{ 
+                  fontSize: "0.85rem", 
+                  fontWeight: "600", 
+                  color: "#fff"
+                }}>
+                  {v || "—"}
+                </span>
               ),
             },
             {
               header: "Provider",
               accessor: "social_provider",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: "rgba(156, 163, 175, 0.1)",
-                  color: "rgb(156, 163, 175)",
-                  textTransform: "capitalize",
-                }}>
-                  {v.toLowerCase()}
-                </span>
+              render: (_: any, row) => (
+                <div style={{ minWidth: 0 }}>
+                  <p style={{ 
+                    margin: 0, 
+                    fontSize: "0.85rem", 
+                    fontWeight: "600", 
+                    color: "#fff",
+                    overflow: "hidden", 
+                    textOverflow: "ellipsis", 
+                    whiteSpace: "nowrap"
+                  }}>
+                    {row.email || "—"}
+                  </p>
+                  <p style={{ 
+                    margin: "0.25rem 0 0 0", 
+                    fontSize: "0.7rem", 
+                    fontWeight: "500",
+                    color: row.social_provider === "GOOGLE" ? "#4285f4" : "#82ea80",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px"
+                  }}>
+                    {row.social_provider}
+                  </p>
+                </div>
               ),
             },
             {
-              header: "Profile",
-              accessor: "profile_complete",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: v ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
-                  color: v ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
-                }}>
-                  {v ? "Complete" : "Incomplete"}
-                </span>
-              ),
-            },
-            {
-              header: "KYC Status",
+              header: "KYC",
               accessor: "kyc_status",
               render: (v) => {
                 const getKYCStyle = (status: string) => {
@@ -692,6 +715,15 @@ export default function UsersPage() {
               ),
             },
             {
+              header: "Last Login",
+              accessor: "last_login",
+              render: (v) => (
+                <span style={{ color: v ? "#ccc" : "#666", fontSize: "0.85rem" }}>
+                  {v ? new Date(v).toLocaleDateString() : "Never"}
+                </span>
+              ),
+            },
+            {
               header: "Actions",
               accessor: "actions",
               align: "right",
@@ -702,14 +734,14 @@ export default function UsersPage() {
                     title="Add Balance"
                     className={styles.actionButtonGreen}
                   >
-                    <FiDollarSign size={14} /> Add Balance
+                    <FiDollarSign size={14} />
                   </button>
                   <button
                     onClick={() => handleOpenStatusModal(row)}
                     title="Update Status"
                     className={styles.actionButtonOrange}
                   >
-                    <FiUserCheck size={14} /> Status
+                    <FiUserCheck size={14} />
                   </button>
                 </div>
               ),
@@ -741,13 +773,18 @@ export default function UsersPage() {
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.username}
+                      {row.profile?.full_name || row.username}
                     </p>
                     <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      ID: {row.id}
+                      @{row.username}
                     </p>
                   </div>
                 </div>
+              </div>
+              <div style={{ marginBottom: "0.75rem" }}>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "#ccc", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {row.email || row.phone_number || "No contact info"}
+                </p>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
                 <span style={{
@@ -755,8 +792,8 @@ export default function UsersPage() {
                   borderRadius: "4px",
                   fontSize: "0.7rem",
                   fontWeight: "500",
-                  backgroundColor: "rgba(156, 163, 175, 0.1)",
-                  color: "rgb(156, 163, 175)",
+                  backgroundColor: row.social_provider === "GOOGLE" ? "rgba(66, 133, 244, 0.1)" : "rgba(156, 163, 175, 0.1)",
+                  color: row.social_provider === "GOOGLE" ? "#4285f4" : "rgb(156, 163, 175)",
                   textTransform: "capitalize",
                 }}>
                   {row.social_provider.toLowerCase()}
@@ -766,10 +803,10 @@ export default function UsersPage() {
                   borderRadius: "4px",
                   fontSize: "0.7rem",
                   fontWeight: "500",
-                  backgroundColor: row.profile_complete ? "rgba(34, 197, 94, 0.1)" : "rgba(234, 179, 8, 0.1)",
-                  color: row.profile_complete ? "rgb(34, 197, 94)" : "rgb(234, 179, 8)",
+                  backgroundColor: row.kyc_status === "APPROVED" ? "rgba(34, 197, 94, 0.1)" : "rgba(156, 163, 175, 0.1)",
+                  color: row.kyc_status === "APPROVED" ? "rgb(34, 197, 94)" : "rgb(156, 163, 175)",
                 }}>
-                  {row.profile_complete ? "Complete" : "Incomplete"}
+                  {row.kyc_status.replace("_", " ")}
                 </span>
                 <span style={{
                   padding: "0.25rem 0.5rem",

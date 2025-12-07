@@ -82,6 +82,14 @@
     background-color: #1d1d1d;
 }
 
+.clickableRow {
+    cursor: pointer;
+}
+
+.clickableRow:hover {
+    background-color: #1f1f1f !important;
+}
+
 .alignRight {
     text-align: right;
 }
@@ -105,6 +113,14 @@
 
 .mobileCard:last-child {
     border-bottom: none;
+}
+
+.clickableCard {
+    cursor: pointer;
+}
+
+.clickableCard:hover {
+    background-color: #1a1a1a;
 }
 
 .mobileCardDefault {

@@ -18,6 +18,7 @@ interface DataTableProps {
     emptyMessage?: string;
     loading?: boolean;
     mobileCardRender?: (row: any) => React.ReactNode;
+    onRowClick?: (row: any) => void;
 }
 
 const DataTable: React.FC<DataTableProps> = ({
@@ -28,6 +29,7 @@ const DataTable: React.FC<DataTableProps> = ({
     emptyMessage,
     loading,
     mobileCardRender,
+    onRowClick,
 }) => {
     return (
         <div className={styles.tableWrapper}>
@@ -62,7 +64,11 @@ const DataTable: React.FC<DataTableProps> = ({
                             <tbody>
                                 {data.length > 0 ? (
                                     data.map((row, idx) => (
-                                        <tr key={idx}>
+                                        <tr 
+                                            key={idx}
+                                            onClick={() => onRowClick?.(row)}
+                                            className={onRowClick ? styles.clickableRow : ''}
+                                        >
                                             {columns.map((col) => (
                                                 <td
                                                     key={col.header}
@@ -90,7 +96,11 @@ const DataTable: React.FC<DataTableProps> = ({
                     <div className={styles.mobileCards}>
                         {data.length > 0 ? (
                             data.map((row, idx) => (
-                                <div key={idx} className={styles.mobileCard}>
+                                <div 
+                                    key={idx} 
+                                    className={`${styles.mobileCard} ${onRowClick ? styles.clickableCard : ''}`}
+                                    onClick={() => onRowClick?.(row)}
+                                >
                                     {mobileCardRender ? (
                                         mobileCardRender(row)
                                     ) : (

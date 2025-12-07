@@ -30,6 +30,7 @@ import {
   FiSearch,
   FiChevronsLeft,
   FiChevronsRight,
+  FiBattery,
 } from "react-icons/fi";
 import styles from "./DashboardSidebar.module.css";
 
@@ -74,9 +75,21 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       title: "Main",
       items: [
         { icon: <FiHome />, label: "Dashboard", href: "/dashboard" },
-        { icon: <FiMapPin />, label: "Stations", href: "/dashboard/stations" },
         { icon: <FiUsers />, label: "Users", href: "/dashboard/users" },
         { icon: <FiShoppingBag />, label: "Rentals", href: "/dashboard/rentals" },
+      ],
+    },
+    {
+      title: "Devices",
+      items: [
+        {
+          icon: <FiGrid />,
+          label: "Devices",
+          subItems: [
+            { icon: <FiMapPin />, label: "Stations", href: "/dashboard/stations" },
+            { icon: <FiBattery />, label: "PowerBanks", href: "/dashboard/powerbanks" },
+          ],
+        },
       ],
     },
     {
@@ -174,12 +187,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setExpandedItems(newExpandedItems);
   }, [pathname]);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change (but not on mount)
   useEffect(() => {
-    if (onMobileClose) {
+    // Only close if menu is open (avoids unnecessary calls)
+    if (mobileOpen && onMobileClose) {
       onMobileClose();
     }
-  }, [pathname, onMobileClose]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {

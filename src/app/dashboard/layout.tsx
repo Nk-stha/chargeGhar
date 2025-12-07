@@ -1,12 +1,13 @@
 // src/app/dashboard/layout.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardDataProvider } from '../../contexts/DashboardDataContext';
 import Header from "@/components/Header/Header";
+import DashboardSidebar from "@/components/DashboardSidebar/DashboardSidebar";
 import styles from "./dashboard.module.css";
-import Navbar from '@/components/Navbar/Navbar';
+
 export default function DashboardLayout({
     children,
 }: {
@@ -14,6 +15,15 @@ export default function DashboardLayout({
 }) {
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    const toggleMobileMenu = useCallback(() => {
+        setMobileMenuOpen(prev => !prev);
+    }, []);
+
+    const closeMobileMenu = useCallback(() => {
+        setMobileMenuOpen(false);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
@@ -50,12 +60,13 @@ export default function DashboardLayout({
     return (
         <DashboardDataProvider>
             <div className={styles.layout}>
-                <Navbar />
+                <DashboardSidebar mobileOpen={mobileMenuOpen} onMobileClose={closeMobileMenu} />
                 <div className={styles.main}>
-                    <Header />
+                    <Header onMenuToggle={toggleMobileMenu} menuOpen={mobileMenuOpen} />
                     <main className={styles.content}>{children}</main>
                 </div>
             </div>
         </DashboardDataProvider>
     );
 }
+

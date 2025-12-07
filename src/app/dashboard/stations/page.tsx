@@ -81,7 +81,7 @@ const StationsPage: React.FC = () => {
 
   const handleEdit = (station: Station, e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/dashboard/stations/${station.serial_number}`);
+    router.push(`/dashboard/stations/${station.serial_number}/edit`);
   };
 
   const handleRowClick = (station: Station) => {
@@ -231,6 +231,7 @@ const StationsPage: React.FC = () => {
           data={tableData}
           loading={loading}
           emptyMessage="No stations found."
+          onRowClick={(row) => handleRowClick(row)}
         />
 
         {deleteModal.show && (
