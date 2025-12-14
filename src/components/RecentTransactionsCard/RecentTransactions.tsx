@@ -39,6 +39,45 @@ interface ApiResponse {
   };
 }
 
+// Helper functions moved outside the component to prevent re-declaration on every render.
+// This is a performance optimization that avoids unnecessary function creation.
+const getUserDisplay = (transaction: Transaction): string => {
+  if (
+    transaction.user &&
+    typeof transaction.user === "object" &&
+    transaction.user.username
+  ) {
+    return transaction.user.username;
+  }
+  if (transaction.user_phone) {
+    return transaction.user_phone;
+  }
+  if (transaction.user && typeof transaction.user === "string") {
+    return transaction.user;
+  }
+  return "N/A";
+};
+
+const getStatusClassName = (status: string | undefined): string => {
+  if (!status) return styles.statusFailed;
+  const normalizedStatus = status.toUpperCase();
+  if (
+    normalizedStatus === "SUCCESS" ||
+    normalizedStatus === "COMPLETED" ||
+    normalizedStatus === "PAID"
+  ) {
+    return styles.statusPaid;
+  }
+  return styles.statusFailed;
+};
+
+const getAmountDisplay = (amount: number | undefined | null): string => {
+  if (amount === undefined || amount === null || isNaN(amount)) {
+    return "Rs. 0.00";
+  }
+  return `Rs. ${amount.toFixed(2)}`;
+};
+
 const RecentTransactions: React.FC = () => {
   const router = useRouter();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -70,43 +109,6 @@ const RecentTransactions: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const getUserDisplay = (transaction: Transaction): string => {
-    if (
-      transaction.user &&
-      typeof transaction.user === "object" &&
-      transaction.user.username
-    ) {
-      return transaction.user.username;
-    }
-    if (transaction.user_phone) {
-      return transaction.user_phone;
-    }
-    if (transaction.user && typeof transaction.user === "string") {
-      return transaction.user;
-    }
-    return "N/A";
-  };
-
-  const getStatusClassName = (status: string | undefined): string => {
-    if (!status) return styles.statusFailed;
-    const normalizedStatus = status.toUpperCase();
-    if (
-      normalizedStatus === "SUCCESS" ||
-      normalizedStatus === "COMPLETED" ||
-      normalizedStatus === "PAID"
-    ) {
-      return styles.statusPaid;
-    }
-    return styles.statusFailed;
-  };
-
-  const getAmountDisplay = (amount: number | undefined | null): string => {
-    if (amount === undefined || amount === null || isNaN(amount)) {
-      return "Rs. 0.00";
-    }
-    return `Rs. ${amount.toFixed(2)}`;
   };
 
   const handleViewAllTransactions = () => {
