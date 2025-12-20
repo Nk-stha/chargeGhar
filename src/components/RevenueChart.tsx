@@ -13,18 +13,14 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { analyticsService } from "../lib/api/analytics.service";
-import {
-  RevenueAnalyticsData,
-  AnalyticsPeriod,
-} from "../types/analytics.types";
+import { useRevenueData } from "../hooks/useRevenueData";
+import { AnalyticsPeriod, ChartDataPoint } from "../types/dashboard.types";
 
 const RevenueChart: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>("daily");
-  const [data, setData] = useState<RevenueAnalyticsData | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  
+  const { data, loading, error, refetch } = useRevenueData(period);
 
   // Detect screen size for responsive labels
   useEffect(() => {
@@ -36,35 +32,6 @@ const RevenueChart: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  const fetchRevenueData = async (selectedPeriod: AnalyticsPeriod) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const dateRange = analyticsService.getDefaultDateRange(selectedPeriod);
-      const response = await analyticsService.getRevenueOverTime({
-        period: selectedPeriod,
-        start_date: dateRange.start_date,
-        end_date: dateRange.end_date,
-      });
-
-      if (response.success) {
-        setData(response.data);
-      } else {
-        setError("Failed to fetch revenue data");
-      }
-    } catch (err) {
-      console.error("Error fetching revenue data:", err);
-      setError("Error loading revenue data. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRevenueData(period);
-  }, [period]);
 
   const handlePeriodChange = (newPeriod: AnalyticsPeriod) => {
     setPeriod(newPeriod);
@@ -97,12 +64,23 @@ const RevenueChart: React.FC = () => {
     }
   };
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  interface TooltipProps {
+    active?: boolean;
+    payload?: Array<{
+      name: string;
+      value: number;
+      color: string;
+      payload: ChartDataPoint;
+    }>;
+    label?: string;
+  }
+
+  const CustomTooltip: React.FC<TooltipProps> = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className={styles.customTooltip}>
           <p className={styles.tooltipLabel}>{label}</p>
-          {payload.map((entry: any, index: number) => (
+          {payload.map((entry, index) => (
             <p key={index} className={styles.tooltipValue} style={{ color: entry.color }}>
               {entry.name}: {data?.currency} {formatCurrency(entry.value)}
             </p>
@@ -129,7 +107,7 @@ const RevenueChart: React.FC = () => {
       <div className={styles.card}>
         <div className={styles.errorContainer}>
           <p className={styles.errorText}>{error}</p>
-          <button onClick={() => fetchRevenueData(period)} className={styles.retryButton}>
+          <button onClick={refetch} className={styles.retryButton}>
             Retry
           </button>
         </div>

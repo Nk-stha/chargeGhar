@@ -1,0 +1,153 @@
+/* Reuse PaymentAnalytics styles for consistency */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr); /* 5 cards based on summary */
+  }
+  .statsGridLarge {
+     grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+.statCard {
+  background: #121212;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.statCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+}
+
+/* Color System Integration */
+.borderTotal::before { background: linear-gradient(90deg, #f7b926, #fcd34d); }
+.borderActive::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+.borderOverdue::before { background: linear-gradient(90deg, #ef4444, #f87171); }
+.borderCompleted::before { background: linear-gradient(90deg, #82ea80, #4ade80); }
+.borderCancelled::before { background: linear-gradient(90deg, #9ca3af, #d1d5db); }
+
+.statTitle {
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  opacity: 0;
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+/* Charts Section */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1024px) {
+  .chartsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chartCard {
+  background: #121212;
+  border: 1px solid #1f1f1f;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Durations Card */
+.durationsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.durationItem {
+    text-align: center;
+    padding: 1rem;
+    background: #1a1a1a;
+    border-radius: 8px;
+}
+
+.durationLabel {
+    font-size: 0.75rem;
+    color: #a1a1aa;
+    margin-bottom: 0.25rem;
+}
+
+.durationValue {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 640px) {
+    .durationsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .statValue {
+        animation: none;
+        opacity: 1;
+    }
+}

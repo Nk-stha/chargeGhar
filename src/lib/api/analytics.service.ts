@@ -18,6 +18,46 @@ class AnalyticsService {
   private baseUrl = "/api/admin/analytics";
 
   /**
+   * Get payment analytics data
+   * @returns Payment analytics data including summaries and breakdowns
+   */
+  async getPaymentAnalytics(): Promise<any> {
+    const url = `${this.baseUrl}/payments`;
+    const response = await instance.get(url);
+    return response.data;
+  }
+
+  /**
+   * Get powerbank rental analytics data
+   * @returns PowerBank rental analytics data
+   */
+  async getPowerBankRentalAnalytics(): Promise<any> {
+    const url = `${this.baseUrl}/powerbank-rentals`;
+    const response = await instance.get(url);
+    return response.data;
+  }
+
+  /**
+   * Get station performance analytics data
+   * @returns Station performance analytics data
+   */
+  async getStationPerformance(): Promise<any> {
+    const url = `${this.baseUrl}/station-performance`;
+    const response = await instance.get(url);
+    return response.data;
+  }
+
+  /**
+   * Get user analytics data
+   * @returns User analytics data
+   */
+  async getUserAnalytics(): Promise<any> {
+    const url = `${this.baseUrl}/users`;
+    const response = await instance.get(url);
+    return response.data;
+  }
+
+  /**
    * Get revenue analytics over time
    * @param filters - Revenue analytics filters (period, dates, transaction type)
    * @returns Revenue analytics data with chart data

@@ -3,7 +3,7 @@
 /**
  * Common Types
  */
-export type AnalyticsPeriod = "daily" | "weekly" | "monthly";
+export type AnalyticsPeriod = "daily" | "weekly" | "monthly" | "yearly";
 
 export type TransactionType =
   | "rental"

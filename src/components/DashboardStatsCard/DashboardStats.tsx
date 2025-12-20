@@ -8,6 +8,7 @@ import StatsCard from "./StatsCard";
 import RevenueCard from "./RevenueCard";
 import { useDashboardData } from "../../contexts/DashboardDataContext";
 import styles from "./DashboardStats.module.css";
+import Skeleton from "../ui/Skeleton";
 
 interface Station {
   id: string;
@@ -24,18 +25,18 @@ const DashboardStats: React.FC = () => {
           <RevenueCard value="Loading..." />
         </section>
         <section className={styles.statsGrid}>
-          <div className={styles.card}>
-            <StatsCard icon={<FiUsers />} title="Total Users" value="Loading..." />
-          </div>
-          <div className={styles.card}>
-            <StatsCard icon={<FiAlertCircle />} title="Pending Issues" value="Loading..." />
-          </div>
-          <div className={styles.card}>
-            <StatsCard icon={<FiUsers />} title="Admin Users" value="Loading..." />
-          </div>
-          <div className={styles.card}>
-            <StatsCard icon={<FiCheckCircle />} title="Total Stations" value="Loading..." />
-          </div>
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className={styles.card}>
+              <div style={{ padding: "20px" }}>
+                 {/* Mocking the StatsCard layout loosely with skeleton */}
+                 <div style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                    <Skeleton width={40} height={40} style={{ borderRadius: "50%" }} />
+                    <Skeleton width={100} height={20} style={{ marginLeft: "10px" }} />
+                 </div>
+                 <Skeleton width={60} height={30} />
+              </div>
+            </div>
+          ))}
         </section>
       </>
     );

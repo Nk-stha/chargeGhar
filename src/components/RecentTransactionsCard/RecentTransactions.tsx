@@ -1,76 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import styles from "./RecentTransactions.module.css";
-import instance from "../../lib/axios";
-
-interface User {
-  id: string;
-  username?: string;
-  email?: string;
-}
-
-interface Transaction {
-  id: string;
-  user?: string | User;
-  user_phone?: string;
-  amount?: number;
-  payment_method?: string;
-  status?: string;
-  transaction_type?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-interface Pagination {
-  current_page: number;
-  total_pages: number;
-  total_count: number;
-  page_size: number;
-  has_next: boolean;
-  has_previous: boolean;
-}
-
-interface ApiResponse {
-  success: boolean;
-  message: string;
-  data: {
-    results: Transaction[];
-    pagination: Pagination;
-  };
-}
+import { useRecentTransactions } from "../../hooks/useRecentTransactions";
+import { Transaction } from "../../types/dashboard.types";
+import Skeleton from "../ui/Skeleton";
 
 const RecentTransactions: React.FC = () => {
   const router = useRouter();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchRecentTransactions();
-  }, []);
-
-  const fetchRecentTransactions = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch only 5 most recent transactions
-      const response = await instance.get<ApiResponse>(
-        "/api/admin/transactions?page=1&page_size=5",
-      );
-
-      if (response.data.success && response.data.data.results) {
-        setTransactions(response.data.data.results);
-      } else {
-        setError("Failed to load transactions");
-      }
-    } catch (err: any) {
-      console.error("Error fetching recent transactions:", err);
-      setError(err.response?.data?.message || "Failed to load transactions");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { transactions, loading, error } = useRecentTransactions(5);
 
   const getUserDisplay = (transaction: Transaction): string => {
     if (
@@ -117,7 +54,26 @@ const RecentTransactions: React.FC = () => {
     return (
       <div className={styles.card}>
         <h2>Recent Transactions</h2>
-        <div className={styles.loading}>Loading...</div>
+        <div className={styles.tableContainer}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((_, idx) => (
+                <tr key={idx}>
+                  <td><Skeleton width="60%" height={20} /></td>
+                  <td><Skeleton width="40%" height={20} /></td>
+                  <td><Skeleton width="30%" height={20} /></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   }
