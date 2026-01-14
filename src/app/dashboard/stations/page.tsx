@@ -14,17 +14,31 @@ import {
   FiRefreshCw,
   FiToggleLeft,
   FiToggleRight,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
-import { useDashboardData } from "../../../contexts/DashboardDataContext";
+import { useStations } from "../../../hooks/useStations";
 import stationsService from "../../../lib/api/stations.service";
 import { Station } from "../../../types/station.types";
 import DataTable from "../../../components/DataTable/dataTable";
 
 const StationsPage: React.FC = () => {
   const router = useRouter();
-  const { stationsData, loading, error, refetchStations } = useDashboardData();
+  const {
+    stations,
+    pagination,
+    loading,
+    error,
+    currentPage,
+    totalPages,
+    totalCount,
+    search,
+    refetch,
+    setPage,
+    setSearch,
+  } = useStations(10);
 
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
   const [deleteModal, setDeleteModal] = useState<{
     show: boolean;
     station: Station | null;
@@ -34,13 +48,22 @@ const StationsPage: React.FC = () => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const stations: Station[] = stationsData?.results || [];
+  // Server-side search is handled by the hook, no client-side filtering needed
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSearch(searchInput);
+  };
 
-  const filteredStations = stations.filter(
-    (s: Station) =>
-      s.station_name.toLowerCase().includes(search.toLowerCase()) ||
-      s.address.toLowerCase().includes(search.toLowerCase())
-  );
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      setSearch(searchInput);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput("");
+    setSearch("");
+  };
 
   const handleDeleteClick = (station: Station, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -58,7 +81,7 @@ const StationsPage: React.FC = () => {
       );
 
       if (response.success) {
-        await refetchStations();
+        await refetch();
         setDeleteModal({ show: false, station: null });
       } else {
         setDeleteError("Failed to delete station");
@@ -95,22 +118,34 @@ const StationsPage: React.FC = () => {
   const handleManualRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      await refetchStations();
+      await refetch();
     } finally {
       setRefreshing(false);
     }
-  }, [refetchStations]);
+  }, [refetch]);
 
   const toggleAutoRefresh = () => {
     setAutoRefresh(!autoRefresh);
   };
 
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setPage(currentPage + 1);
+    }
+  };
+
   // Auto-refresh effect
   useEffect(() => {
     if (!autoRefresh) return;
-    const intervalId = setInterval(() => refetchStations(), 30000);
+    const intervalId = setInterval(() => refetch(), 30000);
     return () => clearInterval(intervalId);
-  }, [autoRefresh, refetchStations]);
+  }, [autoRefresh, refetch]);
 
   const columns = [
     { header: "#", accessor: "index" },
@@ -174,13 +209,13 @@ const StationsPage: React.FC = () => {
     },
   ];
 
-  const tableData = filteredStations.map((station, index) => ({
+  const tableData = stations.map((station, index) => ({
     ...station,
-    index: index + 1,
+    index: (currentPage - 1) * 10 + index + 1,
   }));
 
-  if (loading) return <div className={styles.container}>Loading...</div>;
-  if (error) return <div className={styles.container}>{error}</div>;
+  if (loading && stations.length === 0) return <div className={styles.container}>Loading...</div>;
+  if (error && stations.length === 0) return <div className={styles.container}>{error}</div>;
 
   return (
     <div className={styles.StationsPage}>
@@ -194,10 +229,20 @@ const StationsPage: React.FC = () => {
               <FiSearch className={styles.searchIcon} />
               <input
                 type="text"
-                placeholder="Search by name or location"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name, serial number, or location (Press Enter)"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
               />
+              {searchInput && (
+                <button
+                  className={styles.clearSearchBtn}
+                  onClick={handleClearSearch}
+                  type="button"
+                >
+                  <FiX />
+                </button>
+              )}
             </div>
 
             <div className={styles.actionButtons}>
@@ -226,13 +271,36 @@ const StationsPage: React.FC = () => {
 
         <DataTable
           title="Station List"
-          subtitle={`Showing ${tableData.length} of ${stations.length} stations`}
+          subtitle={`Showing ${tableData.length} of ${totalCount} stations`}
           columns={columns}
           data={tableData}
           loading={loading}
           emptyMessage="No stations found."
           onRowClick={(row) => handleRowClick(row)}
         />
+
+        {/* Pagination */}
+        {totalPages > 1 && !loading && stations.length > 0 && (
+          <div className={styles.pagination}>
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1 || loading}
+              className={styles.paginationBtn}
+            >
+              <FiChevronLeft /> Previous
+            </button>
+            <span className={styles.pageInfo}>
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages || loading}
+              className={styles.paginationBtn}
+            >
+              Next <FiChevronRight />
+            </button>
+          </div>
+        )}
 
         {deleteModal.show && (
           <div className={styles.modalOverlay}>

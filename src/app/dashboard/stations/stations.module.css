@@ -47,7 +47,7 @@
     border-radius: 6px;
     padding: 0.45rem 0.75rem;
     border: 1px solid #2a2a2a;
-    width: 260px;
+    width: 360px;
     transition:
         border 0.3s ease,
         background-color 0.3s ease;
@@ -61,6 +61,7 @@
 .searchIcon {
     color: #888;
     margin-right: 8px;
+    flex-shrink: 0;
 }
 
 .searchBox input {
@@ -70,6 +71,25 @@
     color: #fff;
     width: 100%;
     font-size: 0.9rem;
+}
+
+.clearSearchBtn {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.clearSearchBtn:hover {
+    color: #ff6b6b;
+    background-color: rgba(255, 107, 107, 0.1);
 }
 
 /* Action Buttons Container */
@@ -564,6 +584,50 @@
 .deleteButton:hover {
     color: #ff6b6b;
     transform: scale(1.1);
+}
+
+/* ---------- Pagination ---------- */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #141414;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+}
+
+.paginationBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #ccc;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.paginationBtn:hover:not(:disabled) {
+    background: #222;
+    border-color: #47b216;
+    color: #47b216;
+}
+
+.paginationBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pageInfo {
+    color: #888;
+    font-size: 0.9rem;
+    padding: 0 1rem;
 }
 
 /* ---------- No Results ---------- */

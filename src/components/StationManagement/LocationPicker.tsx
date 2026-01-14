@@ -1,28 +1,67 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  MapContainer,
-  TileLayer,
+  GoogleMap,
+  useJsApiLoader,
   Marker,
-  useMapEvents,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+  Autocomplete,
+} from "@react-google-maps/api";
 import styles from "./LocationPicker.module.css";
-import { FiSearch, FiX, FiMapPin } from "react-icons/fi";
+import { FiSearch, FiX, FiMapPin, FiNavigation } from "react-icons/fi";
 
-// Fix for default marker icons in react-leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+// Google Maps libraries to load
+const libraries: ("places")[] = ["places"];
+
+// Nepal bounds for restricting search
+const NEPAL_BOUNDS = {
+  north: 30.447,
+  south: 26.347,
+  east: 88.201,
+  west: 80.058,
+};
+
+// Default center (Kathmandu)
+const DEFAULT_CENTER = { lat: 27.7172, lng: 85.324 };
+
+// Map container style
+const mapContainerStyle = {
+  width: "100%",
+  height: "100%",
+  borderRadius: "12px",
+};
+
+// Map options for dark theme
+const mapOptions: google.maps.MapOptions = {
+  disableDefaultUI: false,
+  zoomControl: true,
+  mapTypeControl: false,
+  streetViewControl: false,
+  fullscreenControl: true,
+  styles: [
+    { elementType: "geometry", stylers: [{ color: "#1d1d1d" }] },
+    { elementType: "labels.text.stroke", stylers: [{ color: "#1d1d1d" }] },
+    { elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+    { featureType: "administrative", elementType: "geometry.stroke", stylers: [{ color: "#3d3d3d" }] },
+    { featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#6a6a6a" }] },
+    { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#2d2d2d" }] },
+    { featureType: "poi", elementType: "geometry", stylers: [{ color: "#2d2d2d" }] },
+    { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+    { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#1a3d1a" }] },
+    { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#4a8a4a" }] },
+    { featureType: "road", elementType: "geometry", stylers: [{ color: "#3d3d3d" }] },
+    { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#9a9a9a" }] },
+    { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#4a4a4a" }] },
+    { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#b0b0b0" }] },
+    { featureType: "transit", elementType: "geometry", stylers: [{ color: "#2d2d2d" }] },
+    { featureType: "water", elementType: "geometry", stylers: [{ color: "#0d2d4d" }] },
+    { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#4a6a8a" }] },
+  ],
+  restriction: {
+    latLngBounds: NEPAL_BOUNDS,
+    strictBounds: false,
+  },
+};
 
 interface LocationPickerProps {
   latitude: number;
@@ -31,250 +70,221 @@ interface LocationPickerProps {
   height?: string;
 }
 
-interface SearchResult {
-  place_id: number;
-  display_name: string;
-  lat: string;
-  lon: string;
-  type: string;
-  importance: number;
-}
-
-// Component to handle map clicks
-function MapClickHandler({
-  onLocationChange,
-}: {
-  onLocationChange: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-      onLocationChange(lat, lng);
-    },
-  });
-  return null;
-}
-
-// Component to update map center
-function MapUpdater({ center }: { center: [number, number] }) {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo(center, 13, {
-      duration: 1.5,
-    });
-  }, [center, map]);
-  return null;
-}
-
 export const LocationPicker: React.FC<LocationPickerProps> = ({
   latitude,
   longitude,
   onLocationChange,
   height = "400px",
 }) => {
-  const [mounted, setMounted] = useState(false);
-  const [position, setPosition] = useState<[number, number]>([
-    latitude,
-    longitude,
-  ]);
-  const markerRef = useRef<L.Marker>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [marker, setMarker] = useState<{ lat: number; lng: number }>({
+    lat: latitude || DEFAULT_CENTER.lat,
+    lng: longitude || DEFAULT_CENTER.lng,
+  });
+  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // Only render map on client side
+  // Load Google Maps
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "",
+    libraries,
+  });
+
+  // Update marker when props change
   useEffect(() => {
-    setMounted(true);
+    if (latitude && longitude) {
+      const newPos = { lat: latitude, lng: longitude };
+      setMarker(newPos);
+      if (map) {
+        map.panTo(newPos);
+      }
+    }
+  }, [latitude, longitude, map]);
+
+  // Handle map load
+  const onMapLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
   }, []);
 
-  // Update position when props change
-  useEffect(() => {
-    setPosition([latitude, longitude]);
-  }, [latitude, longitude]);
+  // Handle map click
+  const onMapClick = useCallback((e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setMarker({ lat, lng });
+      onLocationChange(lat, lng);
+      setSearchValue("");
+    }
+  }, [onLocationChange]);
 
-  const handleLocationChange = (lat: number, lng: number) => {
-    setPosition([lat, lng]);
-    onLocationChange(lat, lng);
-  };
+  // Handle autocomplete load
+  const onAutocompleteLoad = useCallback((auto: google.maps.places.Autocomplete) => {
+    setAutocomplete(auto);
+  }, []);
 
-  // Geocoding search function using Nominatim
-  const searchLocation = async (query: string) => {
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
+  // Handle place selection
+  const onPlaceChanged = useCallback(() => {
+    if (autocomplete) {
+      const place = autocomplete.getPlace();
+      if (place.geometry?.location) {
+        const lat = place.geometry.location.lat();
+        const lng = place.geometry.location.lng();
+        setMarker({ lat, lng });
+        onLocationChange(lat, lng);
+        setSearchValue(place.name || place.formatted_address || "");
+        if (map) {
+          map.panTo({ lat, lng });
+          map.setZoom(17);
+        }
+      }
+    }
+  }, [autocomplete, map, onLocationChange]);
+
+  // Get current location
+  const getCurrentLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
       return;
     }
 
-    setIsSearching(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query,
-        )}&limit=5&addressdetails=1`,
-      );
-      const data = await response.json();
-      setSearchResults(data);
-      setShowResults(true);
-    } catch (error) {
-      console.error("Error searching location:", error);
-      setSearchResults([]);
-    } finally {
-      setIsSearching(false);
-    }
-  };
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Check if within Nepal bounds
+        if (lat >= NEPAL_BOUNDS.south && lat <= NEPAL_BOUNDS.north &&
+            lng >= NEPAL_BOUNDS.west && lng <= NEPAL_BOUNDS.east) {
+          setMarker({ lat, lng });
+          onLocationChange(lat, lng);
+          if (map) {
+            map.panTo({ lat, lng });
+            map.setZoom(17);
+          }
+        } else {
+          alert("Your current location is outside Nepal. Please select a location within Nepal.");
+        }
+        setIsLocating(false);
+      },
+      (error) => {
+        console.error("Geolocation error:", error);
+        alert("Unable to get your location. Please select manually.");
+        setIsLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }, [map, onLocationChange]);
 
-  // Debounced search
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-
-    // Clear previous timeout
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    // Set new timeout for search
-    if (value.trim()) {
-      searchTimeoutRef.current = setTimeout(() => {
-        searchLocation(value);
-      }, 500);
-    } else {
-      setSearchResults([]);
-      setShowResults(false);
-    }
-  };
-
-  const handleSelectLocation = (result: SearchResult) => {
-    const lat = parseFloat(result.lat);
-    const lng = parseFloat(result.lon);
-    handleLocationChange(lat, lng);
-    setSearchQuery(result.display_name);
-    setShowResults(false);
-  };
-
+  // Clear search
   const handleClearSearch = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-    setShowResults(false);
+    setSearchValue("");
+    if (inputRef.current) {
+      inputRef.current.value = "";
+      inputRef.current.focus();
+    }
   };
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (searchTimeoutRef.current) {
-        clearTimeout(searchTimeoutRef.current);
-      }
-    };
-  }, []);
+  // Loading state
+  if (loadError) {
+    return (
+      <div className={styles.errorContainer} style={{ height }}>
+        <div className={styles.errorMessage}>
+          <FiMapPin size={24} />
+          <p>Failed to load Google Maps</p>
+          <span>Please check your internet connection</span>
+        </div>
+      </div>
+    );
+  }
 
-  // Don't render on server
-  if (!mounted) {
+  if (!isLoaded) {
     return (
       <div className={styles.mapPlaceholder} style={{ height }}>
-        <div className={styles.loading}>Loading map...</div>
+        <div className={styles.loading}>
+          <div className={styles.spinner} />
+          <span>Loading Google Maps...</span>
+        </div>
       </div>
     );
   }
 
   return (
     <div className={styles.locationPickerContainer}>
+      {/* Search Section */}
       <div className={styles.searchSection}>
         <div className={styles.searchContainer}>
           <FiSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            className={styles.searchInput}
-            placeholder="Search for a location (e.g., Kathmandu, Nepal)"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          {searchQuery && (
-            <button
-              className={styles.clearBtn}
-              onClick={handleClearSearch}
-              type="button"
-            >
+          <Autocomplete
+            onLoad={onAutocompleteLoad}
+            onPlaceChanged={onPlaceChanged}
+            options={{
+              componentRestrictions: { country: "np" },
+              fields: ["geometry", "name", "formatted_address"],
+              types: ["establishment", "geocode"],
+            }}
+          >
+            <input
+              ref={inputRef}
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search any place in Nepal..."
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+            />
+          </Autocomplete>
+          {searchValue && (
+            <button className={styles.clearBtn} onClick={handleClearSearch} type="button">
               <FiX />
             </button>
           )}
-          {isSearching && (
-            <div className={styles.searchSpinner}>
-              <div className={styles.spinner}></div>
-            </div>
-          )}
         </div>
-
-        {showResults && searchResults.length > 0 && (
-          <div className={styles.searchResults}>
-            {searchResults.map((result) => (
-              <button
-                key={result.place_id}
-                className={styles.searchResultItem}
-                onClick={() => handleSelectLocation(result)}
-                type="button"
-              >
-                <FiMapPin className={styles.resultIcon} />
-                <span className={styles.resultText}>{result.display_name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {showResults && searchResults.length === 0 && !isSearching && (
-          <div className={styles.noResults}>
-            <p>No locations found. Try a different search term.</p>
-          </div>
-        )}
+        
+        <button
+          className={styles.locationBtn}
+          onClick={getCurrentLocation}
+          disabled={isLocating}
+          type="button"
+          title="Use my current location"
+        >
+          <FiNavigation className={isLocating ? styles.locating : ""} />
+        </button>
       </div>
 
+      {/* Instructions */}
       <div className={styles.instructions}>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg>
-        <span>
-          Search for a location or click anywhere on the map to set it
-        </span>
+        <FiMapPin size={14} />
+        <span>Search a place or click on the map to set location</span>
       </div>
 
+      {/* Map */}
       <div className={styles.mapWrapper} style={{ height }}>
-        <MapContainer
-          center={position}
-          zoom={13}
-          style={{ height: "100%", width: "100%", borderRadius: "10px" }}
-          scrollWheelZoom={true}
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={marker}
+          zoom={15}
+          options={mapOptions}
+          onLoad={onMapLoad}
+          onClick={onMapClick}
         >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          <Marker
+            position={marker}
+            animation={google.maps.Animation.DROP}
           />
-          <MapClickHandler onLocationChange={handleLocationChange} />
-          <MapUpdater center={position} />
-          <Marker position={position} ref={markerRef} />
-        </MapContainer>
+        </GoogleMap>
       </div>
 
+      {/* Coordinates Display */}
       <div className={styles.coordinates}>
         <div className={styles.coordItem}>
-          <span className={styles.coordLabel}>Latitude:</span>
-          <span className={styles.coordValue}>{latitude.toFixed(6)}</span>
+          <span className={styles.coordLabel}>Latitude</span>
+          <span className={styles.coordValue}>{marker.lat.toFixed(6)}</span>
         </div>
         <div className={styles.coordItem}>
-          <span className={styles.coordLabel}>Longitude:</span>
-          <span className={styles.coordValue}>{longitude.toFixed(6)}</span>
+          <span className={styles.coordLabel}>Longitude</span>
+          <span className={styles.coordValue}>{marker.lng.toFixed(6)}</span>
         </div>
       </div>
     </div>
