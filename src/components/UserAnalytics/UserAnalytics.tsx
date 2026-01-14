@@ -35,28 +35,7 @@ const UserAnalytics: React.FC = () => {
         <div className={styles.container}>
             <div className={styles.sectionTitle}>User Analytics</div>
             
-            {/* 1. Summary Stats */}
-            <div className={styles.statsGrid}>
-                <div className={`${styles.statCard} ${styles.borderTotal}`}>
-                    <div className={styles.statTitle}>Total Users</div>
-                    <div className={styles.statValue}>{data.summary.total_users}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderNew}`}>
-                    <div className={styles.statTitle}>New Users (This Month)</div>
-                    <div className={styles.statValue}>{data.summary.new_users_this_month}</div>
-                     <div className={styles.subValue}>Today: {data.summary.new_users_today}</div>
-                </div>
-                 <div className={`${styles.statCard} ${styles.borderActive}`}>
-                    <div className={styles.statTitle}>Active Users</div>
-                    <div className={styles.statValue}>{data.summary.active_users}</div>
-                </div>
-                 <div className={`${styles.statCard} ${styles.borderInactive}`}>
-                    <div className={styles.statTitle}>Inactive Users</div>
-                    <div className={styles.statValue}>{data.summary.inactive_users}</div>
-                </div>
-            </div>
-
-            {/* 2. Charts Section */}
+            {/* Charts Section */}
             <div className={styles.chartsGrid}>
                  {/* Status Distribution */}
                 <div className={styles.chartCard} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -113,6 +92,26 @@ const UserAnalytics: React.FC = () => {
                             <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40} />
                         </BarChart>
                     </ResponsiveContainer>
+                </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className={styles.statsRow}>
+                <div className={`${styles.statCard} ${styles.borderTotal}`}>
+                    <span className={styles.statLabel}>Total Users</span>
+                    <span className={styles.statValue}>{data.summary.total_users}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderNew}`}>
+                    <span className={styles.statLabel}>New This Month</span>
+                    <span className={styles.statValue}>{data.summary.new_users_this_month}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderActive}`}>
+                    <span className={styles.statLabel}>Active</span>
+                    <span className={styles.statValue}>{data.summary.active_users}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderInactive}`}>
+                    <span className={styles.statLabel}>Inactive</span>
+                    <span className={styles.statValue}>{data.summary.inactive_users}</span>
                 </div>
             </div>
         </div>

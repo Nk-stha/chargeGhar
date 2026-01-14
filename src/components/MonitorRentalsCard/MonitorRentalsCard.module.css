@@ -1,12 +1,17 @@
 /* Monitor Rentals Card Styles */
 
 .card {
-    background: #121212;
-    border-radius: 10px;
-    padding: 1.5rem;
+    background: #141414;
+    border-radius: 12px;
+    padding: 1.25rem;
     color: #fff;
     width: 100%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    height: 100%;
+    min-height: 420px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #1e1e1e;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header */
@@ -14,33 +19,35 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #2a2a2a;
 }
 
 .headerLeft {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.15rem;
 }
 
 .headerRight {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem;
 }
 
 .card h2 {
-    font-size: 1.2rem;
-    color: #fff;
+    font-size: 1rem;
+    color: #e0e0e0;
     margin: 0;
     font-weight: 600;
 }
 
 .subtitle {
-    font-size: 0.875rem;
-    color: #82ea80;
+    font-size: 0.75rem;
+    color: #47b216;
     margin: 0;
 }
 
@@ -48,16 +55,16 @@
 .autoRefreshLabel {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
+    gap: 0.35rem;
+    font-size: 0.7rem;
     color: #888;
     cursor: pointer;
     user-select: none;
 }
 
 .autoRefreshLabel input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     cursor: pointer;
     accent-color: #47b216;
 }
@@ -192,6 +199,9 @@
     flex-direction: column;
     gap: 0.875rem;
     margin-bottom: 1rem;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 6px;
 }
 
 /* Rental Item */

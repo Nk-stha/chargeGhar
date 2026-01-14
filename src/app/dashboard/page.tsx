@@ -10,78 +10,76 @@ import RentalOverTime from "../../components/RentalOverTimeCard/RentalsOverTime"
 
 import MonitorRentals from "../../components/MonitorRentalsCard/MonitorRentalsCard";
 import RecentUpdates from "../../components/RecentUpdates/RecentUpdates";
-import SystemHealth from "../../components/SystemHealth/SystemHealth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/Tabs";
+import SystemHealth from "../../components/SystemHealth/SystemHealth"; // Now a banner
 import PaymentAnalyticsDashboard from "../../components/PaymentAnalytics/PaymentAnalyticsDashboard";
 import PowerBankRentalAnalytics from "../../components/PowerBankRentalAnalytics/PowerBankRentalAnalytics";
 import StationAnalytics from "../../components/StationAnalytics/StationAnalytics";
 import UserAnalytics from "../../components/UserAnalytics/UserAnalytics";
 
 const Dashboard: React.FC = () => {
-  return (
-    <div className={styles.dashboardContainer}>
-      <header className={styles.header}>
-        <h1>Dashboard</h1>
-        <p>
-          Welcome back, <span className={styles.adminName}>Admin</span>
-        </p>
-      </header>
-      
-      <section className={styles.topStats}>
-        <DashboardStats />
-      </section>
-      
-      <Tabs defaultValue="system">
-        <TabsList>
-            <TabsTrigger value="system">System</TabsTrigger>
-            <TabsTrigger value="revenue">Revenue</TabsTrigger>
-            <TabsTrigger value="rentals">Rentals</TabsTrigger>
-            <TabsTrigger value="stations">Stations</TabsTrigger>
-        </TabsList>
+    return (
+        <div className={styles.dashboardContainer}>
+            <header className={styles.header}>
+                <div className={styles.headerTitle}>
+                    <h1>Dashboard</h1>
+                    <p>
+                        Welcome back, <span className={styles.adminName}>Admin</span>
+                    </p>
+                </div>
+                <div className={styles.headerRight}>
+                    <SystemHealth />
+                </div>
+            </header>
 
-        <TabsContent value="system">
-             <section className={styles.twoColumn}>
-                <SystemHealth />
-                <RecentUpdates />
-             </section>
-        </TabsContent>
-
-        <TabsContent value="revenue">
-             <section className={styles.fullWidth}>
-                <PaymentAnalyticsDashboard />
-             </section>
-             <section className={styles.twoColumnLarge}>
-                <RevenueChart />
-             </section>
-             <section className={styles.twoColumn}>
-                <PopularPackages />
-                <RecentTransactions />
-             </section>
-             <section className={styles.fullWidth}>
-                <UserAnalytics />
-             </section>
-        </TabsContent>
-
-        <TabsContent value="rentals">
-             <section className={styles.fullWidth}>
-                <PowerBankRentalAnalytics />
-             </section>
-             <section className={styles.twoColumnLarge}>
-                <MonitorRentals />
-             </section>
-             <section className={styles.twoColumnLarge}>
-                <RentalOverTime />
-             </section>
-        </TabsContent>
-
-        <TabsContent value="stations">
-            <section className={styles.fullWidth}>
-                <StationAnalytics />
+            {/* Top Cards Section */}
+            <section className={styles.statsSection}>
+                <DashboardStats />
             </section>
-        </TabsContent>
-        </Tabs>
-    </div>
-  );
+
+            {/* Main Content Grid */}
+            <div className={styles.grid}>
+                {/* Row 1: High Level Trends (Side by Side) */}
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <RevenueChart />
+                </div>
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <RentalOverTime />
+                </div>
+
+                {/* Row 2: Analytics Dashboard */}
+                <div className={`${styles.col12} ${styles.hFull}`}>
+                    <StationAnalytics />
+                </div>
+                <div className={`${styles.col12} ${styles.hFull}`}>
+                    <PowerBankRentalAnalytics />
+                </div>
+                <div className={`${styles.col12} ${styles.hFull}`}>
+                     <UserAnalytics />
+                </div>
+
+                {/* Row 3: Activity Monitoring */}
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <MonitorRentals />
+                </div>
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <PopularPackages />
+                </div>
+
+                {/* Row 4: Transactions & Updates */}
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <RecentTransactions />
+                </div>
+                <div className={`${styles.col6} ${styles.hFull}`}>
+                    <RecentUpdates />
+                </div>
+
+                {/* Row 5: Financial Insights */}
+                <div className={`${styles.col12} ${styles.hFull}`}>
+                     <PaymentAnalyticsDashboard />
+                </div>
+            </div>
+        </div>
+    );
 };
 
 export default Dashboard;

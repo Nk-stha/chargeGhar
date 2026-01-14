@@ -2,7 +2,7 @@
 .layout {
     display: flex;
     min-height: 100vh;
-    background-color: #0a0a0a;
+    background-color: #0c0c0c;
 }
 
 .main {
@@ -12,9 +12,7 @@
     margin-left: 70px;
     padding-top: 60px;
     width: calc(100% - 70px);
-    transition:
-        margin-left 0.3s ease,
-        width 0.3s ease;
+    transition: margin-left 0.3s ease, width 0.3s ease;
 }
 
 .content {
@@ -23,174 +21,144 @@
 }
 
 /* Dashboard Page */
-.dashboardPage {
-    display: flex;
-    background-color: #0b0b0b;
-    min-height: 100vh;
-    font-family: "Poppins", sans-serif;
-    color: #fff;
-    overflow-x: hidden;
-}
-
-/* Main container beside sidebar */
 .dashboardContainer {
-    flex: 1;
-    padding: 2rem 3rem;
-    max-width: 100%;
+    padding: 1.5rem 2rem;
+    max-width: 1800px;
+    margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
 }
 
 /* Header */
 .header {
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
 }
 
-.header h1 {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #82ea80;
-    margin: 0 0 0.5rem 0;
+.headerTitle h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 0.2rem 0;
+    letter-spacing: -0.5px;
 }
 
-.header p {
-    color: #ccc;
-    font-size: 1rem;
+.headerTitle p {
+    color: #888;
+    font-size: 0.85rem;
     margin: 0;
 }
 
 .adminName {
-    color: #82ea80;
+    color: #47b216;
     font-weight: 600;
 }
 
-/* Top Statistics Section */
-.topStats {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* Revenue Chart full width */
-.revenueSection {
-    background: #121212;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    border: 1px solid #1a1a1a;
-}
-
-/* Two column large (Revenue + System Health) */
-.twoColumnLarge {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* Two column sections (Rental + Station Utilization - same as Revenue layout) */
-.twoColumn {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-/* Full width section */
-.fullWidth {
-    margin-bottom: 2rem;
-}
-
-/* Bottom section stacked vertically */
-.bottomSection {
+.headerRight {
+    flex: 1;
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    justify-content: flex-end;
+    max-width: 600px;
 }
 
-/* Large Tablet (1200px and below) */
-@media (max-width: 1200px) {
-    .dashboardContainer {
-        padding: 1.75rem 2.5rem;
-    }
+/* Stats Section - Horizontal Layout */
+.statsSection {
+    display: grid;
+    grid-template-columns: 1fr repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
 
-    .twoColumnLarge {
-        grid-template-columns: 1.4fr 1fr;
+/* Health Banner */
+.healthSection {
+    margin-bottom: 1.25rem;
+}
+
+/* Main Grid System */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.25rem;
+    width: 100%;
+}
+
+/* Grid Spans */
+.col12 { grid-column: span 12; }
+.col8  { grid-column: span 8; }
+.col6  { grid-column: span 6; }
+.col4  { grid-column: span 4; }
+.col3  { grid-column: span 3; }
+
+/* Height Utils */
+.hFull { 
+    height: 100%;
+    min-height: 0;
+}
+
+/* Component Cards - Ensure proper height */
+.hFull > * {
+    height: 100%;
+}
+
+/* Media Queries */
+@media (max-width: 1600px) {
+    .col3 { grid-column: span 4; }
+}
+
+@media (max-width: 1400px) {
+    .col4 { grid-column: span 6; }
+    .col8 { grid-column: span 12; }
+    
+    .statsSection {
+        grid-template-columns: repeat(5, 1fr);
     }
 }
 
-/* 1024px*/
+@media (max-width: 1280px) {
+    .col3 { grid-column: span 6; }
+}
+
 @media (max-width: 1024px) {
-    .main {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .dashboardContainer {
-        padding: 1.5rem 2rem;
-    }
-
-    .header h1 {
-        font-size: 1.75rem;
-    }
-
-    .topStats {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 1.25rem;
-    }
-
-    .twoColumnLarge {
-        grid-template-columns: 1fr;
-        gap: 1.25rem;
-    }
-
-    .twoColumn {
-        grid-template-columns: 1.4fr 1fr;
-        gap: 1.25rem;
-    }
-
-    .revenueSection {
-        padding: 1.25rem;
+    .main { margin-left: 0; width: 100%; }
+    .dashboardContainer { padding: 1rem 1.25rem; }
+    
+    .col6 { grid-column: span 12; }
+    
+    .statsSection {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 
-/* 768px - Mobile */
 @media (max-width: 768px) {
-    .main {
-        margin-left: 0;
+    .header { 
+        flex-direction: column; 
+        align-items: flex-start; 
+        gap: 0.75rem; 
+    }
+    
+    .headerRight {
         width: 100%;
-        padding-top: 60px;
+        max-width: 100%;
     }
-
-    .dashboardContainer {
-        padding: 1.5rem 1rem;
+    
+    .statsSection {
+        grid-template-columns: repeat(2, 1fr);
     }
-
-    .twoColumn {
-        grid-template-columns: 1fr;
-    }
+    .col4, .col3 { grid-column: span 12; }
+    .grid { gap: 1rem; }
 }
 
-/* 480px - Small Mobile */
 @media (max-width: 480px) {
-    .main {
-        padding-top: 60px;
+    .dashboardContainer { padding: 0.75rem; }
+    
+    .statsSection {
+        grid-template-columns: 1fr;
     }
-
-    .dashboardContainer {
-        padding: 1rem 0.75rem;
-    }
-
-    .header h1 {
-        font-size: 1.5rem;
-    }
-
-    .topStats {
-        gap: 1rem;
-    }
-
-    .revenueSection {
-        padding: 1rem;
+    
+    .headerTitle h1 {
+        font-size: 1.4rem;
     }
 }

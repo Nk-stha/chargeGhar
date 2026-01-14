@@ -1,97 +1,140 @@
 .card {
-    background: #121212;
-    border-radius: 10px;
-    padding: 1.5rem;
+    background: #141414;
+    border-radius: 12px;
+    padding: 1.25rem;
     color: #fff;
     width: 100%;
+    border: 1px solid #1a1a1a;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
 }
 
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: #e0e0e0;
 }
 
 .subtitle {
-    font-size: 0.9rem;
-    color: #82ea80;
-    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    color: #47b216;
+    background: rgba(71, 178, 22, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-decoration: none;
 }
 
 .subtitle:hover {
-    color: #47b216;
-    text-decoration: underline;
+    background: rgba(71, 178, 22, 0.2);
 }
 
 .list {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 4px; /* for scrollbar */
+}
+
+/* Custom scrollbar */
+.list::-webkit-scrollbar {
+    width: 4px;
+}
+.list::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+.list::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 2px;
 }
 
 .updateItem {
     display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-    background: #1a1a1a;
-    padding: 0.8rem 1rem;
-    border-radius: 8px;
-    transition: all 0.3s ease;
+    gap: 0.8rem;
+    align-items: center;
+    background: transparent;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
 }
 
 .updateItem:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 0 10px rgba(130, 234, 128, 0.15);
+    background: #1a1a1a;
+    border-color: #2a2a2a;
 }
 
 .iconContainer {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #202020;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     flex-shrink: 0;
 }
 
-.successIcon {
-    color: #82ea80;
-    font-size: 1.3rem;
+.successIcon, .warningIcon, .infoIcon {
+    font-size: 0.9rem;
 }
 
-.warningIcon {
-    color: #ffc107;
-    font-size: 1.3rem;
-}
+.successIcon { color: #82ea80; }
+.warningIcon { color: #ffc107; }
+.infoIcon { color: #47b216; }
 
-.infoIcon {
-    color: #47b216;
-    font-size: 1.3rem;
+.details {
+    flex: 1;
+    min-width: 0; /* text truncation work needs this */
 }
 
 .details h3 {
-    font-size: 1rem;
+    font-size: 0.85rem;
     margin: 0;
-    color: #fff;
+    color: #ddd;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .details p {
-    font-size: 0.85rem;
-    color: #aaa;
-    margin: 4px 0;
+    font-size: 0.75rem;
+    color: #888;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .time {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: #666;
+    margin-left: auto;
+    white-space: nowrap;
 }
 
 .loading,
 .error,
 .noData {
     text-align: center;
-    color: #888;
+    color: #666;
     padding: 2rem;
+    font-size: 0.85rem;
 }
+

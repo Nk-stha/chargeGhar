@@ -50,31 +50,9 @@ const PowerBankRentalAnalytics: React.FC = () => {
 
     return (
         <div className={styles.container}>
-            {/* 1. Summary Stats */}
-            <div className={`${styles.statsGrid} ${styles.statsGridLarge}`}>
-                <div className={`${styles.statCard} ${styles.borderTotal}`}>
-                    <div className={styles.statTitle}>Total Rentals</div>
-                    <div className={styles.statValue}>{data.summary.total_rentals}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderActive}`}>
-                    <div className={styles.statTitle}>Active</div>
-                    <div className={styles.statValue}>{data.summary.active_rentals}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderOverdue}`}>
-                    <div className={styles.statTitle}>Overdue</div>
-                    <div className={styles.statValue}>{data.summary.overdue_rentals}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderCompleted}`}>
-                    <div className={styles.statTitle}>Completed</div>
-                    <div className={styles.statValue}>{data.summary.completed_rentals}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderCancelled}`}>
-                    <div className={styles.statTitle}>Cancelled</div>
-                    <div className={styles.statValue}>{data.summary.cancelled_rentals}</div>
-                </div>
-            </div>
-
-            {/* 2. Charts Section */}
+            <div className={styles.sectionTitle}>PowerBank Rental Analytics</div>
+            
+            {/* Charts Section */}
             <div className={styles.chartsGrid}>
                 {/* Status Distribution */}
                 <div className={styles.chartCard} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -240,6 +218,30 @@ const PowerBankRentalAnalytics: React.FC = () => {
                             No gateway data available
                         </div>
                     )}
+                </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className={styles.statsRow}>
+                <div className={`${styles.statCard} ${styles.borderTotal}`}>
+                    <span className={styles.statLabel}>Total Rentals</span>
+                    <span className={styles.statValue}>{data.summary.total_rentals}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderActive}`}>
+                    <span className={styles.statLabel}>Active</span>
+                    <span className={styles.statValue}>{data.summary.active_rentals}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderOverdue}`}>
+                    <span className={styles.statLabel}>Overdue</span>
+                    <span className={styles.statValue}>{data.summary.overdue_rentals}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderCompleted}`}>
+                    <span className={styles.statLabel}>Completed</span>
+                    <span className={styles.statValue}>{data.summary.completed_rentals}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderCancelled}`}>
+                    <span className={styles.statLabel}>Cancelled</span>
+                    <span className={styles.statValue}>{data.summary.cancelled_rentals}</span>
                 </div>
             </div>
         </div>

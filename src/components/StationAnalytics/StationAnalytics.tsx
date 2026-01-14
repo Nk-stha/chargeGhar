@@ -40,31 +40,9 @@ const StationAnalytics: React.FC = () => {
 
     return (
         <div className={styles.container}>
-            {/* 1. Summary Stats */}
-            <div className={`${styles.statsGrid} ${styles.statsGridLarge}`}>
-                <div className={`${styles.statCard} ${styles.borderTotal}`}>
-                    <div className={styles.statTitle}>Total Stations</div>
-                    <div className={styles.statValue}>{data.summary.total_stations}</div>
-                </div>
-                <div className={`${styles.statCard} ${styles.borderOnline}`}>
-                    <div className={styles.statTitle}>Online</div>
-                    <div className={styles.statValue}>{data.summary.online_stations}</div>
-                </div>
-                 <div className={`${styles.statCard} ${styles.borderOffline}`}>
-                    <div className={styles.statTitle}>Offline</div>
-                    <div className={styles.statValue}>{data.summary.offline_stations}</div>
-                </div>
-                 <div className={`${styles.statCard} ${styles.borderSlots}`}>
-                    <div className={styles.statTitle}>Total Slots</div>
-                    <div className={styles.statValue}>{data.summary.total_slots}</div>
-                </div>
-                 <div className={`${styles.statCard} ${styles.borderUtilization}`}>
-                    <div className={styles.statTitle}>Utilization</div>
-                    <div className={styles.statValue}>{data.summary.utilization_rate}%</div>
-                </div>
-            </div>
-
-            {/* 2. Charts Section */}
+            <div className={styles.sectionTitle}>Station Analytics</div>
+            
+            {/* Charts Section */}
             <div className={styles.chartsGrid}>
                  {/* Status Distribution */}
                 <div className={styles.chartCard} style={{ display: 'flex', flexDirection: 'column' }}>
@@ -171,6 +149,30 @@ const StationAnalytics: React.FC = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className={styles.statsRow}>
+                <div className={`${styles.statCard} ${styles.borderTotal}`}>
+                    <span className={styles.statLabel}>Total Stations</span>
+                    <span className={styles.statValue}>{data.summary.total_stations}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderOnline}`}>
+                    <span className={styles.statLabel}>Online</span>
+                    <span className={styles.statValue}>{data.summary.online_stations}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderOffline}`}>
+                    <span className={styles.statLabel}>Offline</span>
+                    <span className={styles.statValue}>{data.summary.offline_stations}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderSlots}`}>
+                    <span className={styles.statLabel}>Total Slots</span>
+                    <span className={styles.statValue}>{data.summary.total_slots}</span>
+                </div>
+                <div className={`${styles.statCard} ${styles.borderUtilization}`}>
+                    <span className={styles.statLabel}>Utilization</span>
+                    <span className={styles.statValue}>{data.summary.utilization_rate}%</span>
                 </div>
             </div>
         </div>

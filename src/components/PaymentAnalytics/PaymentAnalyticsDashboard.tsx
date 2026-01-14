@@ -36,35 +36,9 @@ const PaymentAnalyticsDashboard: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* 1. Summary Stats */}
-      <div className={styles.statsGrid}>
-        <div className={`${styles.statCard} ${styles.borderPrimary}`}>
-          <div className={styles.statTitle}>Total Revenue</div>
-          <div className={`${styles.statValue} ${styles.textPrimary}`}>
-             {analyticsService.formatCurrency(data.summary.total_revenue)}
-          </div>
-        </div>
-        <div className={`${styles.statCard} ${styles.borderSuccess}`}>
-            <div className={styles.statTitle}>Total Transactions</div>
-            <div className={styles.statValue}>
-                {data.summary.total_transactions}
-            </div>
-        </div>
-        <div className={`${styles.statCard} ${styles.borderInfo}`}>
-             <div className={styles.statTitle}>Rental Revenue</div>
-             <div className={`${styles.statValue} ${styles.textInfo}`}>
-                {analyticsService.formatCurrency(data.summary.rental_revenue)}
-             </div>
-        </div>
-        <div className={`${styles.statCard} ${styles.borderWarning}`}>
-             <div className={styles.statTitle}>Top-up Revenue</div>
-             <div className={styles.statValue}>
-                 {analyticsService.formatCurrency(data.summary.topup_revenue)}
-             </div>
-        </div>
-      </div>
-
-      {/* 2. Charts Section */}
+      <div className={styles.sectionTitle}>Payment Analytics</div>
+      
+      {/* Charts Section */}
       <div className={styles.chartsGrid}>
         {/* Gateway Performance */}
         <div className={styles.chartCard}>
@@ -143,6 +117,26 @@ const PaymentAnalyticsDashboard: React.FC = () => {
                     ))}
                 </div>
              </div>
+        </div>
+      </div>
+
+      {/* Summary Stats */}
+      <div className={styles.statsRow}>
+        <div className={`${styles.statCard} ${styles.borderPrimary}`}>
+          <span className={styles.statLabel}>Total Revenue</span>
+          <span className={styles.statValue}>{analyticsService.formatCurrency(data.summary.total_revenue)}</span>
+        </div>
+        <div className={`${styles.statCard} ${styles.borderSuccess}`}>
+          <span className={styles.statLabel}>Total Transactions</span>
+          <span className={styles.statValue}>{data.summary.total_transactions}</span>
+        </div>
+        <div className={`${styles.statCard} ${styles.borderInfo}`}>
+          <span className={styles.statLabel}>Rental Revenue</span>
+          <span className={styles.statValue}>{analyticsService.formatCurrency(data.summary.rental_revenue)}</span>
+        </div>
+        <div className={`${styles.statCard} ${styles.borderWarning}`}>
+          <span className={styles.statLabel}>Top-up Revenue</span>
+          <span className={styles.statValue}>{analyticsService.formatCurrency(data.summary.topup_revenue)}</span>
         </div>
       </div>
 
