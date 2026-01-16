@@ -35,6 +35,9 @@ export interface StationDetail {
   longitude: string;
   address: string;
   landmark: string | null;
+  description?: string;
+  opening_time?: string;
+  closing_time?: string;
   total_slots: number;
   status: StationStatus;
   is_maintenance: boolean;
@@ -189,6 +192,10 @@ export interface CreateStationInput {
   hardware_info?: HardwareInfo;
   amenity_ids?: string[];
   media_uploads?: MediaUpload[];
+  description?: string;
+  opening_time?: string;
+  closing_time?: string;
+  powerbank_assignments?: PowerbankAssignmentInput[];
 }
 
 export interface UpdateStationInput {
@@ -202,6 +209,10 @@ export interface UpdateStationInput {
   hardware_info?: HardwareInfo;
   amenity_ids?: string[];
   media_uploads?: MediaUpload[];
+  description?: string;
+  opening_time?: string;
+  closing_time?: string;
+  powerbank_assignments?: PowerbankAssignmentInput[];
 }
 
 export interface CreateAmenityInput {
@@ -221,6 +232,11 @@ export interface UpdateAmenityInput {
 export interface UploadMediaInput {
   file: File;
   file_type: MediaFileType;
+}
+
+export interface PowerbankAssignmentInput {
+  powerbank_serial: string;
+  slot_number: number;
 }
 
 // Filter Types

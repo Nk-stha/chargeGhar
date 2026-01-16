@@ -222,6 +222,18 @@ export default function StationDetailsPage() {
               <label>Station Name:</label>
               <span>{station.station_name}</span>
             </div>
+            {station.description && (
+              <div className={styles.row}>
+                <label>Description:</label>
+                <span>{station.description}</span>
+              </div>
+            )}
+            <div className={styles.row}>
+              <label>Operating Hours:</label>
+              <span>
+                {station.opening_time} - {station.closing_time}
+              </span>
+            </div>
             <div className={styles.row}>
               <label>Serial Number:</label>
               <span className={styles.monospace}>{station.serial_number}</span>
@@ -363,11 +375,20 @@ export default function StationDetailsPage() {
               <div className={styles.mediaGrid}>
                 {station.media.map((media) => (
                   <div key={media.id} className={styles.mediaItem}>
-                    <img
-                      src={media.thumbnail_url || media.file_url}
-                      alt={media.title}
-                      className={styles.mediaImage}
-                    />
+                    {media.media_type === "VIDEO" ||
+                    media.file_type === "VIDEO" ? (
+                      <video
+                        src={media.file_url}
+                        controls
+                        className={styles.mediaImage}
+                      />
+                    ) : (
+                      <img
+                        src={media.thumbnail_url || media.file_url}
+                        alt={media.title}
+                        className={styles.mediaImage}
+                      />
+                    )}
                     <div className={styles.mediaInfo}>
                       <span className={styles.mediaTitle}>{media.title}</span>
                       {media.is_primary && (

@@ -1,5 +1,5 @@
 // Station Management Components
-export { ImageUpload } from "./ImageUpload";
+export { default as ImageUpload } from "./ImageUpload";
 export { AmenitySelector } from "./AmenitySelector";
 export { LocationPicker } from "./LocationPicker";
 

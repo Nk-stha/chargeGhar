@@ -97,6 +97,10 @@ class StationsService {
       hardware_info: data.hardware_info || {},
       amenity_ids: data.amenity_ids || [],
       media_uploads: data.media_uploads || [],
+      description: data.description,
+      opening_time: data.opening_time,
+      closing_time: data.closing_time,
+      powerbank_assignments: data.powerbank_assignments,
     };
 
     const response = await instance.post<ApiResponse<StationDetail>>(
@@ -152,6 +156,24 @@ class StationsService {
       } else {
         // Send empty array as JSON string to clear media
         formData.append("media_uploads", "[]");
+      }
+    }
+
+    if (data.description !== undefined)
+      formData.append("description", data.description);
+    if (data.opening_time !== undefined)
+      formData.append("opening_time", data.opening_time);
+    if (data.closing_time !== undefined)
+      formData.append("closing_time", data.closing_time);
+
+    if (data.powerbank_assignments !== undefined) {
+      if (data.powerbank_assignments.length > 0) {
+        formData.append(
+          "powerbank_assignments",
+          JSON.stringify(data.powerbank_assignments)
+        );
+      } else {
+        formData.append("powerbank_assignments", "[]");
       }
     }
 
@@ -273,10 +295,26 @@ class StationsService {
       }
     }
 
+    // Validate times
+    if (data.opening_time && !this.isValidTime(data.opening_time)) {
+      errors.push("Opening time must be in HH:MM format");
+    }
+    if (data.closing_time && !this.isValidTime(data.closing_time)) {
+      errors.push("Closing time must be in HH:MM format");
+    }
+
     return {
       valid: errors.length === 0,
       errors,
     };
+  }
+
+  /**
+   * Validate time format (HH:MM)
+   */
+  isValidTime(time: string): boolean {
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/;
+    return timeRegex.test(time);
   }
 
   /**
@@ -290,7 +328,7 @@ class StationsService {
       station.available_slots !== undefined
         ? station.available_slots
         : station.slots?.filter((slot) => slot.status === "AVAILABLE").length ||
-          0;
+        0;
 
     return Math.round(
       ((station.total_slots - availableSlots) / station.total_slots) * 100,

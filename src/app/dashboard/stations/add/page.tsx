@@ -14,10 +14,12 @@ import stationsService from "../../../../lib/api/stations.service";
 import ImageUpload from "../../../../components/StationManagement/ImageUpload";
 import AmenitySelector from "../../../../components/StationManagement/AmenitySelector";
 import LocationPicker from "../../../../components/StationManagement/LocationPicker";
+import PowerbankAssignment from "../../../../components/StationManagement/PowerbankAssignment";
 import {
   CreateStationInput,
   StationStatus,
   Media,
+  PowerbankAssignmentInput,
 } from "../../../../types/station.types";
 
 const AddStationPage: React.FC = () => {
@@ -46,6 +48,10 @@ const AddStationPage: React.FC = () => {
     },
     amenity_ids: [],
     media_uploads: [],
+    description: "",
+    opening_time: "09:00",
+    closing_time: "21:00",
+    powerbank_assignments: [],
   });
 
   const [validationErrors, setValidationErrors] = useState<{
@@ -363,6 +369,79 @@ const AddStationPage: React.FC = () => {
                   <span>Maintenance Mode</span>
                 </label>
               </div>
+
+
+              <div
+                className={styles.formGroup}
+                style={{ gridColumn: "1 / -1" }}
+              >
+                <label className={styles.label}>Description</label>
+                <textarea
+                  className={styles.textarea}
+                  placeholder="Enter station description..."
+                  rows={3}
+                  value={formData.description || ""}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Opening Time</label>
+                <input
+                  className={styles.input}
+                  type="time"
+                  value={formData.opening_time || "09:00"}
+                  onChange={(e) =>
+                    handleInputChange("opening_time", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Closing Time</label>
+                <input
+                  className={styles.input}
+                  type="time"
+                  value={formData.closing_time || "21:00"}
+                  onChange={(e) =>
+                    handleInputChange("closing_time", e.target.value)
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Firmware Version</label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  placeholder="e.g., 1.0.0"
+                  value={formData.hardware_info?.firmware_version || ""}
+                  onChange={(e) =>
+                    handleInputChange("hardware_info", {
+                      ...formData.hardware_info,
+                      firmware_version: e.target.value,
+                    })
+                  }
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Hardware Version</label>
+                <input
+                  className={styles.input}
+                  type="text"
+                  placeholder="e.g., 1.0"
+                  value={formData.hardware_info?.hardware_version || ""}
+                  onChange={(e) =>
+                    handleInputChange("hardware_info", {
+                      ...formData.hardware_info,
+                      hardware_version: e.target.value,
+                    })
+                  }
+                />
+              </div>
             </div>
           </div>
         );
@@ -466,6 +545,14 @@ const AddStationPage: React.FC = () => {
               label="Available Amenities"
               description="Select amenities available at this station"
             />
+
+            <PowerbankAssignment
+              totalSlots={formData.total_slots || 0}
+              assignments={formData.powerbank_assignments || []}
+              onChange={(assignments: PowerbankAssignmentInput[]) =>
+                handleInputChange("powerbank_assignments", assignments)
+              }
+            />
           </div>
         );
 
@@ -504,6 +591,12 @@ const AddStationPage: React.FC = () => {
                     </span>
                   </div>
                   <div className={styles.reviewItem}>
+                    <span className={styles.reviewLabel}>Description:</span>
+                    <span className={styles.reviewValue}>
+                      {formData.description || "N/A"}
+                    </span>
+                  </div>
+                  <div className={styles.reviewItem}>
                     <span className={styles.reviewLabel}>Address:</span>
                     <span className={styles.reviewValue}>
                       {formData.address}
@@ -526,9 +619,33 @@ const AddStationPage: React.FC = () => {
                     </span>
                   </div>
                   <div className={styles.reviewItem}>
+                    <span className={styles.reviewLabel}>Operating Hours:</span>
+                    <span className={styles.reviewValue}>
+                      {formData.opening_time} - {formData.closing_time}
+                    </span>
+                  </div>
+                  <div className={styles.reviewItem}>
                     <span className={styles.reviewLabel}>Maintenance:</span>
                     <span className={styles.reviewValue}>
                       {formData.is_maintenance ? "Yes" : "No"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.reviewCard}>
+                <h3>Hardware Information</h3>
+                <div className={styles.reviewGrid}>
+                  <div className={styles.reviewItem}>
+                    <span className={styles.reviewLabel}>Firmware Version:</span>
+                    <span className={styles.reviewValue}>
+                      {formData.hardware_info?.firmware_version || "N/A"}
+                    </span>
+                  </div>
+                  <div className={styles.reviewItem}>
+                    <span className={styles.reviewLabel}>Hardware Version:</span>
+                    <span className={styles.reviewValue}>
+                      {formData.hardware_info?.hardware_version || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -586,6 +703,13 @@ const AddStationPage: React.FC = () => {
                   <span className={styles.reviewLabel}>Amenities:</span>
                   <span className={styles.reviewValue}>
                     {formData.amenity_ids?.length || 0} amenity(ies) selected
+                  </span>
+                </div>
+                <div className={styles.reviewItem}>
+                  <span className={styles.reviewLabel}>Powerbanks:</span>
+                  <span className={styles.reviewValue}>
+                    {formData.powerbank_assignments?.length || 0} /{" "}
+                    {formData.total_slots} slots assigned
                   </span>
                 </div>
               </div>
