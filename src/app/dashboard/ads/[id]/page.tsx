@@ -2,7 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { FiRefreshCw, FiUser, FiCalendar, FiDollarSign, FiImage, FiMapPin, FiCreditCard } from "react-icons/fi";
+import Link from "next/link";
+import { FiRefreshCw, FiUser, FiCalendar, FiImage, FiMapPin, FiCreditCard, FiChevronRight, FiEye } from "react-icons/fi";
+import { MdEvStation } from "react-icons/md";
 import adsService from "@/lib/api/ads.service";
 import { AdRequestDetail } from "@/types/ads.types";
 import ReviewAdModal from "@/app/dashboard/ads/components/ReviewAdModal";
@@ -10,7 +12,7 @@ import ActionModal from "@/app/dashboard/ads/components/ActionModal";
 import UpdateScheduleModal from "@/app/dashboard/ads/components/UpdateScheduleModal";
 import styles from "./adDetail.module.css";
 
-const AdDetailPage: React.FC = () => {
+function AdDetailPage() {
   const router = useRouter();
   const params = useParams();
   const adId = params.id as string;
@@ -19,7 +21,6 @@ const AdDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Modal states
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showActionModal, setShowActionModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -36,9 +37,12 @@ const AdDetailPage: React.FC = () => {
       } else {
         setError("Failed to fetch ad details");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching ad detail:", err);
-      setError(err.response?.data?.message || "Failed to fetch ad details");
+      const errorMessage = err instanceof Error && 'response' in err 
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : "Failed to fetch ad details";
+      setError(errorMessage || "Failed to fetch ad details");
     } finally {
       setLoading(false);
     }
@@ -70,6 +74,16 @@ const AdDetailPage: React.FC = () => {
     return statusMap[status] || styles.statusGray;
   };
 
+  const getTimelineProgress = (): number => {
+    if (!ad) return 0;
+    let completed = 0;
+    if (ad.submitted_at) completed++;
+    if (ad.reviewed_at) completed++;
+    if (ad.approved_at) completed++;
+    if (ad.paid_at) completed++;
+    return (completed / 4) * 100;
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -96,43 +110,42 @@ const AdDetailPage: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <button onClick={() => router.back()} className={styles.backBtn}>
-          ← Back to Ads
-        </button>
-        <div className={styles.headerContent}>
-          <div className={styles.headerLeft}>
+      <header className={styles.stickyHeader}>
+        <div className={styles.headerInner}>
+          <nav className={styles.breadcrumb}>
+            <Link href="/dashboard/ads">Ads</Link>
+            <FiChevronRight className={styles.breadcrumbSeparator} />
+            <Link href="/dashboard/ads">Ad Requests</Link>
+            <FiChevronRight className={styles.breadcrumbSeparator} />
+            <span className={styles.breadcrumbCurrent}>{ad.title || "Untitled Ad"}</span>
+          </nav>
+        </div>
+      </header>
+
+      <main className={styles.mainContent}>
+        <div className={styles.pageHeader}>
+          <div className={styles.titleSection}>
             <h1>{ad.title || "Untitled Ad"}</h1>
-            <div className={styles.headerMeta}>
+            <div className={styles.titleMeta}>
               <span className={`${styles.statusBadge} ${getStatusBadgeClass(ad.status)}`}>
                 {ad.status.replace(/_/g, " ")}
               </span>
               <span className={styles.adId}>ID: {ad.id}</span>
             </div>
           </div>
-          <div className={styles.headerActions}>
+          <div className={styles.actionButtons}>
             {adsService.canReview(ad.status) && (
-              <button
-                onClick={() => setShowReviewModal(true)}
-                className={styles.primaryBtn}
-              >
+              <button onClick={() => setShowReviewModal(true)} className={styles.primaryBtn}>
                 Review & Configure
               </button>
             )}
             {adsService.getAvailableActions(ad.status).length > 0 && (
-              <button
-                onClick={() => setShowActionModal(true)}
-                className={styles.actionBtn}
-              >
+              <button onClick={() => setShowActionModal(true)} className={styles.actionBtn}>
                 Execute Action
               </button>
             )}
             {adsService.canUpdateSchedule(ad.status) && (
-              <button
-                onClick={() => setShowScheduleModal(true)}
-                className={styles.secondaryBtn}
-              >
+              <button onClick={() => setShowScheduleModal(true)} className={styles.secondaryBtn}>
                 Update Schedule
               </button>
             )}
@@ -141,51 +154,84 @@ const AdDetailPage: React.FC = () => {
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Timeline */}
-      <div className={styles.timelineCard}>
-        <h3 className={styles.cardTitle}>Progress Timeline</h3>
-        <div className={styles.timeline}>
-          <div className={`${styles.timelineItem} ${ad.submitted_at ? styles.completed : ""}`}>
-            <div className={styles.timelineDot}></div>
-            <div className={styles.timelineContent}>
-              <h4>Submitted</h4>
-              <p>{adsService.formatDateTime(ad.submitted_at)}</p>
+        <section className={styles.timelineCard}>
+          <h2 className={styles.sectionTitle}>Progress Timeline</h2>
+          <div className={styles.timeline}>
+            <div className={styles.timelineLine}>
+              <div className={styles.timelineProgress} style={{ width: `${getTimelineProgress()}%` }}></div>
             </div>
-          </div>
-          <div className={`${styles.timelineItem} ${ad.reviewed_at ? styles.completed : ""}`}>
-            <div className={styles.timelineDot}></div>
-            <div className={styles.timelineContent}>
-              <h4>Reviewed</h4>
-              <p>{ad.reviewed_at ? adsService.formatDateTime(ad.reviewed_at) : "Pending"}</p>
-              {ad.reviewed_by && <span className={styles.timelineBy}>by {ad.reviewed_by.username}</span>}
+            
+            <div className={`${styles.timelineItem} ${ad.submitted_at ? styles.completed : styles.pending}`}>
+              <div className={styles.timelineDot}>
+                {ad.submitted_at ? (
+                  <span className={styles.timelineCheck}>✓</span>
+                ) : (
+                  <span className={styles.timelineDotInner}></span>
+                )}
+              </div>
+              <div className={styles.timelineContent}>
+                <p className={styles.timelineLabel}>Submitted</p>
+                <p className={styles.timelineDate}>
+                  {ad.submitted_at ? adsService.formatDateTime(ad.submitted_at) : "Pending"}
+                </p>
+              </div>
             </div>
-          </div>
-          <div className={`${styles.timelineItem} ${ad.approved_at ? styles.completed : ""}`}>
-            <div className={styles.timelineDot}></div>
-            <div className={styles.timelineContent}>
-              <h4>Approved</h4>
-              <p>{ad.approved_at ? adsService.formatDateTime(ad.approved_at) : "Pending"}</p>
-              {ad.approved_by && <span className={styles.timelineBy}>by {ad.approved_by.username}</span>}
-            </div>
-          </div>
-          <div className={`${styles.timelineItem} ${ad.paid_at ? styles.completed : ""}`}>
-            <div className={styles.timelineDot}></div>
-            <div className={styles.timelineContent}>
-              <h4>Paid</h4>
-              <p>{ad.paid_at ? adsService.formatDateTime(ad.paid_at) : "Pending"}</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Main Content Grid */}
-      <div className={styles.contentGrid}>
-        {/* Left Column */}
-        <div className={styles.leftColumn}>
-          {/* Requester Information */}
-          <div className={styles.card}>
+            <div className={`${styles.timelineItem} ${ad.reviewed_at ? styles.completed : styles.pending}`}>
+              <div className={styles.timelineDot}>
+                {ad.reviewed_at ? (
+                  <span className={styles.timelineCheck}>✓</span>
+                ) : (
+                  <span className={styles.timelineDotInner}></span>
+                )}
+              </div>
+              <div className={styles.timelineContent}>
+                <p className={styles.timelineLabel}>Reviewed</p>
+                <p className={styles.timelineDate}>
+                  {ad.reviewed_at ? adsService.formatDateTime(ad.reviewed_at) : "Pending"}
+                </p>
+                {ad.reviewed_by && <span className={styles.timelineBy}>by {ad.reviewed_by.username}</span>}
+              </div>
+            </div>
+
+            <div className={`${styles.timelineItem} ${ad.approved_at ? styles.completed : styles.pending}`}>
+              <div className={styles.timelineDot}>
+                {ad.approved_at ? (
+                  <span className={styles.timelineCheck}>✓</span>
+                ) : (
+                  <span className={styles.timelineDotInner}></span>
+                )}
+              </div>
+              <div className={styles.timelineContent}>
+                <p className={styles.timelineLabel}>Approved</p>
+                <p className={styles.timelineDate}>
+                  {ad.approved_at ? adsService.formatDateTime(ad.approved_at) : "Pending"}
+                </p>
+                {ad.approved_by && <span className={styles.timelineBy}>by {ad.approved_by.username}</span>}
+              </div>
+            </div>
+
+            <div className={`${styles.timelineItem} ${ad.paid_at ? styles.completed : styles.pending}`}>
+              <div className={styles.timelineDot}>
+                {ad.paid_at ? (
+                  <span className={styles.timelineCheck}>✓</span>
+                ) : (
+                  <span className={styles.timelineDotInner}></span>
+                )}
+              </div>
+              <div className={styles.timelineContent}>
+                <p className={styles.timelineLabel}>Paid</p>
+                <p className={styles.timelineDate}>
+                  {ad.paid_at ? adsService.formatDateTime(ad.paid_at) : "Pending"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div className={styles.contentGrid}>
+          <section className={styles.card}>
             <div className={styles.cardHeader}>
               <FiUser className={styles.cardIcon} />
               <h3>Requester Information</h3>
@@ -212,19 +258,18 @@ const AdDetailPage: React.FC = () => {
                 <span className={styles.value}>{ad.user.id}</span>
               </div>
             </div>
-          </div>
+          </section>
 
-          {/* Ad Details */}
-          <div className={styles.card}>
+          <section className={styles.card}>
             <div className={styles.cardHeader}>
               <FiCalendar className={styles.cardIcon} />
               <h3>Ad Campaign Details</h3>
             </div>
             <div className={styles.cardBody}>
               {ad.description && (
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Description</span>
-                  <span className={styles.value}>{ad.description}</span>
+                <div className={styles.descriptionBlock}>
+                  <span className={styles.descriptionLabel}>Description</span>
+                  <p className={styles.descriptionValue}>{ad.description}</p>
                 </div>
               )}
               {ad.duration_days !== null && (
@@ -253,12 +298,6 @@ const AdDetailPage: React.FC = () => {
                   <span className={styles.value}>{adsService.formatDate(ad.end_date)}</span>
                 </div>
               )}
-              {ad.admin_notes && (
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Admin Notes</span>
-                  <span className={styles.value}>{ad.admin_notes}</span>
-                </div>
-              )}
               {ad.rejection_reason && (
                 <div className={`${styles.infoRow} ${styles.errorRow}`}>
                   <span className={styles.label}>Rejection Reason</span>
@@ -266,135 +305,130 @@ const AdDetailPage: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          </section>
 
-          {/* Transaction Details */}
-          {ad.transaction && (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <FiCreditCard className={styles.cardIcon} />
-                <h3>Transaction Details</h3>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Transaction ID</span>
-                  <span className={styles.value}>{ad.transaction.transaction_id}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Amount</span>
-                  <span className={`${styles.value} ${styles.priceValue}`}>
-                    {ad.transaction.currency} {ad.transaction.amount}
-                  </span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Payment Method</span>
-                  <span className={styles.value}>{ad.transaction.payment_method_type}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Status</span>
-                  <span className={styles.value}>{ad.transaction.status}</span>
-                </div>
-                <div className={styles.infoRow}>
-                  <span className={styles.label}>Date</span>
-                  <span className={styles.value}>
-                    {adsService.formatDateTime(ad.transaction.created_at)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column */}
-        <div className={styles.rightColumn}>
-          {/* Ad Content Preview */}
-          {ad.ad_content && (
-            <div className={styles.card}>
-              <div className={styles.cardHeader}>
-                <FiImage className={styles.cardIcon} />
-                <h3>Ad Content</h3>
-              </div>
-              <div className={styles.cardBody}>
-                <div className={styles.mediaPreview}>
-                  {ad.ad_content.content_type === "IMAGE" ? (
-                    <img
-                      src={ad.ad_content.media_upload.file_url}
-                      alt="Ad content"
-                      className={styles.previewImage}
-                    />
-                  ) : (
-                    <video
-                      src={ad.ad_content.media_upload.file_url}
-                      controls
-                      className={styles.previewVideo}
-                    />
-                  )}
-                </div>
-                <div className={styles.mediaInfo}>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Content Type</span>
-                    <span className={styles.value}>{ad.ad_content.content_type}</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Display Duration</span>
-                    <span className={styles.value}>{ad.ad_content.duration_seconds} seconds</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Display Order</span>
-                    <span className={styles.value}>{ad.ad_content.display_order}</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>File Name</span>
-                    <span className={styles.value}>{ad.ad_content.media_upload.original_name}</span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>File Size</span>
-                    <span className={styles.value}>
-                      {(ad.ad_content.media_upload.file_size / 1024).toFixed(2)} KB
-                    </span>
-                  </div>
-                  <div className={styles.infoRow}>
-                    <span className={styles.label}>Status</span>
-                    <span className={styles.value}>
-                      {ad.ad_content.is_active ? "Active" : "Inactive"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Assigned Stations */}
-          <div className={styles.card}>
+          <section className={styles.card}>
             <div className={styles.cardHeader}>
-              <FiMapPin className={styles.cardIcon} />
-              <h3>Assigned Stations ({ad.stations.length})</h3>
+              <FiImage className={styles.cardIcon} />
+              <h3>Ad Content</h3>
             </div>
             <div className={styles.cardBody}>
-              {ad.stations.length > 0 ? (
-                <div className={styles.stationsList}>
-                  {ad.stations.map((station) => (
-                    <div key={station.id} className={styles.stationCard}>
-                      <div className={styles.stationHeader}>
-                        <h4>{station.station_name}</h4>
-                        <span className={`${styles.stationStatus} ${station.status === "ONLINE" ? styles.online : styles.offline}`}>
-                          {station.status}
-                        </span>
-                      </div>
+              {ad.ad_content ? (
+                <>
+                  <div className={styles.mediaPreview}>
+                    {ad.ad_content.content_type === "IMAGE" ? (
+                      <img
+                        src={ad.ad_content.media_upload.file_url}
+                        alt="Ad content"
+                        className={styles.previewImage}
+                      />
+                    ) : (
+                      <video
+                        src={ad.ad_content.media_upload.file_url}
+                        controls
+                        className={styles.previewVideo}
+                      />
+                    )}
+                    <div className={styles.mediaOverlay}>
+                      <button className={styles.viewBtn}>
+                        <FiEye size={20} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className={styles.mediaInfo}>
+                    <div className={styles.infoRow}>
+                      <span className={styles.label}>Content Type</span>
+                      <span className={styles.value}>{ad.ad_content.content_type}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.label}>Display Duration</span>
+                      <span className={styles.value}>{ad.ad_content.duration_seconds} seconds</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.label}>File Name</span>
+                      <span className={styles.value}>{ad.ad_content.media_upload.original_name}</span>
+                    </div>
+                    <div className={styles.infoRow}>
+                      <span className={styles.label}>Status</span>
+                      <span className={`${styles.value} ${styles.priceValue}`}>
+                        {ad.ad_content.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <p className={styles.emptyStations}>No content uploaded</p>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <section className={styles.fullWidthCard}>
+          <div className={styles.cardHeader}>
+            <FiMapPin className={styles.cardIcon} />
+            <h3>Assigned Stations ({ad.stations.length})</h3>
+          </div>
+          <div className={styles.stationsGrid}>
+            {ad.stations.length > 0 ? (
+              ad.stations.map((station) => (
+                <div key={station.id} className={styles.stationCard}>
+                  <div className={styles.stationInfo}>
+                    <div className={styles.stationIcon}>
+                      <MdEvStation size={24} />
+                    </div>
+                    <div className={styles.stationDetails}>
+                      <h4>{station.station_name}</h4>
                       <p className={styles.stationAddress}>{station.address}</p>
                       <p className={styles.stationSerial}>SN: {station.serial_number}</p>
                     </div>
-                  ))}
+                  </div>
+                  <span className={`${styles.stationStatus} ${station.status === "ONLINE" ? styles.online : styles.offline}`}>
+                    {station.status}
+                  </span>
                 </div>
-              ) : (
-                <p className={styles.emptyText}>No stations assigned yet</p>
-              )}
-            </div>
+              ))
+            ) : (
+              <p className={styles.emptyStations}>No stations assigned yet</p>
+            )}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Modals */}
+        {ad.transaction && (
+          <section className={styles.transactionCard}>
+            <div className={styles.cardHeader}>
+              <FiCreditCard className={styles.cardIcon} />
+              <h3>Transaction Details</h3>
+            </div>
+            <div className={styles.cardBody}>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Transaction ID</span>
+                <span className={styles.value}>{ad.transaction.transaction_id}</span>
+              </div>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Amount</span>
+                <span className={`${styles.value} ${styles.priceValue}`}>
+                  {ad.transaction.currency} {ad.transaction.amount}
+                </span>
+              </div>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Payment Method</span>
+                <span className={styles.value}>{ad.transaction.payment_method_type}</span>
+              </div>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Status</span>
+                <span className={styles.value}>{ad.transaction.status}</span>
+              </div>
+              <div className={styles.infoRow}>
+                <span className={styles.label}>Date</span>
+                <span className={styles.value}>
+                  {adsService.formatDateTime(ad.transaction.created_at)}
+                </span>
+              </div>
+            </div>
+          </section>
+        )}
+      </main>
+
       {showReviewModal && (
         <ReviewAdModal
           isOpen={showReviewModal}
@@ -427,6 +461,6 @@ const AdDetailPage: React.FC = () => {
       )}
     </div>
   );
-};
+}
 
 export default AdDetailPage;

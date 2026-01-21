@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { FiRefreshCw, FiSearch, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiRefreshCw, FiSearch } from "react-icons/fi";
 import adsService from "@/lib/api/ads.service";
 import { AdRequestListItem, AdStatus } from "@/types/ads.types";
-import DataTable from "@/components/DataTable/dataTable";
 import styles from "./ads.module.css";
 
 const statusTabs: (AdStatus | "ALL")[] = [
@@ -17,12 +16,9 @@ const statusTabs: (AdStatus | "ALL")[] = [
   "SCHEDULED",
   "RUNNING",
   "PAUSED",
-  "COMPLETED",
-  "REJECTED",
-  "CANCELLED",
 ];
 
-const AdsPage: React.FC = () => {
+function AdsPage() {
   const router = useRouter();
   const [ads, setAds] = useState<AdRequestListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,11 +26,8 @@ const AdsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdStatus | "ALL">("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [pageSize] = useState<number>(20);
-
-  // Status counts
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
 
   const fetchAds = useCallback(
@@ -43,7 +36,7 @@ const AdsPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        const filters: any = {
+        const filters: Record<string, unknown> = {
           page,
           page_size: pageSize,
         };
@@ -62,7 +55,6 @@ const AdsPage: React.FC = () => {
           setAds(response.data);
           setTotalCount(response.data.length);
           
-          // Calculate status counts
           const counts: Record<string, number> = {};
           response.data.forEach((ad) => {
             counts[ad.status] = (counts[ad.status] || 0) + 1;
@@ -71,9 +63,12 @@ const AdsPage: React.FC = () => {
         } else {
           setError("Failed to fetch ad requests");
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error("Error fetching ads:", err);
-        setError(err.response?.data?.message || "Failed to fetch ad requests");
+        const errorMessage = err instanceof Error && 'response' in err 
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
+          : "Failed to fetch ad requests";
+        setError(errorMessage || "Failed to fetch ad requests");
       } finally {
         setLoading(false);
       }
@@ -87,7 +82,7 @@ const AdsPage: React.FC = () => {
       currentPage,
       searchQuery
     );
-  }, [activeTab, currentPage, searchQuery, fetchAds]);
+  }, [activeTab, currentPage, fetchAds]);
 
   const handleTabClick = (tab: AdStatus | "ALL") => {
     setActiveTab(tab);
@@ -133,191 +128,190 @@ const AdsPage: React.FC = () => {
     return statusMap[status] || styles.statusGray;
   };
 
-  const getStatusLabel = (status: AdStatus): string => {
+  const getStatusLabel = (status: AdStatus | "ALL"): string => {
     return status.replace(/_/g, " ");
   };
 
   return (
     <main className={styles.container}>
-      <div className={styles.headerSection}>
-        <div>
-          <h1 className={styles.title}>Ad Requests</h1>
-          <p className={styles.subtitle}>
-            Manage and review advertisement requests
-            {totalCount > 0 && ` (${totalCount} total)`}
-          </p>
+      <header className={styles.header}>
+        <div className={styles.headerLeft}>
+          <h1>Ad Requests</h1>
+          <p>Manage and review advertisement requests ({totalCount} total)</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className={styles.refreshBtn}
-          disabled={loading}
-          title="Refresh data"
-        >
-          <FiRefreshCw className={loading ? styles.spinning : ""} />
-        </button>
-      </div>
-
-      {/* Status Summary */}
-      <div className={styles.statusSummary}>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Total</span>
-          <span className={styles.summaryValue}>{totalCount}</span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Submitted</span>
-          <span className={styles.summaryValue}>
-            {statusCounts.SUBMITTED || 0}
-          </span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Under Review</span>
-          <span className={styles.summaryValue}>
-            {statusCounts.UNDER_REVIEW || 0}
-          </span>
-        </div>
-        <div className={styles.summaryCard}>
-          <span className={styles.summaryLabel}>Running</span>
-          <span className={styles.summaryValue}>
-            {statusCounts.RUNNING || 0}
-          </span>
-        </div>
-      </div>
-
-      {/* Search Bar */}
-      <form onSubmit={handleSearch} className={styles.searchForm}>
-        <div className={styles.searchContainer}>
-          <FiSearch className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search by title, name, or email..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className={styles.searchInput}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setCurrentPage(1);
-              }}
-              className={styles.clearSearch}
-            >
-              ×
-            </button>
-          )}
-        </div>
-        <button type="submit" className={styles.searchBtn} disabled={loading}>
-          Search
-        </button>
-      </form>
-
-      {/* Tabs */}
-      <div className={styles.tabs}>
-        {statusTabs.map((tab) => (
+        <div className={styles.headerRight}>
           <button
-            key={tab}
-            className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""}`}
-            onClick={() => handleTabClick(tab)}
+            onClick={handleRefresh}
+            className={styles.iconBtn}
             disabled={loading}
+            title="Refresh"
           >
-            {tab === "ALL" ? "All" : getStatusLabel(tab)}
+            <FiRefreshCw size={20} className={loading ? styles.spinning : ""} />
           </button>
-        ))}
-      </div>
+        </div>
+      </header>
 
-      {/* Table */}
-      <DataTable
-        title="Ad Requests"
-        subtitle={
-          totalCount > 0
-            ? `Showing ${ads.length} of ${totalCount} ad requests`
-            : "Manage all advertisement requests"
-        }
-        columns={[
-          {
-            header: "Title",
-            accessor: "title",
-            render: (value: string | null) => (
-              <span className={styles.adTitle}>{value || "Untitled Ad"}</span>
-            ),
-          },
-          {
-            header: "Requester",
-            accessor: "full_name",
-            render: (_: any, row: AdRequestListItem) => (
-              <div className={styles.requesterInfo}>
-                <span className={styles.requesterName}>{row.full_name}</span>
-                <span className={styles.requesterEmail}>{row.user_email}</span>
-              </div>
-            ),
-          },
-          {
-            header: "Contact",
-            accessor: "contact_number",
-            render: (value: string) => (
-              <span className={styles.contact}>{value}</span>
-            ),
-          },
-          {
-            header: "Duration",
-            accessor: "duration_days",
-            render: (value: number | null) => (
-              <span className={styles.duration}>
-                {value ? `${value} days` : "N/A"}
-              </span>
-            ),
-          },
-          {
-            header: "Price",
-            accessor: "admin_price",
-            render: (value: string | null) => (
-              <span className={styles.price}>
-                {adsService.formatAmount(value)}
-              </span>
-            ),
-          },
-          {
-            header: "Stations",
-            accessor: "station_count",
-            render: (value: number) => (
-              <span className={styles.stationCount}>
-                {value} station{value !== 1 ? "s" : ""}
-              </span>
-            ),
-          },
-          {
-            header: "Submitted",
-            accessor: "submitted_at",
-            render: (value: string) => (
-              <span className={styles.date}>
-                {adsService.formatDate(value)}
-              </span>
-            ),
-          },
-          {
-            header: "Status",
-            accessor: "status",
-            render: (value: AdStatus) => (
-              <span className={`${styles.statusBadge} ${getStatusBadgeClass(value)}`}>
-                {getStatusLabel(value)}
-              </span>
-            ),
-          },
-        ]}
-        data={ads}
-        loading={loading}
-        emptyMessage={
-          error
-            ? error
-            : searchQuery
-              ? "No ad requests found matching your search"
-              : "No ad requests available"
-        }
-        onRowClick={(row) => handleViewDetail(row.id)}
-      />
+      <div className={styles.content}>
+        <div className={styles.statusSummary}>
+          <div className={`${styles.glassCard} ${styles.glowGreen}`}>
+            <span className={styles.summaryLabel}>Total</span>
+            <span className={styles.summaryValue}>{totalCount}</span>
+          </div>
+          <div className={styles.glassCard}>
+            <span className={styles.summaryLabel}>Submitted</span>
+            <span className={styles.summaryValue}>
+              {statusCounts.SUBMITTED || 0}
+            </span>
+          </div>
+          <div className={styles.glassCard}>
+            <span className={styles.summaryLabel}>Under Review</span>
+            <span className={styles.summaryValue}>
+              {statusCounts.UNDER_REVIEW || 0}
+            </span>
+          </div>
+          <div className={styles.glassCard}>
+            <span className={styles.summaryLabel}>Running</span>
+            <span className={styles.summaryValue}>
+              {statusCounts.RUNNING || 0}
+            </span>
+          </div>
+        </div>
+
+        <div className={styles.searchSection}>
+          <form onSubmit={handleSearch} className={styles.searchForm}>
+            <div className={styles.searchContainer}>
+              <FiSearch className={styles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search by title, name, or email..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className={styles.searchInput}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setCurrentPage(1);
+                  }}
+                  className={styles.clearSearch}
+                >
+                  ×
+                </button>
+              )}
+            </div>
+            <button type="submit" className={styles.searchBtn} disabled={loading}>
+              Search
+            </button>
+          </form>
+
+          <div className={styles.tabs}>
+            {statusTabs.map((tab) => (
+              <button
+                key={tab}
+                className={`${styles.tab} ${activeTab === tab ? styles.activeTab : ""}`}
+                onClick={() => handleTabClick(tab)}
+                disabled={loading}
+              >
+                {tab === "ALL" ? "ALL" : getStatusLabel(tab)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.tableContainer}>
+          <div className={styles.tableHeader}>
+            <h3>Ad Requests</h3>
+            <p>Showing {ads.length} of {totalCount} ad requests</p>
+          </div>
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Requester</th>
+                  <th>Contact</th>
+                  <th>Duration</th>
+                  <th>Price</th>
+                  <th>Stations</th>
+                  <th>Submitted</th>
+                  <th className={styles.statusColumn}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={8} className={styles.loadingState}>
+                      Loading ad requests...
+                    </td>
+                  </tr>
+                ) : error ? (
+                  <tr>
+                    <td colSpan={8} className={styles.emptyState}>
+                      {error}
+                    </td>
+                  </tr>
+                ) : ads.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className={styles.emptyState}>
+                      {searchQuery
+                        ? "No ad requests found matching your search"
+                        : "No ad requests available"}
+                    </td>
+                  </tr>
+                ) : (
+                  ads.map((ad) => (
+                    <tr key={ad.id} onClick={() => handleViewDetail(ad.id)}>
+                      <td>
+                        <span className={ad.title ? styles.adTitle : styles.adTitleEmpty}>
+                          {ad.title || "Untitled Ad"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className={styles.requesterInfo}>
+                          <span className={styles.requesterName}>{ad.full_name}</span>
+                          <span className={styles.requesterEmail}>{ad.user_email}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={styles.contact}>{ad.contact_number}</span>
+                      </td>
+                      <td>
+                        <span className={ad.duration_days ? styles.duration : styles.durationEmpty}>
+                          {ad.duration_days ? `${ad.duration_days} days` : "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={ad.admin_price ? styles.price : styles.priceEmpty}>
+                          {ad.admin_price ? adsService.formatAmount(ad.admin_price) : "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.stationCount}>
+                          {ad.station_count} station{ad.station_count !== 1 ? "s" : ""}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={styles.date}>
+                          {adsService.formatDate(ad.submitted_at)}
+                        </span>
+                      </td>
+                      <td className={styles.statusCell}>
+                        <span className={`${styles.statusBadge} ${getStatusBadgeClass(ad.status)}`}>
+                          {getStatusLabel(ad.status)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </main>
   );
-};
+}
 
 export default AdsPage;

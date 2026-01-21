@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Modal from "@/components/modal/modal";
-import { ValidatedInput, ValidatedTextArea, ValidatedSelect } from "@/components/ValidatedInput/ValidatedInput";
+import { FiCheckCircle, FiX } from "react-icons/fi";
 import adsService from "@/lib/api/ads.service";
 import stationsService from "@/lib/api/stations.service";
 import { AdRequestDetail, ReviewAdInput } from "@/types/ads.types";
@@ -17,19 +17,18 @@ interface ReviewAdModalProps {
   onSuccess: () => void;
 }
 
-const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
+function ReviewAdModal({
   isOpen,
   onClose,
   adId,
   currentData,
   onSuccess,
-}) => {
+}: ReviewAdModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stations, setStations] = useState<Station[]>([]);
   const [loadingStations, setLoadingStations] = useState(false);
 
-  // Form state
   const [title, setTitle] = useState(currentData.title || "");
   const [description, setDescription] = useState(currentData.description || "");
   const [durationDays, setDurationDays] = useState(currentData.duration_days?.toString() || "");
@@ -46,11 +45,9 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
     currentData.stations.map((s) => s.id)
   );
 
-  // Validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Fetch stations
   useEffect(() => {
     const fetchStations = async () => {
       try {
@@ -71,7 +68,6 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
     }
   }, [isOpen]);
 
-  // Calculate end date
   const calculateEndDate = () => {
     if (startDate && durationDays) {
       const start = new Date(startDate);
@@ -87,27 +83,26 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
 
   const endDate = calculateEndDate();
 
-  // Validation
-  const validateField = (field: string, value: any) => {
+  const validateField = (field: string, value: unknown) => {
     const newErrors = { ...errors };
 
     switch (field) {
       case "title":
-        if (value && value.length < 5) {
+        if (value && (value as string).length < 5) {
           newErrors.title = "Title must be at least 5 characters";
         } else {
           delete newErrors.title;
         }
         break;
       case "description":
-        if (value && value.length < 10) {
+        if (value && (value as string).length < 10) {
           newErrors.description = "Description must be at least 10 characters";
         } else {
           delete newErrors.description;
         }
         break;
       case "durationDays":
-        const days = parseInt(value);
+        const days = parseInt(value as string);
         if (value && (isNaN(days) || days < 1 || days > 365)) {
           newErrors.durationDays = "Duration must be between 1 and 365 days";
         } else {
@@ -115,7 +110,7 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         }
         break;
       case "adminPrice":
-        const price = parseFloat(value);
+        const price = parseFloat(value as string);
         if (value && (isNaN(price) || price < 0)) {
           newErrors.adminPrice = "Price must be a valid positive number";
         } else {
@@ -124,7 +119,7 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         break;
       case "startDate":
         if (value) {
-          const date = new Date(value);
+          const date = new Date(value as string);
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           if (date < today) {
@@ -137,7 +132,7 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         }
         break;
       case "durationSeconds":
-        const seconds = parseInt(value);
+        const seconds = parseInt(value as string);
         if (value && (isNaN(seconds) || seconds < 3 || seconds > 30)) {
           newErrors.durationSeconds = "Display duration must be between 3 and 30 seconds";
         } else {
@@ -145,7 +140,7 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         }
         break;
       case "displayOrder":
-        const order = parseInt(value);
+        const order = parseInt(value as string);
         if (value && (isNaN(order) || order < 0)) {
           newErrors.displayOrder = "Display order must be 0 or greater";
         } else {
@@ -153,7 +148,7 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         }
         break;
       case "selectedStations":
-        if (value && value.length === 0) {
+        if (value && (value as string[]).length === 0) {
           newErrors.selectedStations = "At least one station must be selected";
         } else {
           delete newErrors.selectedStations;
@@ -171,7 +166,6 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate all fields
     const allFields = {
       title,
       description,
@@ -187,14 +181,12 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
       validateField(field, allFields[field as keyof typeof allFields]);
     });
 
-    // Mark all as touched
     const allTouched: Record<string, boolean> = {};
     Object.keys(allFields).forEach((field) => {
       allTouched[field] = true;
     });
     setTouched(allTouched);
 
-    // Check for errors
     if (Object.keys(errors).length > 0) {
       return;
     }
@@ -223,9 +215,12 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
       } else {
         setError("Failed to review ad request");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error reviewing ad:", err);
-      setError(err.response?.data?.message || "Failed to review ad request");
+      const errorMessage = err instanceof Error && 'response' in err 
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : "Failed to review ad request";
+      setError(errorMessage || "Failed to review ad request");
     } finally {
       setLoading(false);
     }
@@ -246,121 +241,155 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <div className={styles.error}>{error}</div>}
 
-        <ValidatedInput
-          label="Title"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            validateField("title", e.target.value);
-          }}
-          onBlur={() => handleBlur("title")}
-          error={errors.title}
-          touched={touched.title}
-          placeholder="Enter ad title"
-        />
-
-        <ValidatedTextArea
-          label="Description"
-          value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-            validateField("description", e.target.value);
-          }}
-          onBlur={() => handleBlur("description")}
-          error={errors.description}
-          touched={touched.description}
-          placeholder="Enter ad description"
-          rows={4}
-        />
-
-        <div className={styles.row}>
-          <ValidatedInput
-            label="Duration (days)"
-            type="number"
-            value={durationDays}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Title</label>
+          <input
+            type="text"
+            className={styles.input}
+            value={title}
             onChange={(e) => {
-              setDurationDays(e.target.value);
-              validateField("durationDays", e.target.value);
+              setTitle(e.target.value);
+              validateField("title", e.target.value);
             }}
-            onBlur={() => handleBlur("durationDays")}
-            error={errors.durationDays}
-            touched={touched.durationDays}
-            placeholder="1-365"
-            min="1"
-            max="365"
+            onBlur={() => handleBlur("title")}
+            placeholder="Enter ad title"
           />
-
-          <ValidatedInput
-            label="Price (NPR)"
-            type="number"
-            step="0.01"
-            value={adminPrice}
-            onChange={(e) => {
-              setAdminPrice(e.target.value);
-              validateField("adminPrice", e.target.value);
-            }}
-            onBlur={() => handleBlur("adminPrice")}
-            error={errors.adminPrice}
-            touched={touched.adminPrice}
-            placeholder="0.00"
-            min="0"
-          />
+          {touched.title && errors.title && (
+            <span className={styles.errorText}>{errors.title}</span>
+          )}
         </div>
 
-        <ValidatedInput
-          label="Start Date"
-          type="date"
-          value={startDate}
-          onChange={(e) => {
-            setStartDate(e.target.value);
-            validateField("startDate", e.target.value);
-          }}
-          onBlur={() => handleBlur("startDate")}
-          error={errors.startDate}
-          touched={touched.startDate}
-          helperText={endDate ? `End date will be: ${endDate}` : undefined}
-        />
-
-        <div className={styles.row}>
-          <ValidatedInput
-            label="Display Duration (seconds)"
-            type="number"
-            value={durationSeconds}
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Description</label>
+          <textarea
+            className={styles.textarea}
+            value={description}
             onChange={(e) => {
-              setDurationSeconds(e.target.value);
-              validateField("durationSeconds", e.target.value);
+              setDescription(e.target.value);
+              validateField("description", e.target.value);
             }}
-            onBlur={() => handleBlur("durationSeconds")}
-            error={errors.durationSeconds}
-            touched={touched.durationSeconds}
-            placeholder="3-30"
-            min="3"
-            max="30"
+            onBlur={() => handleBlur("description")}
+            placeholder="Enter ad description"
+            rows={4}
           />
-
-          <ValidatedInput
-            label="Display Order"
-            type="number"
-            value={displayOrder}
-            onChange={(e) => {
-              setDisplayOrder(e.target.value);
-              validateField("displayOrder", e.target.value);
-            }}
-            onBlur={() => handleBlur("displayOrder")}
-            error={errors.displayOrder}
-            touched={touched.displayOrder}
-            placeholder="0"
-            min="0"
-          />
+          {touched.description && errors.description && (
+            <span className={styles.errorText}>{errors.description}</span>
+          )}
         </div>
 
-        <ValidatedTextArea
-          label="Admin Notes"
-          value={adminNotes}
-          onChange={(e) => setAdminNotes(e.target.value)}
-          placeholder="Internal notes (optional)"
-          rows={3}
-        />
+        <div className={styles.row}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Duration (days)</label>
+            <input
+              type="number"
+              className={styles.input}
+              value={durationDays}
+              onChange={(e) => {
+                setDurationDays(e.target.value);
+                validateField("durationDays", e.target.value);
+              }}
+              onBlur={() => handleBlur("durationDays")}
+              placeholder="1-365"
+              min="1"
+              max="365"
+            />
+            {touched.durationDays && errors.durationDays && (
+              <span className={styles.errorText}>{errors.durationDays}</span>
+            )}
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Price (NPR)</label>
+            <input
+              type="number"
+              className={styles.input}
+              value={adminPrice}
+              onChange={(e) => {
+                setAdminPrice(e.target.value);
+                validateField("adminPrice", e.target.value);
+              }}
+              onBlur={() => handleBlur("adminPrice")}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
+            {touched.adminPrice && errors.adminPrice && (
+              <span className={styles.errorText}>{errors.adminPrice}</span>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Start Date</label>
+          <input
+            type="date"
+            className={styles.input}
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              validateField("startDate", e.target.value);
+            }}
+            onBlur={() => handleBlur("startDate")}
+          />
+          {endDate && (
+            <span className={styles.helperText}>End date will be: {endDate}</span>
+          )}
+          {touched.startDate && errors.startDate && (
+            <span className={styles.errorText}>{errors.startDate}</span>
+          )}
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Display Duration (sec)</label>
+            <input
+              type="number"
+              className={styles.input}
+              value={durationSeconds}
+              onChange={(e) => {
+                setDurationSeconds(e.target.value);
+                validateField("durationSeconds", e.target.value);
+              }}
+              onBlur={() => handleBlur("durationSeconds")}
+              placeholder="3-30"
+              min="3"
+              max="30"
+            />
+            {touched.durationSeconds && errors.durationSeconds && (
+              <span className={styles.errorText}>{errors.durationSeconds}</span>
+            )}
+          </div>
+
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Display Order</label>
+            <input
+              type="number"
+              className={styles.input}
+              value={displayOrder}
+              onChange={(e) => {
+                setDisplayOrder(e.target.value);
+                validateField("displayOrder", e.target.value);
+              }}
+              onBlur={() => handleBlur("displayOrder")}
+              placeholder="0"
+              min="0"
+            />
+            {touched.displayOrder && errors.displayOrder && (
+              <span className={styles.errorText}>{errors.displayOrder}</span>
+            )}
+          </div>
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>Admin Notes</label>
+          <textarea
+            className={styles.textarea}
+            value={adminNotes}
+            onChange={(e) => setAdminNotes(e.target.value)}
+            placeholder="Internal notes (optional)"
+            rows={3}
+          />
+        </div>
 
         <div className={styles.stationsSection}>
           <label className={styles.label}>
@@ -408,16 +437,18 @@ const ReviewAdModal: React.FC<ReviewAdModalProps> = ({
         </div>
 
         <div className={styles.actions}>
-          <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
-            Cancel
-          </button>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
-            {loading ? "Saving..." : "Save Configuration"}
+            <FiCheckCircle />
+            {loading ? "Saving..." : "Execute Action"}
+          </button>
+          <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
+            <FiX />
+            Cancel
           </button>
         </div>
       </form>
     </Modal>
   );
-};
+}
 
 export default ReviewAdModal;

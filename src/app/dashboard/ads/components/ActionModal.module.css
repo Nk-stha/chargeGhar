@@ -6,107 +6,243 @@
 
 .error {
   padding: 1rem;
-  background: rgba(244, 67, 54, 0.1);
-  border: 1px solid rgba(244, 67, 54, 0.3);
-  border-radius: 8px;
-  color: #f44336;
-  font-size: 0.9rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.75rem;
+  color: #EF4444;
+  font-size: 0.875rem;
 }
 
 .actionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .actionCard {
+  position: relative;
+  display: block;
+  cursor: pointer;
+}
+
+.actionCard input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.actionCardInner {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.actionCardInner:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.actionCard.selected .actionCardInner {
+  border-color: rgba(84, 188, 40, 0.5);
+  box-shadow: 0 0 0 1px rgba(84, 188, 40, 0.3);
+}
+
+.actionCard.danger.selected .actionCardInner {
+  border-color: rgba(239, 68, 68, 0.5);
+  background: rgba(239, 68, 68, 0.05);
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.3);
+}
+
+.actionCard.success.selected .actionCardInner {
+  border-color: rgba(84, 188, 40, 0.5);
+  background: rgba(84, 188, 40, 0.05);
+  box-shadow: 0 0 0 1px rgba(84, 188, 40, 0.3);
+}
+
+.actionCard.warning.selected .actionCardInner {
+  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(245, 158, 11, 0.05);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.3);
+}
+
+.actionCard.primary.selected .actionCardInner {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
+}
+
+.actionCardContent {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: #1a1a1a;
-  border: 2px solid #2a2a2a;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 1rem;
 }
 
-.actionCard:hover {
-  border-color: #82ea80;
-  background: #1f1f1f;
-}
-
-.actionCard.selected {
-  border-color: #82ea80;
-  background: rgba(130, 234, 128, 0.05);
-}
-
-.actionCard.success.selected {
-  border-color: #82ea80;
-  background: rgba(130, 234, 128, 0.1);
-}
-
-.actionCard.danger.selected {
-  border-color: #f44336;
-  background: rgba(244, 67, 54, 0.1);
-}
-
-.actionCard.warning.selected {
-  border-color: #ff9800;
-  background: rgba(255, 152, 0, 0.1);
-}
-
-.actionCard.primary.selected {
-  border-color: #2196f3;
-  background: rgba(33, 150, 243, 0.1);
-}
-
-.radio {
+.radioCircle {
   margin-top: 0.25rem;
-  cursor: pointer;
-  width: 18px;
-  height: 18px;
-  accent-color: #82ea80;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  border: 2px solid #52525b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
-.actionContent {
-  flex: 1;
+.radioCircle .radioDot {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: transparent;
+  transition: all 0.2s ease;
 }
 
-.actionContent h4 {
+.actionCard.selected .radioCircle {
+  border-color: #54BC28;
+}
+
+.actionCard.selected .radioCircle .radioDot {
+  background: #54BC28;
+}
+
+.actionCard.danger.selected .radioCircle {
+  border-color: #EF4444;
+}
+
+.actionCard.danger.selected .radioCircle .radioDot {
+  background: #EF4444;
+}
+
+.actionCard.success.selected .radioCircle {
+  border-color: #54BC28;
+}
+
+.actionCard.success.selected .radioCircle .radioDot {
+  background: #54BC28;
+}
+
+.actionCard.warning.selected .radioCircle {
+  border-color: #F59E0B;
+}
+
+.actionCard.warning.selected .radioCircle .radioDot {
+  background: #F59E0B;
+}
+
+.actionCard.primary.selected .radioCircle {
+  border-color: #3B82F6;
+}
+
+.actionCard.primary.selected .radioCircle .radioDot {
+  background: #3B82F6;
+}
+
+.actionInfo h4 {
   color: #fff;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin: 0 0 0.25rem 0;
 }
 
-.actionContent p {
-  color: #aaa;
-  font-size: 0.85rem;
+.actionInfo p {
+  color: #9CA3AF;
+  font-size: 0.875rem;
   line-height: 1.4;
+  margin: 0;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.required {
+  color: #EF4444;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  background: #1E1E1E;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  color: #fff;
+  padding: 1rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: #52525b;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: #54BC28;
+  box-shadow: 0 0 0 1px #54BC28;
+}
+
+.textarea {
+  resize: none;
+  min-height: 120px;
+}
+
+.helperText {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin-left: 0.25rem;
+}
+
+.errorText {
+  font-size: 0.75rem;
+  color: #EF4444;
+  margin-left: 0.25rem;
 }
 
 .actions {
   display: flex;
-  gap: 1rem;
+  align-items: center;
   justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1px solid #2a2a2a;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  margin: 0 -1.5rem -1.5rem -1.5rem;
+  padding: 1.25rem 1.5rem;
 }
 
 .cancelBtn {
-  padding: 0.75rem 1.5rem;
-  background: #1a1a1a;
-  color: #fff;
-  border: 1px solid #2a2a2a;
-  border-radius: 8px;
+  padding: 0.625rem 1.5rem;
+  background: transparent;
+  color: #d4d4d8;
+  border: 1px solid #3f3f46;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-weight: 500;
+  font-size: 0.875rem;
 }
 
 .cancelBtn:hover:not(:disabled) {
-  border-color: #82ea80;
-  background: #1f1f1f;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .cancelBtn:disabled {
@@ -115,37 +251,43 @@
 }
 
 .submitBtn {
-  padding: 0.75rem 1.5rem;
-  background: #82ea80;
-  color: #0b0b0b;
+  padding: 0.625rem 1.5rem;
+  background: #54BC28;
+  color: #000;
   border: none;
-  border-radius: 8px;
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
+  transition: all 0.2s ease;
+  font-weight: 700;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0 15px rgba(84, 188, 40, 0.2);
 }
 
 .submitBtn:hover:not(:disabled) {
-  background: #47b216;
-  transform: translateY(-2px);
+  background: #46A020;
+}
+
+.submitBtn:active:not(:disabled) {
+  transform: scale(0.98);
 }
 
 .submitBtn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
 }
 
-@media (max-width: 768px) {
-  .actionsGrid {
-    grid-template-columns: 1fr;
-  }
-
+@media (max-width: 640px) {
   .actions {
     flex-direction: column-reverse;
+    gap: 0.75rem;
   }
 
-  .actions button {
+  .cancelBtn,
+  .submitBtn {
     width: 100%;
+    justify-content: center;
   }
 }

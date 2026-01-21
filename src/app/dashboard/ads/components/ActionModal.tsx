@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import Modal from "@/components/modal/modal";
-import { ValidatedInput, ValidatedTextArea } from "@/components/ValidatedInput/ValidatedInput";
 import adsService from "@/lib/api/ads.service";
 import { AdStatus, AdActionType, ExecuteActionInput } from "@/types/ads.types";
 import styles from "./ActionModal.module.css";
@@ -15,13 +14,13 @@ interface ActionModalProps {
   onSuccess: () => void;
 }
 
-const ActionModal: React.FC<ActionModalProps> = ({
+function ActionModal({
   isOpen,
   onClose,
   adId,
   currentStatus,
   onSuccess,
-}) => {
+}: ActionModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,7 +73,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
     },
   };
 
-  const validateField = (field: string, value: any) => {
+  const validateField = (field: string, value: string) => {
     const newErrors = { ...errors };
 
     switch (field) {
@@ -145,12 +144,10 @@ const ActionModal: React.FC<ActionModalProps> = ({
       return;
     }
 
-    // Validate required fields
     validateField("rejectionReason", rejectionReason);
     validateField("startDate", startDate);
     validateField("endDate", endDate);
 
-    // Mark all as touched
     setTouched({
       rejectionReason: true,
       startDate: true,
@@ -158,7 +155,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
       reason: true,
     });
 
-    // Check for errors
     if (Object.keys(errors).length > 0) {
       return;
     }
@@ -190,121 +186,139 @@ const ActionModal: React.FC<ActionModalProps> = ({
       } else {
         setError("Failed to execute action");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error executing action:", err);
-      setError(err.response?.data?.message || "Failed to execute action");
+      const errorMessage = err instanceof Error && 'response' in err 
+        ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : "Failed to execute action";
+      setError(errorMessage || "Failed to execute action");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal title="Execute Action" isOpen={isOpen} onClose={onClose}>
+    <Modal title="Execute Action" isOpen={isOpen} onClose={onClose} size="md">
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <div className={styles.error}>{error}</div>}
 
         <div className={styles.actionsGrid}>
           {availableActions.map((action) => {
             const def = actionDefinitions[action];
+            const isSelected = selectedAction === action;
             return (
-              <div
+              <label
                 key={action}
-                className={`${styles.actionCard} ${
-                  selectedAction === action ? styles.selected : ""
-                } ${styles[def.variant]}`}
-                onClick={() => handleActionChange(action as AdActionType)}
+                className={`${styles.actionCard} ${isSelected ? styles.selected : ""} ${styles[def.variant] || ""}`}
               >
                 <input
                   type="radio"
                   name="action"
                   value={action}
-                  checked={selectedAction === action}
-                  onChange={() => {}}
-                  className={styles.radio}
+                  checked={isSelected}
+                  onChange={() => handleActionChange(action as AdActionType)}
                 />
-                <div className={styles.actionContent}>
-                  <h4>{def.label}</h4>
-                  <p>{def.description}</p>
+                <div className={styles.actionCardInner}>
+                  <div className={styles.actionCardContent}>
+                    <div className={styles.radioCircle}>
+                      <div className={styles.radioDot}></div>
+                    </div>
+                    <div className={styles.actionInfo}>
+                      <h4>{def.label}</h4>
+                      <p>{def.description}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+              </label>
             );
           })}
         </div>
 
         {selectedAction === "reject" && (
-          <ValidatedTextArea
-            label="Rejection Reason"
-            value={rejectionReason}
-            onChange={(e) => {
-              setRejectionReason(e.target.value);
-              validateField("rejectionReason", e.target.value);
-            }}
-            onBlur={() => handleBlur("rejectionReason")}
-            error={errors.rejectionReason}
-            touched={touched.rejectionReason}
-            placeholder="Explain why this ad is being rejected..."
-            rows={4}
-            required
-          />
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>
+              Rejection Reason <span className={styles.required}>*</span>
+            </label>
+            <textarea
+              className={styles.textarea}
+              value={rejectionReason}
+              onChange={(e) => {
+                setRejectionReason(e.target.value);
+                validateField("rejectionReason", e.target.value);
+              }}
+              onBlur={() => handleBlur("rejectionReason")}
+              placeholder="Explain why this ad is being rejected..."
+            />
+            {touched.rejectionReason && errors.rejectionReason && (
+              <span className={styles.errorText}>{errors.rejectionReason}</span>
+            )}
+          </div>
         )}
 
         {selectedAction === "schedule" && (
           <>
-            <ValidatedInput
-              label="Start Date"
-              type="date"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                validateField("startDate", e.target.value);
-                if (endDate) validateField("endDate", endDate);
-              }}
-              onBlur={() => handleBlur("startDate")}
-              error={errors.startDate}
-              touched={touched.startDate}
-              required
-            />
-            <ValidatedInput
-              label="End Date (Optional)"
-              type="date"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                validateField("endDate", e.target.value);
-              }}
-              onBlur={() => handleBlur("endDate")}
-              error={errors.endDate}
-              touched={touched.endDate}
-              helperText="If not provided, will be auto-calculated based on duration"
-            />
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>
+                Start Date <span className={styles.required}>*</span>
+              </label>
+              <input
+                type="date"
+                className={styles.input}
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  validateField("startDate", e.target.value);
+                  if (endDate) validateField("endDate", endDate);
+                }}
+                onBlur={() => handleBlur("startDate")}
+              />
+              {touched.startDate && errors.startDate && (
+                <span className={styles.errorText}>{errors.startDate}</span>
+              )}
+            </div>
+            <div className={styles.fieldGroup}>
+              <label className={styles.label}>End Date (Optional)</label>
+              <input
+                type="date"
+                className={styles.input}
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  validateField("endDate", e.target.value);
+                }}
+                onBlur={() => handleBlur("endDate")}
+              />
+              <span className={styles.helperText}>If not provided, will be auto-calculated based on duration</span>
+              {touched.endDate && errors.endDate && (
+                <span className={styles.errorText}>{errors.endDate}</span>
+              )}
+            </div>
           </>
         )}
 
         {selectedAction === "cancel" && (
-          <ValidatedTextArea
-            label="Reason (Optional)"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Optional reason for cancellation..."
-            rows={3}
-          />
+          <div className={styles.fieldGroup}>
+            <label className={styles.label}>Reason (Optional)</label>
+            <textarea
+              className={styles.textarea}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Optional reason for cancellation..."
+            />
+          </div>
         )}
 
         <div className={styles.actions}>
           <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
             Cancel
           </button>
-          <button
-            type="submit"
-            className={styles.submitBtn}
-            disabled={loading || !selectedAction}
-          >
+          <button type="submit" className={styles.submitBtn} disabled={loading || !selectedAction}>
             {loading ? "Processing..." : `Execute ${selectedAction ? actionDefinitions[selectedAction].label : "Action"}`}
           </button>
         </div>
       </form>
     </Modal>
   );
-};
+}
 
 export default ActionModal;

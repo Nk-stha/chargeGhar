@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Modal from "@/components/modal/modal";
-import { ValidatedInput } from "@/components/ValidatedInput/ValidatedInput";
+import { FiCalendar, FiX } from "react-icons/fi";
 import adsService from "@/lib/api/ads.service";
 import { UpdateScheduleInput } from "@/types/ads.types";
 import styles from "./UpdateScheduleModal.module.css";
@@ -16,14 +16,14 @@ interface UpdateScheduleModalProps {
   onSuccess: () => void;
 }
 
-const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
+function UpdateScheduleModal({
   isOpen,
   onClose,
   adId,
   currentStartDate,
   currentEndDate,
   onSuccess,
-}) => {
+}: UpdateScheduleModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,7 +33,7 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const validateField = (field: string, value: any) => {
+  const validateField = (field: string, value: string) => {
     const newErrors = { ...errors };
 
     switch (field) {
@@ -84,7 +84,6 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Check if at least one date is provided and different from current
     if (!startDate && !endDate) {
       setError("At least one of start_date or end_date must be provided");
       return;
@@ -95,17 +94,14 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
       return;
     }
 
-    // Validate fields
     validateField("startDate", startDate);
     validateField("endDate", endDate);
 
-    // Mark all as touched
     setTouched({
       startDate: true,
       endDate: true,
     });
 
-    // Check for errors
     if (Object.keys(errors).length > 0) {
       return;
     }
@@ -131,16 +127,19 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
       } else {
         setError("Failed to update schedule");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating schedule:", err);
-      setError(err.response?.data?.error?.message || err.response?.data?.message || "Failed to update schedule");
+      const errorMessage = err instanceof Error && 'response' in err 
+        ? (err as { response?: { data?: { error?: { message?: string }; message?: string } } }).response?.data?.error?.message || (err as { response?: { data?: { message?: string } } }).response?.data?.message 
+        : "Failed to update schedule";
+      setError(errorMessage || "Failed to update schedule");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal title="Update Ad Schedule" isOpen={isOpen} onClose={onClose}>
+    <Modal title="Update Ad Schedule" isOpen={isOpen} onClose={onClose} size="md">
       <form onSubmit={handleSubmit} className={styles.form}>
         {error && <div className={styles.error}>{error}</div>}
 
@@ -178,34 +177,42 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
 
         <h4 className={styles.sectionTitle}>New Schedule</h4>
 
-        <ValidatedInput
-          label="New Start Date"
-          type="date"
-          value={startDate}
-          onChange={(e) => {
-            setStartDate(e.target.value);
-            validateField("startDate", e.target.value);
-            if (endDate) validateField("endDate", endDate);
-          }}
-          onBlur={() => handleBlur("startDate")}
-          error={errors.startDate}
-          touched={touched.startDate}
-          helperText="Leave empty to keep current start date"
-        />
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>New Start Date</label>
+          <input
+            type="date"
+            className={styles.input}
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              validateField("startDate", e.target.value);
+              if (endDate) validateField("endDate", endDate);
+            }}
+            onBlur={() => handleBlur("startDate")}
+          />
+          <span className={styles.helperText}>Leave empty to keep current start date</span>
+          {touched.startDate && errors.startDate && (
+            <span className={styles.errorText}>{errors.startDate}</span>
+          )}
+        </div>
 
-        <ValidatedInput
-          label="New End Date"
-          type="date"
-          value={endDate}
-          onChange={(e) => {
-            setEndDate(e.target.value);
-            validateField("endDate", e.target.value);
-          }}
-          onBlur={() => handleBlur("endDate")}
-          error={errors.endDate}
-          touched={touched.endDate}
-          helperText="Leave empty to keep current end date"
-        />
+        <div className={styles.fieldGroup}>
+          <label className={styles.label}>New End Date</label>
+          <input
+            type="date"
+            className={styles.input}
+            value={endDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              validateField("endDate", e.target.value);
+            }}
+            onBlur={() => handleBlur("endDate")}
+          />
+          <span className={styles.helperText}>Leave empty to keep current end date</span>
+          {touched.endDate && errors.endDate && (
+            <span className={styles.errorText}>{errors.endDate}</span>
+          )}
+        </div>
 
         {startDate && endDate && (
           <div className={styles.newDuration}>
@@ -221,16 +228,18 @@ const UpdateScheduleModal: React.FC<UpdateScheduleModalProps> = ({
         )}
 
         <div className={styles.actions}>
-          <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
-            Cancel
-          </button>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
+            <FiCalendar />
             {loading ? "Updating..." : "Update Schedule"}
+          </button>
+          <button type="button" onClick={onClose} className={styles.cancelBtn} disabled={loading}>
+            <FiX />
+            Cancel
           </button>
         </div>
       </form>
     </Modal>
   );
-};
+}
 
 export default UpdateScheduleModal;
