@@ -1,0 +1,379 @@
+.container {
+  padding: 2rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Header Section */
+.headerSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  color: #82ea80;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #aaa;
+  font-size: 0.95rem;
+}
+
+.refreshBtn {
+  padding: 0.75rem 1rem;
+  background: #1a1a1a;
+  color: #fff;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  border-color: #82ea80;
+  background: #1f1f1f;
+}
+
+.refreshBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Status Summary */
+.statusSummary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summaryCard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.summaryLabel {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.summaryValue {
+  color: #82ea80;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Search Form */
+.searchForm {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.searchContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1rem;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #82ea80;
+  background: #1f1f1f;
+}
+
+.clearSearch {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease;
+}
+
+.clearSearch:hover {
+  color: #fff;
+}
+
+.searchBtn {
+  padding: 0.75rem 1.5rem;
+  background: #82ea80;
+  color: #0b0b0b;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.searchBtn:hover:not(:disabled) {
+  background: #47b216;
+  transform: translateY(-2px);
+}
+
+.searchBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+.tabs::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 2px;
+}
+
+.tab {
+  padding: 0.75rem 1.5rem;
+  background: #1a1a1a;
+  color: #aaa;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tab:hover:not(:disabled) {
+  border-color: #82ea80;
+  color: #fff;
+}
+
+.tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.activeTab {
+  background: rgba(130, 234, 128, 0.1);
+  border-color: #82ea80;
+  color: #82ea80;
+}
+
+/* Table Cell Styles */
+.adTitle {
+  color: #fff;
+  font-weight: 600;
+}
+
+.requesterInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.requesterName {
+  color: #fff;
+  font-weight: 500;
+}
+
+.requesterEmail {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.contact {
+  color: #aaa;
+}
+
+.duration {
+  color: #aaa;
+}
+
+.price {
+  color: #82ea80;
+  font-weight: 600;
+}
+
+.stationCount {
+  color: #aaa;
+}
+
+.date {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+/* Status Badges */
+.statusBadge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.statusBlue {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.statusOrange {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ff9800;
+  border: 1px solid rgba(255, 152, 0, 0.3);
+}
+
+.statusPurple {
+  background: rgba(156, 39, 176, 0.15);
+  color: #9c27b0;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.statusGreen {
+  background: rgba(71, 178, 22, 0.15);
+  color: #82ea80;
+  border: 1px solid rgba(71, 178, 22, 0.3);
+}
+
+.statusCyan {
+  background: rgba(0, 188, 212, 0.15);
+  color: #00bcd4;
+  border: 1px solid rgba(0, 188, 212, 0.3);
+}
+
+.statusGreenPulse {
+  background: rgba(71, 178, 22, 0.15);
+  color: #82ea80;
+  border: 1px solid rgba(71, 178, 22, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.statusGray {
+  background: rgba(158, 158, 158, 0.15);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+.statusRed {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.statusGreenCheck {
+  background: rgba(71, 178, 22, 0.15);
+  color: #82ea80;
+  border: 1px solid rgba(71, 178, 22, 0.3);
+}
+
+.statusGrayStrike {
+  background: rgba(158, 158, 158, 0.15);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+  text-decoration: line-through;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .headerSection {
+    flex-direction: column;
+  }
+
+  .statusSummary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .searchForm {
+    flex-direction: column;
+  }
+
+  .tabs {
+    gap: 0.25rem;
+  }
+
+  .tab {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}

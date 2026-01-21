@@ -1,0 +1,53 @@
+Admin Advertisement Response & Validation Guide
+This document defines the standard Success and Error response structures, and maps every validation rule to its specific error message.
+
+1. Response Structures
+Standard Success Response (HTTP 200/201)
+All API endpoints return a standardized JSON envelope.
+
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    // ... endpoint specific data ...
+  },
+  "timestamp": "2024-03-20T10:00:00Z"
+}
+Standard Error Response (HTTP 400/404/500)
+Validation errors will return HTTP 400 with a detailed errors object (if the backend uses standard DRF formatting) or a simple message.
+
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": {
+    "field_name": ["Specific error message"]
+  },
+  "timestamp": "2024-03-20T10:00:00Z"
+}
+2. Validation Rules & Error Messages
+These are the exact error messages returned by the API when rules are violated.
+
+A. Review Ad (PATCH .../review)
+Field	Rule	Error Message (HTTP 400)
+title	Length < 5	Title must be at least 5 characters
+description	Length < 10	Description must be at least 10 characters
+start_date	Date in past	Start date cannot be in the past
+station_ids	Invalid UUIDs	Invalid station IDs: <listing of bad UUIDs>
+B. Ad Actions (POST .../action)
+Action	Field	Rule	Error Message (HTTP 400)
+reject	
+rejection_reason
+Missing	Rejection reason is required for reject action
+Length < 10	Rejection reason must be at least 10 characters
+schedule	
+start_date
+Missing	Start date is required for schedule action
+Date in past	Start date cannot be in the past
+end_date
+Date ≤ Start Date	End date must be after start date
+C. Update Schedule (PATCH .../update-schedule)
+Field	Rule	Error Message (HTTP 400)
+General	Both null	At least one of start_date or end_date must be provided
+start_date	Date in past	Start date cannot be in the past
+end_date	Date in past	End date cannot be in the past
+Logic	End ≤ Start	End date must be after start date

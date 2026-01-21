@@ -31,6 +31,7 @@ import {
   FiChevronsLeft,
   FiChevronsRight,
   FiBattery,
+  FiMonitor,
 } from "react-icons/fi";
 import styles from "./DashboardSidebar.module.css";
 
@@ -77,6 +78,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         { icon: <FiHome />, label: "Dashboard", href: "/dashboard" },
         { icon: <FiUsers />, label: "Users", href: "/dashboard/users" },
         { icon: <FiShoppingBag />, label: "Rentals", href: "/dashboard/rentals" },
+        { icon: <FiMonitor />, label: "Ads", href: "/dashboard/ads" },
       ],
     },
     {
