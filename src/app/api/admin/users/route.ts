@@ -10,20 +10,40 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'Authorization header is required' }, { status: 401 });
     }
 
-    const response = await axios.get(
-      `${process.env.BASE_URL}/admin/users`,
-      {
-        headers: {
-          'Authorization': authorization,
-        },
-      }
-    );
+    // Get query parameters from the request URL
+    const { searchParams } = new URL(req.url);
+    const page = searchParams.get('page');
+    const page_size = searchParams.get('page_size');
+    const search = searchParams.get('search');
+    const status = searchParams.get('status');
+    const kyc_status = searchParams.get('kyc_status');
+
+    // Build query string
+    const params = new URLSearchParams();
+    if (page) params.append('page', page);
+    if (page_size) params.append('page_size', page_size);
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (kyc_status) params.append('kyc_status', kyc_status);
+
+    const queryString = params.toString();
+    const url = `${process.env.BASE_URL}/admin/users${queryString ? `?${queryString}` : ''}`;
+
+    console.log('Fetching users from:', url);
+
+    const response = await axios.get(url, {
+      headers: {
+        'Authorization': authorization,
+      },
+    });
 
     const data = response.data;
+    console.log('Users API response:', data);
 
     return NextResponse.json(data);
   } catch (error: any) {
     console.error('Admin users route error:', error);
+    console.error('Error response:', error.response?.data);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });

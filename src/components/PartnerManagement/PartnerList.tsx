@@ -1,0 +1,276 @@
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { FiSearch, FiPlus, FiEdit, FiRefreshCw, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import styles from "./PartnerManagement.module.css";
+import { getPartners } from "../../lib/api/partners";
+import { Partner } from "../../types/partner";
+
+const PartnerList: React.FC = () => {
+  const router = useRouter();
+  const [partners, setPartners] = useState<Partner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10); // Changed to 10 for better UI on smaller screens
+  const [totalCount, setTotalCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  // Debounce search
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setPage(1); // Reset to page 1 on new search
+  }, [debouncedSearch]);
+
+  const fetchPartners = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getPartners({
+        page,
+        page_size: pageSize,
+        search: debouncedSearch,
+      });
+
+      if (response.success) {
+        setPartners(response.data.results);
+        setTotalCount(response.data.count);
+      } else {
+        setError(response.message || "Failed to fetch partners");
+      }
+    } catch (err) {
+      console.error("Error fetching partners:", err);
+      setError("An error occurred while fetching partners");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, pageSize, debouncedSearch]);
+
+  useEffect(() => {
+    fetchPartners();
+  }, [fetchPartners]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage > 0 && newPage <= Math.ceil(totalCount / pageSize)) {
+      setPage(newPage);
+    }
+  };
+
+    const handleAddVendor = () => {
+      router.push("/dashboard/partners/add");
+    };
+
+  const handleRowClick = (partner: Partner) => {
+    router.push(`/dashboard/partners/${partner.id}`);
+  };
+
+  const handleEditVendor = (e: React.MouseEvent, partner: Partner) => {
+    e.stopPropagation(); // Prevent row click
+    // TODO: Implement edit vendor modal
+    console.log("Edit vendor:", partner);
+  };
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  return (
+    <div className="space-y-6">
+      {/* Search & Add Section */}
+        <div className={styles.searchSection}>
+          <div className={styles.searchWrapper}>
+            <FiSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search vendors by name, code or email..."
+              className={styles.searchInput}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-3">
+            <button 
+              className={styles.secondaryButton} 
+              onClick={() => fetchPartners()}
+              disabled={loading}
+              title="Refresh List"
+            >
+              <FiRefreshCw className={loading ? "animate-spin" : ""} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+            <button className={styles.addButton} onClick={handleAddVendor}>
+              <FiPlus />
+              <span>Add New Vendor</span>
+            </button>
+          </div>
+        </div>
+
+
+      {/* Table Section */}
+      <div className={styles.tableContainer}>
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Partner Code</th>
+                <th>Business Name</th>
+                <th>Contact Info</th>
+                <th>Type</th>
+                <th>Balance</th>
+                <th>Total Earnings</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th className="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={9} className="py-6">
+                      <div className="h-4 bg-white/5 rounded w-full"></div>
+                    </td>
+                  </tr>
+                ))
+              ) : error ? (
+                <tr>
+                   <td colSpan={9} className="text-center py-12 text-red-400">
+                     <div className="flex flex-col items-center gap-2">
+                        <span className="text-3xl">⚠️</span>
+                        <p>{error}</p>
+                        <button onClick={() => fetchPartners()} className="text-primary hover:underline text-sm font-bold">Try Again</button>
+                     </div>
+                   </td>
+                </tr>
+              ) : partners.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="text-center py-12 text-gray-500">
+                    <div className="flex flex-col items-center gap-2">
+                        <span className="text-3xl">🔍</span>
+                        <p>No vendors found matching your search</p>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                partners.map((partner) => (
+                  <tr 
+                    key={partner.id} 
+                    className={styles.tableRow}
+                    onClick={() => handleRowClick(partner)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td>
+                      <span className={styles.partnerCode}>
+                        {partner.code}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.businessName}>
+                        {partner.business_name}
+                      </span>
+                    </td>
+                    <td>
+                      <div className={styles.contactInfo}>
+                        <span className={styles.email}>{partner.contact_email}</span>
+                        <span className={styles.phone}>{partner.contact_phone}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={styles.typeBadge}>
+                        {partner.partner_type.replace("_", " ")}
+                        {partner.vendor_type ? ` • ${partner.vendor_type}` : ""}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.currencyValue}>
+                        <span className="text-xs text-gray-500 mr-1">NPR</span>
+                        {Number(partner.balance).toLocaleString()}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.currencyValue}>
+                        <span className="text-xs text-gray-500 mr-1">NPR</span>
+                        {Number(partner.total_earnings).toLocaleString()}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          partner.status === "ACTIVE"
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }`}
+                      >
+                        <span className={styles.statusDot}></span>
+                        {partner.status}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.dateText}>
+                        {new Date(partner.created_at).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </td>
+                    <td className={styles.actionsCell}>
+                      <button
+                        className={styles.actionButton}
+                        onClick={(e) => handleEditVendor(e, partner)}
+                        title="Edit Vendor"
+                      >
+                        <FiEdit />
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination Footer */}
+        {totalCount > 0 && (
+          <div className={styles.paginationFooter}>
+            <span className={styles.paginationInfo}>
+              Showing <strong>{partners.length}</strong> of <strong>{totalCount}</strong> vendors
+              {totalPages > 1 && <span className="ml-2 text-xs opacity-60">Page {page} of {totalPages}</span>}
+            </span>
+            <div className={styles.paginationControls}>
+              <button 
+                className={styles.paginationButton} 
+                disabled={page === 1 || loading}
+                onClick={() => handlePageChange(page - 1)}
+              >
+                <FiChevronLeft />
+              </button>
+              
+              {/* Simple page numbers could go here if needed */}
+              <div className="flex items-center px-2 font-bold text-primary">
+                {page}
+              </div>
+
+              <button 
+                className={styles.paginationButton} 
+                disabled={page >= totalPages || loading}
+                onClick={() => handlePageChange(page + 1)}
+              >
+                <FiChevronRight />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default PartnerList;

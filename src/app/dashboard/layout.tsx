@@ -16,6 +16,7 @@ export default function DashboardLayout({
     const router = useRouter();
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     const toggleMobileMenu = useCallback(() => {
         setMobileMenuOpen(prev => !prev);
@@ -23,6 +24,10 @@ export default function DashboardLayout({
 
     const closeMobileMenu = useCallback(() => {
         setMobileMenuOpen(false);
+    }, []);
+
+    const toggleSidebar = useCallback(() => {
+        setSidebarCollapsed(prev => !prev);
     }, []);
 
     useEffect(() => {
@@ -60,8 +65,13 @@ export default function DashboardLayout({
     return (
         <DashboardDataProvider>
             <div className={styles.layout}>
-                <DashboardSidebar mobileOpen={mobileMenuOpen} onMobileClose={closeMobileMenu} />
-                <div className={styles.main}>
+                <DashboardSidebar 
+                    mobileOpen={mobileMenuOpen} 
+                    onMobileClose={closeMobileMenu}
+                    collapsed={sidebarCollapsed}
+                    onToggleCollapse={toggleSidebar}
+                />
+                <div className={`${styles.main} ${sidebarCollapsed ? styles.mainCollapsed : ''}`}>
                     <Header onMenuToggle={toggleMobileMenu} menuOpen={mobileMenuOpen} />
                     <main className={styles.content}>{children}</main>
                 </div>

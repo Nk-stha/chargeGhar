@@ -58,13 +58,17 @@ interface NavCategory {
 interface DashboardSidebarProps {
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  collapsed?: boolean;
+  onToggleCollapse?: () => void;
 }
 
 const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ 
   mobileOpen = false, 
-  onMobileClose 
+  onMobileClose,
+  collapsed = false,
+  onToggleCollapse
 }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  // const [collapsed, setCollapsed] = useState(false); // Removed local state
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const sidebarRef = useRef<HTMLElement>(null);
@@ -98,6 +102,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       title: "Management",
       items: [
         { icon: <FiFileText />, label: "KYC", href: "/dashboard/kyc" },
+        { icon: <FiUsers />, label: "Partner Management", href: "/dashboard/partners" },
         {
           icon: <FiAlertCircle />,
           label: "Issues",
@@ -225,9 +230,9 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             onMobileClose();
           }
           // On desktop: collapse the sidebar if expanded
-          else if (window.innerWidth > 768 && !collapsed) {
+          else if (window.innerWidth > 768 && !collapsed && onToggleCollapse) {
             console.log('Desktop: Click outside detected, collapsing sidebar');
-            setCollapsed(true);
+            onToggleCollapse();
           }
         }
       }
@@ -235,10 +240,12 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [mobileOpen, collapsed, onMobileClose]);
+  }, [mobileOpen, collapsed, onMobileClose, onToggleCollapse]);
 
   const toggleCollapsed = () => {
-    setCollapsed(!collapsed);
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    }
   };
 
   const toggleExpanded = (label: string) => {
