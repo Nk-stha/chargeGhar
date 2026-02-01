@@ -33,6 +33,7 @@ import {
   FiBattery,
   FiMonitor,
   FiBriefcase,
+  FiPercent,
 } from "react-icons/fi";
 import styles from "./DashboardSidebar.module.css";
 
@@ -133,6 +134,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           label: "Promotions",
           subItems: [
             { icon: <FiPackage />, label: "Packages", href: "/dashboard/packages" },
+            { icon: <FiPercent />, label: "Discounts", href: "/dashboard/discounts" },
             { icon: <FiGift />, label: "Coupons", href: "/dashboard/coupons" },
             { icon: <FiAward />, label: "Points", href: "/dashboard/points" },
             { icon: <FiTrendingUp />, label: "Achievements", href: "/dashboard/achievements" },
