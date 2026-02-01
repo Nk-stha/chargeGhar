@@ -32,6 +32,7 @@ import {
   FiChevronsRight,
   FiBattery,
   FiMonitor,
+  FiBriefcase,
 } from "react-icons/fi";
 import styles from "./DashboardSidebar.module.css";
 
@@ -99,10 +100,15 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       ],
     },
     {
+      title: "Partner Management",
+      items: [
+        { icon: <FiBriefcase />, label: "Partners", href: "/dashboard/partners" },
+      ],
+    },
+    {
       title: "Management",
       items: [
         { icon: <FiFileText />, label: "KYC", href: "/dashboard/kyc" },
-        { icon: <FiUsers />, label: "Partner Management", href: "/dashboard/partners" },
         {
           icon: <FiAlertCircle />,
           label: "Issues",
