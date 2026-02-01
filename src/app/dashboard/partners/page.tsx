@@ -1,23 +1,30 @@
 import React from "react";
 import PartnerStats from "@/components/PartnerManagement/PartnerStats";
 import PartnerList from "@/components/PartnerManagement/PartnerList";
+import styles from "./partners.module.css";
 
 export default function PartnersPage() {
   return (
-    <div className="space-y-6">
+    <div className={styles.pageContainer}>
       {/* Page Header */}
-      <div className="flex flex-col gap-0.5">
-        <h1 className="text-2xl font-bold tracking-tight text-white">Partner Management</h1>
-        <p className="text-sm text-gray-400">
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>
+          Partner Management
+        </h1>
+        <p className={styles.pageSubtitle}>
           Overview of all registered vendors and their financial performance
         </p>
       </div>
 
       {/* Stats Section */}
-      <PartnerStats />
+      <div className={styles.statsSection}>
+        <PartnerStats />
+      </div>
 
       {/* Partners List */}
-      <PartnerList />
+      <div className={styles.listSection}>
+        <PartnerList />
+      </div>
     </div>
   );
 }

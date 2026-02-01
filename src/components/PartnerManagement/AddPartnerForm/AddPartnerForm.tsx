@@ -71,7 +71,8 @@ const AddPartnerForm: React.FC = () => {
         const { userService } = await import("../../../lib/api/user.service");
         const response = await userService.getUsers({ page: 1, page_size: 100 });
         
-        const users = response.data?.data?.results || response.data?.results || [];
+        // Handle wrapped response structure
+        const users = (response as any).data?.data?.results || response.data?.results || [];
         
         if (users.length === 0) {
           setUserLoadError("No users available in the system. Please create users first from the Users page.");
@@ -340,46 +341,69 @@ const AddPartnerForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4" style={{ position: 'relative', zIndex: 1, overflow: 'visible' }}>
-      {/* Page Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          New Partner <span className="text-primary">Registration</span>
-        </h1>
-        <p className="text-gray-400">Onboard new franchises and vendors to the Charge Ghar network.</p>
-      </div>
-
-      <div className={styles.tabContainer}>
-        <button 
-          className={`${styles.tabButton} ${partnerType === "VENDOR" ? styles.tabActive : ""}`}
-          onClick={() => {
-              setPartnerType("VENDOR");
-              setStationSearchQuery("");
-              setSelectedStationDisplay("");
-              setFormData(prev => ({ ...prev, station_id: "", station_ids: [] }));
-          }}
-        >
-          VENDOR PARTNER
-        </button>
-        <button 
-          className={`${styles.tabButton} ${partnerType === "FRANCHISE" ? styles.tabActive : ""}`}
-          onClick={() => {
-              setPartnerType("FRANCHISE");
-              setStationSearchQuery("");
-              setSelectedStationDisplay("");
-              setFormData(prev => ({ ...prev, station_id: "", station_ids: [] }));
-          }}
-        >
-          FRANCHISE PARTNER
-        </button>
-      </div>
-
-      <form className={styles.formContainer} onSubmit={handleSubmit}>
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-sm flex items-center gap-3">
-            <FiInfo /> {error}
+    <div className={styles.pageContainer}>
+      {/* Sticky Header */}
+      <div className={styles.pageHeader}>
+        <div className={styles.headerContent}>
+          <div className={styles.headerLeft}>
+            <h1 className={styles.pageTitle}>
+              New Partner Registration
+            </h1>
+            <p className={styles.pageSubtitle}>
+              Onboard new franchises and vendors to the Charge Ghar network
+            </p>
           </div>
-        )}
+          <div className={styles.headerRight}>
+            <button 
+              type="button"
+              className={styles.backButton}
+              onClick={() => router.back()}
+            >
+              <FiX /> Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Container */}
+      <div className={styles.formContainer}>
+        <div className={styles.formCard}>
+          <div className={styles.formContent}>
+            {/* Partner Type Tabs */}
+            <div className={styles.tabContainer}>
+              <button 
+                type="button"
+                className={`${styles.tabButton} ${partnerType === "VENDOR" ? styles.tabActive : ""}`}
+                onClick={() => {
+                    setPartnerType("VENDOR");
+                    setStationSearchQuery("");
+                    setSelectedStationDisplay("");
+                    setFormData(prev => ({ ...prev, station_id: "", station_ids: [] }));
+                }}
+              >
+                VENDOR PARTNER
+              </button>
+              <button 
+                type="button"
+                className={`${styles.tabButton} ${partnerType === "FRANCHISE" ? styles.tabActive : ""}`}
+                onClick={() => {
+                    setPartnerType("FRANCHISE");
+                    setStationSearchQuery("");
+                    setSelectedStationDisplay("");
+                    setFormData(prev => ({ ...prev, station_id: "", station_ids: [] }));
+                }}
+              >
+                FRANCHISE PARTNER
+              </button>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit}>
+              {error && (
+                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-sm flex items-center gap-3">
+                  <FiInfo /> {error}
+                </div>
+              )}
 
           {/* Authentication & User Section */}
           <section className={styles.formSection} style={{ overflow: 'visible', position: 'relative', zIndex: 100 }}>
@@ -387,7 +411,7 @@ const AddPartnerForm: React.FC = () => {
               <FiShield className={styles.sectionIcon} />
               <h2 className={styles.sectionTitle}>Partner Authentication</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8" style={{ overflow: 'visible' }}>
+            <div className={styles.formGrid} style={{ overflow: 'visible' }}>
               <div className={styles.inputGroup}>
                 <label className={styles.label} htmlFor="user_id">
                   Assigned User <span className={styles.required}>*</span>
@@ -524,8 +548,8 @@ const AddPartnerForm: React.FC = () => {
             <FiBriefcase className={styles.sectionIcon} />
             <h2 className={styles.sectionTitle}>Business Details</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="md:col-span-2">
+          <div className={styles.formGrid}>
+            <div className={styles.fullWidth}>
               <label className={styles.label} htmlFor="business_name">
                 Business Name <span className={styles.required}>*</span>
               </label>
@@ -587,7 +611,7 @@ const AddPartnerForm: React.FC = () => {
               <FiTrendingUp className={styles.sectionIcon} />
               <h2 className={styles.sectionTitle}>Vendor Configuration</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={styles.formGrid}>
               <div>
                 <label className={styles.label}>Vendor Type</label>
                 <div className={styles.tabContainer} style={{ marginBottom: 0 }}>
@@ -667,7 +691,7 @@ const AddPartnerForm: React.FC = () => {
               <FiDollarSign className={styles.sectionIcon} />
               <h2 className={styles.sectionTitle}>Franchise Agreement</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className={styles.formGrid}>
               <div>
                 <label className={styles.label} htmlFor="upfront_amount">Upfront Amount</label>
                 <div className={styles.amountWrapper}>
@@ -840,11 +864,14 @@ const AddPartnerForm: React.FC = () => {
             className={styles.submitButton}
             disabled={loading}
           >
-            {loading ? <FiLoader className="animate-spin" /> : <FiPlus />}
+            {loading ? <FiLoader className={styles.buttonSpinner} /> : <FiPlus />}
             {loading ? "Processing..." : `Create ${partnerType.charAt(0) + partnerType.slice(1).toLowerCase()}`}
           </button>
         </div>
       </form>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

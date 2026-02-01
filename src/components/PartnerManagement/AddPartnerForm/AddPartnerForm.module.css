@@ -1,43 +1,133 @@
-.formContainer {
-  background: rgba(18, 18, 18, 0.7);
+/* ========================================
+   ADD VENDOR FORM - FULL PAGE LAYOUT
+   ======================================== */
+
+.pageContainer {
+  min-height: 100vh;
+  background: #0a0a0a;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.pageContainer::before {
+  content: "";
+  position: fixed;
+  top: -10%;
+  right: -10%;
+  width: 40rem;
+  height: 40rem;
+  background: radial-gradient(circle, rgba(84, 188, 40, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pageContainer::after {
+  content: "";
+  position: fixed;
+  bottom: -10%;
+  left: -10%;
+  width: 40rem;
+  height: 40rem;
+  background: radial-gradient(circle, rgba(84, 188, 40, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.pageHeader {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 1.5rem;
-  padding: 3rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.5rem 2rem;
+}
+
+.headerContent {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.pageTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 0.375rem 0;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.pageSubtitle {
+  font-size: 0.9375rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.headerRight {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.backButton {
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5db;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(-2px);
+}
+
+.formContainer {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
   position: relative;
-  overflow: visible;
+  z-index: 1;
 }
 
-.formContainer::before {
-  content: "";
-  position: absolute;
-  top: -6rem;
-  right: -6rem;
-  width: 16rem;
-  height: 16rem;
-  background: rgba(84, 188, 40, 0.1);
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
+.formCard {
+  background: rgba(18, 18, 18, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
-.formContainer::after {
-  content: "";
-  position: absolute;
-  bottom: -6rem;
-  left: -6rem;
-  width: 16rem;
-  height: 16rem;
-  background: rgba(84, 188, 40, 0.05);
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
+.formContent {
+  padding: 3rem;
 }
 
 .formSection {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   padding-top: 1rem;
   animation: fadeIn 0.5s ease-out forwards;
   position: relative;
@@ -52,15 +142,16 @@
 .sectionHeader {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
+  gap: 0.875rem;
+  margin-bottom: 1.75rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .sectionIcon {
   color: #54bc28;
-  font-size: 1.25rem;
+  font-size: 1.375rem;
+  flex-shrink: 0;
 }
 
 .sectionTitle {
@@ -68,10 +159,27 @@
   font-weight: 600;
   color: #ffffff;
   letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .formGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
 }
 
 .inputGroup {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
   position: relative;
   overflow: visible;
 }
@@ -81,7 +189,8 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: #e5e7eb;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
+  line-height: 1.4;
 }
 
 .required {
@@ -93,18 +202,19 @@
   width: 100%;
   background: #1e1e1e;
   border: 1px solid #3f3f46;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
   color: #ffffff;
   font-size: 0.9375rem;
   transition: all 0.2s ease;
   outline: none;
+  line-height: 1.5;
 }
 
 .input:focus, .textarea:focus, .select:focus {
   border-color: #54bc28;
   background: #1e1e1e;
-  box-shadow: 0 0 0 2px rgba(84, 188, 40, 0.1);
+  box-shadow: 0 0 0 3px rgba(84, 188, 40, 0.1);
 }
 
 .input::placeholder, .textarea::placeholder {
@@ -112,7 +222,18 @@
 }
 
 .textarea {
-  resize: none;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 2.5rem;
 }
 
 .passwordWrapper {
@@ -132,6 +253,8 @@
   align-items: center;
   justify-content: center;
   transition: color 0.2s ease;
+  font-size: 1.125rem;
+  padding: 0.25rem;
 }
 
 .passwordToggle:hover {
@@ -141,16 +264,17 @@
 .tabContainer {
   display: flex;
   background: rgba(255, 255, 255, 0.03);
-  padding: 0.25rem;
-  border-radius: 0.75rem;
+  padding: 0.375rem;
+  border-radius: 0.875rem;
   margin-bottom: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  gap: 0.375rem;
 }
 
 .tabButton {
   flex: 1;
-  padding: 0.625rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
   font-size: 0.875rem;
   font-weight: 700;
   color: #9ca3af;
@@ -160,12 +284,18 @@
   background: transparent;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .tabActive {
   background: #54bc28;
   color: #000000;
   box-shadow: 0 4px 12px rgba(84, 188, 40, 0.2);
+}
+
+.tabButton:hover:not(.tabActive) {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5db;
 }
 
 .amountWrapper {
@@ -179,8 +309,9 @@
   transform: translateY(-50%);
   font-weight: 700;
   color: #54bc28;
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   pointer-events: none;
+  z-index: 1;
 }
 
 .amountInput {
@@ -189,8 +320,8 @@
 
 .rangeGroup {
   background: rgba(255, 255, 255, 0.02);
-  padding: 1.25rem;
-  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border-radius: 0.875rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -198,14 +329,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+}
+
+.rangeLabel {
+  font-size: 0.875rem;
+  color: #e5e7eb;
+  font-weight: 600;
 }
 
 .rangeValue {
   font-family: ui-monospace, monospace;
   font-weight: 700;
   color: #54bc28;
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 .rangeInput {
@@ -216,95 +354,114 @@
   border-radius: 4px;
   outline: none;
   cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .rangeInput::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   background: #54bc28;
   border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 0 10px rgba(84, 188, 40, 0.4);
   transition: transform 0.2s ease;
+  border: 2px solid #000;
 }
 
 .rangeInput::-webkit-slider-thumb:hover {
   transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(84, 188, 40, 0.6);
 }
 
 .rangeInput::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   background: #54bc28;
   border-radius: 50%;
   cursor: pointer;
-  border: none;
+  border: 2px solid #000;
   box-shadow: 0 0 10px rgba(84, 188, 40, 0.4);
   transition: transform 0.2s ease;
 }
 
 .rangeInput::-moz-range-thumb:hover {
   transform: scale(1.15);
+  box-shadow: 0 0 15px rgba(84, 188, 40, 0.6);
 }
 
 .stationTags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.75rem;
+  gap: 0.625rem;
+  padding: 0.875rem;
   border: 1px solid #3f3f46;
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
   background: #1e1e1e;
-  min-height: 3.5rem;
+  min-height: 4rem;
+  align-items: center;
 }
 
 .tag {
   background: rgba(84, 188, 40, 0.2);
   color: #54bc28;
-  padding: 0.375rem 0.75rem;
+  padding: 0.4375rem 0.875rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   border: 1px solid rgba(84, 188, 40, 0.3);
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  background: rgba(84, 188, 40, 0.25);
+  border-color: rgba(84, 188, 40, 0.4);
 }
 
 .removeTag {
   cursor: pointer;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   opacity: 0.7;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .removeTag:hover {
   opacity: 1;
   color: #ffffff;
+  transform: scale(1.1);
 }
 
 .tagInput {
   background: transparent;
   border: none;
   color: #ffffff;
-  font-size: 0.875rem;
-  padding: 0.25rem;
+  font-size: 0.9375rem;
+  padding: 0.375rem;
   flex: 1;
-  min-width: 120px;
+  min-width: 140px;
   outline: none;
+}
+
+.tagInput::placeholder {
+  color: #6b7280;
 }
 
 .submitActions {
   display: flex;
   flex-direction: column-reverse;
   gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   padding-top: 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .submitActions {
     flex-direction: row;
     justify-content: flex-end;
@@ -320,15 +477,25 @@
   padding: 0.875rem 2rem;
   border-radius: 0.75rem;
   font-weight: 700;
+  font-size: 0.9375rem;
   color: #54bc28;
   background: transparent;
   border: 2px solid rgba(84, 188, 40, 0.5);
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .cancelButton:hover {
   background: rgba(84, 188, 40, 0.1);
+  border-color: rgba(84, 188, 40, 0.7);
+}
+
+.cancelButton:active {
+  transform: scale(0.98);
 }
 
 .submitButton {
@@ -336,6 +503,7 @@
   padding: 0.875rem 2.5rem;
   border-radius: 0.75rem;
   font-weight: 700;
+  font-size: 0.9375rem;
   color: #000000;
   background: #54bc28;
   border: none;
@@ -348,13 +516,13 @@
   box-shadow: 0 10px 20px -5px rgba(84, 188, 40, 0.2);
 }
 
-.submitButton:hover {
+.submitButton:hover:not(:disabled) {
   background: #46a020;
   transform: translateY(-2px);
   box-shadow: 0 15px 25px -5px rgba(84, 188, 40, 0.3);
 }
 
-.submitButton:active {
+.submitButton:active:not(:disabled) {
   transform: translateY(0);
 }
 
@@ -364,11 +532,612 @@
   transform: none;
 }
 
-@media (max-width: 768px) {
+.buttonSpinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ========================================
+   RESPONSIVE BREAKPOINTS
+   ======================================== */
+
+/* Large Devices (Desktop) - Default styles above */
+@media (min-width: 1025px) {
+  .formContent {
+    padding: 3.5rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.375rem;
+  }
+  
+  .input, .textarea, .select {
+    font-size: 1rem;
+  }
+}
+
+/* Medium Devices (Tablets) */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .pageHeader {
+    padding: 1.25rem 1.5rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.625rem;
+  }
+  
   .formContainer {
     padding: 2rem 1.5rem;
   }
+  
+  .formContent {
+    padding: 2.5rem;
+  }
+  
+  .formSection {
+    margin-bottom: 2.25rem;
+  }
+  
+  .sectionHeader {
+    margin-bottom: 1.5rem;
+  }
+  
+  .sectionIcon {
+    font-size: 1.25rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.1875rem;
+  }
+  
+  .label {
+    font-size: 0.8125rem;
+  }
+  
+  .input, .textarea, .select {
+    font-size: 0.9375rem;
+    padding: 0.8125rem 0.9375rem;
+  }
+  
+  .tabButton {
+    padding: 0.6875rem 0.9375rem;
+  }
+  
+  .rangeGroup {
+    padding: 1.375rem;
+  }
+  
+  .rangeValue {
+    font-size: 1.0625rem;
+  }
+  
+  .stationTags {
+    padding: 0.8125rem;
+  }
+  
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.40625rem 0.8125rem;
+  }
+  
+  .tagInput {
+    font-size: 0.875rem;
+    min-width: 130px;
+  }
 }
+
+/* Tablet Portrait & Small Tablets */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 1.25rem;
+  }
+  
+  .headerContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.5rem;
+  }
+  
+  .pageSubtitle {
+    font-size: 0.875rem;
+  }
+  
+  .headerRight {
+    width: 100%;
+  }
+  
+  .backButton {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .formContainer {
+    padding: 1.5rem 1.25rem;
+  }
+  
+  .formCard {
+    border-radius: 1.25rem;
+  }
+  
+  .formContent {
+    padding: 2rem 1.5rem;
+  }
+  
+  .formSection {
+    margin-bottom: 2rem;
+  }
+  
+  .sectionHeader {
+    margin-bottom: 1.375rem;
+    padding-bottom: 0.875rem;
+    gap: 0.75rem;
+  }
+  
+  .sectionIcon {
+    font-size: 1.1875rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1.125rem;
+  }
+  
+  .formGrid {
+    gap: 1.375rem;
+  }
+  
+  .label {
+    font-size: 0.8125rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .input, .textarea, .select {
+    font-size: 0.875rem;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.5625rem;
+  }
+  
+  .passwordToggle {
+    font-size: 1.0625rem;
+  }
+  
+  .tabContainer {
+    margin-bottom: 1.75rem;
+    padding: 0.3125rem;
+  }
+  
+  .tabButton {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .currencyPrefix {
+    font-size: 0.875rem;
+  }
+  
+  .amountInput {
+    padding-left: 3.75rem;
+  }
+  
+  .rangeGroup {
+    padding: 1.125rem;
+  }
+  
+  .rangeValue {
+    font-size: 1rem;
+  }
+  
+  .stationTags {
+    padding: 0.75rem;
+    min-height: 3.5rem;
+    gap: 0.5rem;
+  }
+  
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+  
+  .tagInput {
+    font-size: 0.8125rem;
+    min-width: 110px;
+  }
+  
+  .submitActions {
+    margin-top: 2rem;
+    padding-top: 1.75rem;
+    gap: 0.875rem;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    padding: 0.8125rem 1.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .dropdownContainer {
+    max-height: 350px;
+  }
+  
+  .dropdownSearch {
+    padding: 0.625rem;
+  }
+  
+  .dropdownSearchInput {
+    font-size: 0.8125rem;
+    padding: 0.5625rem 2.25rem 0.5625rem 2.25rem;
+  }
+  
+  .dropdownList {
+    max-height: 220px;
+  }
+  
+  .dropdownItem {
+    padding: 0.6875rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+  .pageHeader {
+    padding: 1rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.25rem;
+  }
+  
+  .pageSubtitle {
+    font-size: 0.8125rem;
+  }
+  
+  .backButton {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.875rem;
+  }
+  
+  .formContainer {
+    padding: 1.25rem 1rem;
+  }
+  
+  .formCard {
+    border-radius: 1rem;
+  }
+  
+  .formContent {
+    padding: 1.5rem 1.25rem;
+  }
+  
+  .formSection {
+    margin-bottom: 1.75rem;
+    padding-top: 0.75rem;
+  }
+  
+  .sectionHeader {
+    margin-bottom: 1.125rem;
+    padding-bottom: 0.75rem;
+    gap: 0.625rem;
+  }
+  
+  .sectionIcon {
+    font-size: 1.0625rem;
+  }
+  
+  .sectionTitle {
+    font-size: 1rem;
+  }
+  
+  .formGrid {
+    gap: 1.125rem;
+  }
+  
+  .label {
+    font-size: 0.75rem;
+    margin-bottom: 0.4375rem;
+  }
+  
+  .input, .textarea, .select {
+    font-size: 0.8125rem;
+    padding: 0.6875rem 0.8125rem;
+    border-radius: 0.5rem;
+  }
+  
+  .textarea {
+    min-height: 90px;
+  }
+  
+  .passwordToggle {
+    right: 0.8125rem;
+    font-size: 1rem;
+  }
+  
+  .tabContainer {
+    padding: 0.25rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.75rem;
+    gap: 0.25rem;
+  }
+  
+  .tabButton {
+    padding: 0.5625rem 0.75rem;
+    font-size: 0.75rem;
+    border-radius: 0.5rem;
+  }
+  
+  .amountWrapper .currencyPrefix {
+    left: 0.8125rem;
+    font-size: 0.8125rem;
+  }
+  
+  .amountInput {
+    padding-left: 3.5rem;
+  }
+  
+  .rangeGroup {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+  
+  .rangeHeader {
+    margin-bottom: 1rem;
+  }
+  
+  .rangeLabel {
+    font-size: 0.8125rem;
+  }
+  
+  .rangeValue {
+    font-size: 0.9375rem;
+  }
+  
+  .rangeInput {
+    height: 7px;
+  }
+  
+  .rangeInput::-webkit-slider-thumb {
+    width: 19px;
+    height: 19px;
+  }
+  
+  .rangeInput::-moz-range-thumb {
+    width: 19px;
+    height: 19px;
+  }
+  
+  .stationTags {
+    min-height: 3rem;
+    padding: 0.625rem;
+    gap: 0.4375rem;
+  }
+  
+  .tag {
+    font-size: 0.6875rem;
+    padding: 0.3125rem 0.625rem;
+    gap: 0.4375rem;
+  }
+  
+  .removeTag {
+    font-size: 0.75rem;
+  }
+  
+  .tagInput {
+    font-size: 0.75rem;
+    min-width: 90px;
+    padding: 0.3125rem;
+  }
+  
+  .submitActions {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    gap: 0.75rem;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.8125rem;
+    border-radius: 0.625rem;
+  }
+  
+  .dropdownContainer {
+    max-height: 300px;
+    border-radius: 0.75rem;
+  }
+  
+  .dropdownSearch {
+    padding: 0.5625rem;
+  }
+  
+  .dropdownSearchIcon {
+    left: 1rem;
+    font-size: 0.9375rem;
+  }
+  
+  .dropdownSearchInput {
+    font-size: 0.75rem;
+    padding: 0.5625rem 2rem 0.5625rem 2rem;
+  }
+  
+  .dropdownSearchClear {
+    right: 1rem;
+    width: 1.125rem;
+    height: 1.125rem;
+    font-size: 0.75rem;
+  }
+  
+  .dropdownList {
+    max-height: 180px;
+  }
+  
+  .dropdownItem {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .dropdownEmpty {
+    padding: 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
+  .dropdownFooter {
+    padding: 0.625rem;
+  }
+  
+  .dropdownCloseBtn {
+    padding: 0.4375rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Small Mobile Devices */
+@media (max-width: 360px) {
+  .pageHeader {
+    padding: 0.875rem;
+  }
+  
+  .pageTitle {
+    font-size: 1.125rem;
+  }
+  
+  .pageSubtitle {
+    font-size: 0.75rem;
+  }
+  
+  .backButton {
+    padding: 0.5625rem 1rem;
+    font-size: 0.8125rem;
+  }
+  
+  .formContainer {
+    padding: 1rem 0.875rem;
+  }
+  
+  .formCard {
+    border-radius: 0.875rem;
+  }
+  
+  .formContent {
+    padding: 1.25rem 1rem;
+  }
+  
+  .formSection {
+    margin-bottom: 1.5rem;
+  }
+  
+  .sectionHeader {
+    margin-bottom: 1rem;
+  }
+  
+  .sectionIcon {
+    font-size: 1rem;
+  }
+  
+  .sectionTitle {
+    font-size: 0.9375rem;
+  }
+  
+  .formGrid {
+    gap: 1rem;
+  }
+  
+  .label {
+    font-size: 0.6875rem;
+  }
+  
+  .input, .textarea, .select {
+    font-size: 0.75rem;
+    padding: 0.625rem 0.75rem;
+  }
+  
+  .textarea {
+    min-height: 80px;
+  }
+  
+  .passwordToggle {
+    right: 0.75rem;
+    font-size: 0.9375rem;
+  }
+  
+  .tabButton {
+    padding: 0.5rem 0.625rem;
+    font-size: 0.6875rem;
+  }
+  
+  .amountWrapper .currencyPrefix {
+    left: 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  .amountInput {
+    padding-left: 3.25rem;
+  }
+  
+  .rangeGroup {
+    padding: 0.875rem;
+  }
+  
+  .rangeLabel {
+    font-size: 0.75rem;
+  }
+  
+  .rangeValue {
+    font-size: 0.875rem;
+  }
+  
+  .rangeInput {
+    height: 6px;
+  }
+  
+  .rangeInput::-webkit-slider-thumb {
+    width: 17px;
+    height: 17px;
+  }
+  
+  .rangeInput::-moz-range-thumb {
+    width: 17px;
+    height: 17px;
+  }
+  
+  .stationTags {
+    min-height: 2.75rem;
+    padding: 0.5rem;
+  }
+  
+  .tag {
+    font-size: 0.625rem;
+    padding: 0.25rem 0.5rem;
+  }
+  
+  .tagInput {
+    font-size: 0.6875rem;
+    min-width: 70px;
+  }
+  
+  .submitActions {
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+  }
+  
+  .cancelButton,
+  .submitButton {
+    padding: 0.6875rem 1.25rem;
+    font-size: 0.75rem;
+  }
+  
+  .dropdownItem {
+    font-size: 0.6875rem;
+    padding: 0.5625rem 0.625rem;
+  }
+}
+
 
 /* Dropdown Styles */
 .dropdownContainer {

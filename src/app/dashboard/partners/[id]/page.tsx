@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
 import { 
-  FiChevronRight, FiEdit, FiMapPin, FiInfo, FiMail, 
-  FiPhone, FiDollarSign, FiFileText, FiUser
+  FiEdit, FiMapPin, FiInfo, FiMail, 
+  FiPhone, FiDollarSign, FiFileText, FiUser, FiSettings
 } from "react-icons/fi";
 import { MdEvStation } from "react-icons/md";
 import { getPartnerDetail } from "@/lib/api/partners";
 import { PartnerDetail } from "@/types/partner";
+import PartnerStatusModal from "@/components/PartnerManagement/PartnerStatusModal/PartnerStatusModal";
 
 import styles from "./partnerDetail.module.css";
 
@@ -21,6 +21,7 @@ export default function PartnerDetailPage() {
   const [partner, setPartner] = useState<PartnerDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showStatusModal, setShowStatusModal] = useState(false);
 
   useEffect(() => {
     const fetchPartnerDetail = async () => {
@@ -61,6 +62,20 @@ export default function PartnerDetailPage() {
     })}`;
   };
 
+  const handleStatusUpdate = async (data: any) => {
+    try {
+      // Data is already updated via API calls in the modal
+      // Just refresh partner data
+      const response = await getPartnerDetail(partnerId);
+      if (response.success) {
+        setPartner(response.data);
+      }
+    } catch (err: any) {
+      console.error("Error refreshing partner data:", err);
+      throw err;
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -87,15 +102,6 @@ export default function PartnerDetailPage() {
 
   return (
     <div className={styles.container}>
-      {/* Breadcrumb */}
-      <nav className={styles.breadcrumb}>
-        <Link href="/dashboard">Overview</Link>
-        <FiChevronRight />
-        <Link href="/dashboard/partners">Partners</Link>
-        <FiChevronRight />
-        <span>{partner.code}</span>
-      </nav>
-
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.headerLeft}>
@@ -105,11 +111,17 @@ export default function PartnerDetailPage() {
           </span>
         </div>
         <div className={styles.headerRight}>
-          <button className={styles.editBtn}>
+          <button 
+            className={styles.editBtn}
+            onClick={() => router.push(`/dashboard/partners/${partnerId}/edit`)}
+          >
             <FiEdit /> Edit Partner
           </button>
-          <button className={styles.primaryBtn}>
-            <MdEvStation /> Manage Stations
+          <button 
+            className={styles.primaryBtn}
+            onClick={() => setShowStatusModal(true)}
+          >
+            <FiSettings /> Manage Partner
           </button>
         </div>
       </header>
@@ -323,6 +335,17 @@ export default function PartnerDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Partner Status Modal */}
+      <PartnerStatusModal
+        isOpen={showStatusModal}
+        onClose={() => setShowStatusModal(false)}
+        partnerId={partnerId}
+        partnerName={partner.business_name}
+        currentStatus={partner.status as "ACTIVE" | "INACTIVE" | "SUSPENDED"}
+        currentVendorType={partner.vendor_type as "REVENUE" | "NON_REVENUE" | null}
+        onUpdate={handleStatusUpdate}
+      />
     </div>
   );
 }

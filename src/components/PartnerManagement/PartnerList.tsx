@@ -112,9 +112,8 @@ const PartnerList: React.FC = () => {
           </div>
         </div>
 
-
-      {/* Table Section */}
-      <div className={styles.tableContainer}>
+      {/* Desktop Table View */}
+      <div className={`${styles.tableContainer} ${styles.desktopOnly}`}>
         <div className={styles.tableWrapper}>
           <table className={styles.table}>
             <thead>
@@ -253,7 +252,6 @@ const PartnerList: React.FC = () => {
                 <FiChevronLeft />
               </button>
               
-              {/* Simple page numbers could go here if needed */}
               <div className="flex items-center px-2 font-bold text-primary">
                 {page}
               </div>
@@ -267,6 +265,146 @@ const PartnerList: React.FC = () => {
               </button>
             </div>
           </div>
+        )}
+      </div>
+
+      {/* Mobile Card View */}
+      <div className={styles.mobileOnly}>
+        {loading ? (
+          <div className={styles.cardGrid}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className={`${styles.partnerCard} animate-pulse`}>
+                <div className="h-4 bg-white/5 rounded w-3/4 mb-3"></div>
+                <div className="h-3 bg-white/5 rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-white/5 rounded w-full"></div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className={styles.emptyState}>
+            <span className="text-4xl">⚠️</span>
+            <p className="text-red-400">{error}</p>
+            <button onClick={() => fetchPartners()} className="text-primary hover:underline text-sm font-bold">Try Again</button>
+          </div>
+        ) : partners.length === 0 ? (
+          <div className={styles.emptyState}>
+            <span className="text-4xl">🔍</span>
+            <p className="text-gray-500">No vendors found matching your search</p>
+          </div>
+        ) : (
+          <>
+            <div className={styles.cardGrid}>
+              {partners.map((partner) => (
+                <div 
+                  key={partner.id} 
+                  className={styles.partnerCard}
+                  onClick={() => handleRowClick(partner)}
+                >
+                  <div className={styles.cardHeader}>
+                    <div className={styles.cardTitle}>
+                      <h3>{partner.business_name}</h3>
+                      <span className={styles.partnerCode}>{partner.code}</span>
+                    </div>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        partner.status === "ACTIVE"
+                          ? styles.statusActive
+                          : styles.statusInactive
+                      }`}
+                    >
+                      <span className={styles.statusDot}></span>
+                      {partner.status}
+                    </span>
+                  </div>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardRow}>
+                      <span className={styles.cardLabel}>Type</span>
+                      <span className={styles.cardValue}>
+                        {partner.partner_type.replace("_", " ")}
+                        {partner.vendor_type && ` • ${partner.vendor_type}`}
+                      </span>
+                    </div>
+
+                    <div className={styles.cardRow}>
+                      <span className={styles.cardLabel}>Balance</span>
+                      <span className={styles.cardValueHighlight}>
+                        NPR {Number(partner.balance).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className={styles.cardRow}>
+                      <span className={styles.cardLabel}>Total Earnings</span>
+                      <span className={styles.cardValue}>
+                        NPR {Number(partner.total_earnings).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className={styles.cardRow}>
+                      <span className={styles.cardLabel}>Contact</span>
+                      <div className={styles.cardContact}>
+                        <span>{partner.contact_email}</span>
+                        <span>{partner.contact_phone}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.cardRow}>
+                      <span className={styles.cardLabel}>Created</span>
+                      <span className={styles.cardValue}>
+                        {new Date(partner.created_at).toLocaleDateString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className={styles.cardFooter}>
+                    <button
+                      className={styles.cardButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRowClick(partner);
+                      }}
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Mobile Pagination */}
+            {totalCount > 0 && (
+              <div className={styles.mobilePagination}>
+                <span className={styles.paginationInfo}>
+                  Showing <strong>{partners.length}</strong> of <strong>{totalCount}</strong>
+                </span>
+                <div className={styles.paginationControls}>
+                  <button 
+                    className={styles.paginationButton} 
+                    disabled={page === 1 || loading}
+                    onClick={() => handlePageChange(page - 1)}
+                  >
+                    <FiChevronLeft />
+                  </button>
+                  
+                  <div className="flex items-center px-3 font-bold text-primary">
+                    {page} / {totalPages}
+                  </div>
+
+                  <button 
+                    className={styles.paginationButton} 
+                    disabled={page >= totalPages || loading}
+                    onClick={() => handlePageChange(page + 1)}
+                  >
+                    <FiChevronRight />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
