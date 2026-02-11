@@ -218,7 +218,7 @@ export default function PartnerDetailPage() {
                 <div className={styles.avatar}>
                   {partner.assigned_by_name?.charAt(0).toUpperCase() || "U"}
                 </div>
-                <span>{partner.assigned_by_name || "Unknown"}</span>
+                <span style={{ color: "#ddd8d8ff" }}>{partner.assigned_by_name || "Unknown"}</span>
               </div>
             </div>
             {partner.parent_id && (

@@ -1,14 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: "https://main.chargeghar.com/api/:path*",
-      },
-    ];
-  },
+  // Removed global API rewrite to allow Next.js API routes to work
+  // Individual API routes now handle proxying to backend
 };
 
 export default nextConfig;

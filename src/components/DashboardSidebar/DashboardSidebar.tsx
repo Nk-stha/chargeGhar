@@ -103,7 +103,15 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     {
       title: "Partner Management",
       items: [
-        { icon: <FiBriefcase />, label: "Partners", href: "/dashboard/partners" },
+        {
+          icon: <FiBriefcase />,
+          label: "Partners",
+          subItems: [
+            { icon: <FiUsers />, label: "All Partners", href: "/dashboard/partners" },
+            { icon: <FiMapPin />, label: "Station Distributions", href: "/dashboard/partners/station-distributions" },
+            { icon: <FiBarChart2 />, label: "Revenue Analytics", href: "/dashboard/partners/revenue-analytics" },
+          ],
+        },
       ],
     },
     {
@@ -417,21 +425,28 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                             {/* Submenu */}
                             {!collapsed && itemIsExpanded && (
                               <ul className={styles.subMenu}>
-                                {item.subItems?.map((subItem, subIndex) => {
-                                  const subItemIsActive = pathname.startsWith(subItem.href);
-                                  return (
-                                    <li key={subIndex}>
-                                      <Link
-                                        href={subItem.href}
-                                        className={`${styles.subNavItem} ${subItemIsActive ? styles.active : ""}`}
-                                      >
-                                        <span className={styles.subIcon}>{subItem.icon}</span>
-                                        <span className={styles.label}>{subItem.label}</span>
-                                        {subItem.badge && <span className={styles.badge}>{subItem.badge}</span>}
-                                      </Link>
-                                    </li>
-                                  );
-                                })}
+                                {(() => {
+                                  // Find the best (most specific) matching sub-item
+                                  const bestMatch = item.subItems
+                                    ?.filter(si => pathname === si.href || pathname.startsWith(si.href + '/'))
+                                    ?.sort((a, b) => b.href.length - a.href.length)?.[0]?.href;
+
+                                  return item.subItems?.map((subItem, subIndex) => {
+                                    const subItemIsActive = subItem.href === bestMatch;
+                                    return (
+                                      <li key={subIndex}>
+                                        <Link
+                                          href={subItem.href}
+                                          className={`${styles.subNavItem} ${subItemIsActive ? styles.active : ""}`}
+                                        >
+                                          <span className={styles.subIcon}>{subItem.icon}</span>
+                                          <span className={styles.label}>{subItem.label}</span>
+                                          {subItem.badge && <span className={styles.badge}>{subItem.badge}</span>}
+                                        </Link>
+                                      </li>
+                                    );
+                                  });
+                                })()}
                               </ul>
                             )}
                           </div>

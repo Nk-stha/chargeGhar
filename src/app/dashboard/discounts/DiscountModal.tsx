@@ -102,19 +102,29 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         }),
       ]);
 
+      let stationsData: Station[] = [];
+      let packagesData: Package[] = [];
+
       if (stationsRes.data.success) {
-        const stationsData = stationsRes.data.data?.results || stationsRes.data.data || [];
+        stationsData = stationsRes.data.data?.results || stationsRes.data.data || [];
         setStations(Array.isArray(stationsData) ? stationsData : []);
       }
 
       if (packagesRes.data.success) {
-        const packagesData = packagesRes.data.data?.rental_packages || packagesRes.data.data?.results || [];
+        packagesData = packagesRes.data.data?.rental_packages || packagesRes.data.data?.results || [];
         setPackages(Array.isArray(packagesData) ? packagesData : []);
       }
 
-      if ((!stationsRes.data.success || stations.length === 0) && 
-          (!packagesRes.data.success || packages.length === 0)) {
-        setError("Failed to load stations and packages. Please try again.");
+      // Check using local variables instead of state
+      if ((!stationsRes.data.success && !packagesRes.data.success) || 
+          (stationsData.length === 0 && packagesData.length === 0)) {
+        // Only show error if BOTH failed or BOTH are empty
+        // If one is empty, it might be valid (e.g. no stations yet), so we don't show a generic error
+        // But if APIs failed, we should probably warn. 
+        // Preserving original logic's intent of "both missing/failed" but using correct variables.
+        if (!stationsRes.data.success || !packagesRes.data.success) {
+           setError("Failed to load stations and packages. Please try again.");
+        }
       }
     } catch (err: any) {
       console.error("Error fetching data:", err);

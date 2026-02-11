@@ -428,14 +428,20 @@ export default function DiscountsPage() {
               <div className={styles.actions}>
                 <button
                   className={styles.editBtn}
-                  onClick={() => handleEdit(row)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(row);
+                  }}
                   title="Edit discount"
                 >
                   <FiEdit2 />
                 </button>
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => handleDelete(row.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(row.id);
+                  }}
                   disabled={deleteLoading === row.id}
                   title="Delete discount"
                 >
@@ -489,14 +495,20 @@ export default function DiscountsPage() {
               <div className={styles.actions}>
                 <button
                   className={styles.editBtn}
-                  onClick={() => handleEdit(row)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(row);
+                  }}
                   title="Edit discount"
                 >
                   <FiEdit2 />
                 </button>
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => handleDelete(row.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete(row.id);
+                  }}
                   disabled={deleteLoading === row.id}
                   title="Delete discount"
                 >
