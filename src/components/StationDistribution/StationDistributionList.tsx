@@ -3,13 +3,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FiSearch,
-  FiPlus,
   FiRefreshCw,
   FiChevronLeft,
   FiChevronRight,
   FiEye,
   FiTrash2,
-  FiDownload,
 } from "react-icons/fi";
 import styles from "./StationDistribution.module.css";
 import { getStationDistributions, deactivateStationDistribution } from "../../lib/api/stationDistributions";
@@ -151,14 +149,6 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
           >
             <FiRefreshCw className={loading ? "animate-spin" : ""} />
             <span className="hidden sm:inline">Refresh</span>
-          </button>
-          <button className={styles.secondaryButton} title="Export CSV">
-            <FiDownload />
-            <span className="hidden sm:inline">Export CSV</span>
-          </button>
-          <button className={styles.addButton}>
-            <FiPlus />
-            <span>New Distribution</span>
           </button>
         </div>
       </div>

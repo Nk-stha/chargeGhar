@@ -115,6 +115,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: 0.5rem 0;
+    scroll-behavior: smooth;
 }
 
 .navContainer::-webkit-scrollbar {
@@ -172,11 +173,18 @@
     transition: all 0.2s ease;
     cursor: pointer;
     position: relative;
+    outline: none;
 }
 
 .navItem:hover {
     background: #1a1a1a;
     color: #fff;
+    transform: translateX(2px);
+}
+
+.navItem:focus-visible {
+    outline: 2px solid #47b216;
+    outline-offset: -2px;
 }
 
 .navItem.active {
@@ -247,17 +255,21 @@
     list-style: none;
     padding: 0.25rem 0;
     margin: 0;
-    animation: slideDown 0.2s ease;
+    animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 1000px;
+    overflow: hidden;
 }
 
 @keyframes slideDown {
     from {
         opacity: 0;
-        transform: translateY(-4px);
+        transform: translateY(-8px);
+        max-height: 0;
     }
     to {
         opacity: 1;
         transform: translateY(0);
+        max-height: 1000px;
     }
 }
 
@@ -273,6 +285,7 @@
     transition: all 0.2s ease;
     font-size: 0.8125rem;
     position: relative;
+    outline: none;
 }
 
 .subNavItem::before {
@@ -291,6 +304,12 @@
 .subNavItem:hover {
     background: #1a1a1a;
     color: #fff;
+    transform: translateX(2px);
+}
+
+.subNavItem:focus-visible {
+    outline: 2px solid #47b216;
+    outline-offset: -2px;
 }
 
 .subNavItem:hover::before {
@@ -440,6 +459,25 @@
 .collapsed .navItem {
     justify-content: center;
     padding: 0.75rem;
+    position: relative;
+}
+
+.collapsed .navItem:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 0.5rem;
+    background: #1a1a1a;
+    color: #fff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8125rem;
+    white-space: nowrap;
+    z-index: 1000;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .collapsed .label,

@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FiSearch,
-  FiDownload,
   FiChevronLeft,
   FiChevronRight,
 } from "react-icons/fi";
@@ -137,7 +136,7 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
 
   return (
     <div className="space-y-6">
-      {/* Search & Download */}
+      {/* Search */}
       <div className={styles.searchSection}>
         <div className={styles.searchWrapper}>
           <FiSearch className={styles.searchIcon} />
@@ -149,10 +148,6 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-        <button className={styles.downloadButton}>
-          <FiDownload />
-          Download Report
-        </button>
       </div>
 
       {/* Desktop Table */}

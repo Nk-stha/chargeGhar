@@ -73,7 +73,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   // const [collapsed, setCollapsed] = useState(false); // Removed local state
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [focusedItemIndex, setFocusedItemIndex] = useState<number | null>(null);
+  const [hoveredParentItem, setHoveredParentItem] = useState<string | null>(null);
+  const [sidebarHovered, setSidebarHovered] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
+  const navContainerRef = useRef<HTMLDivElement>(null);
+  const activeItemRef = useRef<HTMLElement>(null);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const sidebarHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -122,19 +129,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {
           icon: <FiAlertCircle />,
           label: "Issues",
-          badge: 3,
           subItems: [
             {
               icon: <FiAlertCircle />,
               label: "Rental Issues",
               href: "/dashboard/issues/rental-issues",
-              badge: 2,
             },
             {
               icon: <FiAlertCircle />,
               label: "Station Issues",
               href: "/dashboard/issues/station-issues",
-              badge: 1,
             },
           ],
         },
@@ -259,6 +263,38 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [mobileOpen, collapsed, onMobileClose, onToggleCollapse]);
 
+  // Keyboard navigation - Close mobile menu on Escape
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && mobileOpen && onMobileClose) {
+        onMobileClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [mobileOpen, onMobileClose]);
+
+  // Auto-scroll active item into view
+  useEffect(() => {
+    if (activeItemRef.current && navContainerRef.current) {
+      const container = navContainerRef.current;
+      const activeItem = activeItemRef.current;
+      
+      // Scroll into view with smooth behavior
+      const scrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+      const itemTop = activeItem.offsetTop;
+      const itemHeight = activeItem.clientHeight;
+      
+      if (itemTop < scrollTop) {
+        container.scrollTop = itemTop - 10;
+      } else if (itemTop + itemHeight > scrollTop + containerHeight) {
+        container.scrollTop = itemTop + itemHeight - containerHeight + 10;
+      }
+    }
+  }, [pathname]);
+
   const toggleCollapsed = () => {
     if (onToggleCollapse) {
       onToggleCollapse();
@@ -269,6 +305,80 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     setExpandedItems((prev) =>
       prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label]
     );
+  };
+
+  const handleParentItemHover = (label: string, hasSubItems: boolean) => {
+    // Don't expand on hover if searching or sidebar is collapsed
+    if (!hasSubItems || searchQuery.trim() || collapsed) return;
+
+    // Clear any existing timeout
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    // Set a small delay before expanding on hover
+    hoverTimeoutRef.current = setTimeout(() => {
+      setHoveredParentItem(label);
+      if (!expandedItems.includes(label)) {
+        setExpandedItems((prev) => [...prev, label]);
+      }
+    }, 200);
+  };
+
+  const handleParentItemLeave = (label: string) => {
+    // Don't collapse on leave if searching or sidebar is collapsed
+    if (searchQuery.trim() || collapsed) return;
+
+    // Clear timeout if mouse leaves before delay completes
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+
+    setHoveredParentItem(null);
+    // Collapse on leave (only if it was expanded by hover)
+    setExpandedItems((prev) => prev.filter((item) => item !== label));
+  };
+
+  const handleSubMenuHover = () => {
+    // Keep submenu open while hovering over it
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+  };
+
+  const handleSubMenuLeave = (label: string) => {
+    // Don't collapse on leave if searching or sidebar is collapsed
+    if (searchQuery.trim() || collapsed) return;
+
+    // Collapse when leaving submenu
+    setHoveredParentItem(null);
+    setExpandedItems((prev) => prev.filter((item) => item !== label));
+  };
+
+  const handleSidebarHover = () => {
+    // Only expand sidebar on hover if it's currently collapsed
+    if (collapsed && onToggleCollapse) {
+      if (sidebarHoverTimeoutRef.current) {
+        clearTimeout(sidebarHoverTimeoutRef.current);
+      }
+      sidebarHoverTimeoutRef.current = setTimeout(() => {
+        setSidebarHovered(true);
+        onToggleCollapse();
+      }, 100);
+    }
+  };
+
+  const handleSidebarLeave = () => {
+    // Only collapse sidebar on leave if it was expanded by hover
+    if (sidebarHovered && collapsed === false && onToggleCollapse) {
+      if (sidebarHoverTimeoutRef.current) {
+        clearTimeout(sidebarHoverTimeoutRef.current);
+      }
+      sidebarHoverTimeoutRef.current = setTimeout(() => {
+        setSidebarHovered(false);
+        onToggleCollapse();
+      }, 100);
+    }
   };
 
   const isActive = (href?: string, subItems?: SubMenuItem[]) => {
@@ -358,6 +468,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <nav 
         ref={sidebarRef}
         className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""} ${mobileOpen ? styles.mobileOpen : ""}`}
+        onMouseEnter={handleSidebarHover}
+        onMouseLeave={handleSidebarLeave}
       >
         {/* Search Bar */}
         {!collapsed && (
@@ -383,7 +495,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         )}
 
         {/* Navigation */}
-        <div className={styles.navContainer}>
+        <div className={styles.navContainer} ref={navContainerRef}>
           {searchQuery && filteredCategories.length === 0 ? (
             <div className={styles.noResults}>
               <FiSearch />
@@ -404,10 +516,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     return (
                       <li key={index}>
                         {hasSubItems ? (
-                          <div>
+                          <div
+                            onMouseEnter={() => handleParentItemHover(item.label, hasSubItems)}
+                            onMouseLeave={() => handleParentItemLeave(item.label)}
+                          >
                             <div
                               className={`${styles.navItem} ${styles.parentItem} ${itemIsActive ? styles.active : ""}`}
                               onClick={() => !searchQuery && toggleExpanded(item.label)}
+                              ref={itemIsActive ? activeItemRef : null}
                             >
                               <span className={styles.icon}>{item.icon}</span>
                               {!collapsed && (
@@ -425,7 +541,11 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
                             {/* Submenu */}
                             {!collapsed && itemIsExpanded && (
-                              <ul className={styles.subMenu}>
+                              <ul 
+                                className={styles.subMenu}
+                                onMouseEnter={handleSubMenuHover}
+                                onMouseLeave={() => handleSubMenuLeave(item.label)}
+                              >
                                 {(() => {
                                   // Find the best (most specific) matching sub-item
                                   const bestMatch = item.subItems
@@ -439,6 +559,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                         <Link
                                           href={subItem.href}
                                           className={`${styles.subNavItem} ${subItemIsActive ? styles.active : ""}`}
+                                          ref={subItemIsActive ? activeItemRef : null}
                                         >
                                           <span className={styles.subIcon}>{subItem.icon}</span>
                                           <span className={styles.label}>{subItem.label}</span>
@@ -455,6 +576,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                           <Link
                             href={item.href!}
                             className={`${styles.navItem} ${itemIsActive ? styles.active : ""}`}
+                            ref={itemIsActive ? activeItemRef : null}
                           >
                             <span className={styles.icon}>{item.icon}</span>
                             {!collapsed && (

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { FiSearch, FiPlus, FiEdit, FiRefreshCw, FiChevronLeft, FiChevronRight, FiAlertCircle, FiLoader } from "react-icons/fi";
+import { FiSearch, FiPlus, FiRefreshCw, FiChevronLeft, FiChevronRight, FiAlertCircle, FiLoader } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import styles from "./PartnerManagement.module.css";
 import { getPartners } from "../../lib/api/partners";
@@ -76,12 +76,6 @@ const PartnerList: React.FC = () => {
     router.push(`/dashboard/partners/${partner.id}`);
   };
 
-  const handleEditVendor = (e: React.MouseEvent, partner: Partner) => {
-    e.stopPropagation(); // Prevent row click
-    // TODO: Implement edit vendor modal
-    console.log("Edit vendor:", partner);
-  };
-
   const totalPages = Math.ceil(totalCount / pageSize);
 
   if (loading && partners.length === 0) { // Only show full-page loader if no data is loaded yet
@@ -138,21 +132,20 @@ const PartnerList: React.FC = () => {
                 <th>Total Earnings</th>
                 <th>Status</th>
                 <th>Created At</th>
-                <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading && partners.length === 0 ? ( // Show skeleton loader only if no data and loading
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
-                    <td colSpan={9} className="py-6">
+                    <td colSpan={8} className="py-6">
                       <div className="h-4 bg-white/5 rounded w-full"></div>
                     </td>
                   </tr>
                 ))
               ) : partners.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-12 text-gray-500">
+                  <td colSpan={8} className="text-center py-12 text-gray-500">
                     <div className="flex flex-col items-center gap-2">
                         <span className="text-3xl">🔍</span>
                         <p>No vendors found matching your search</p>
@@ -221,15 +214,6 @@ const PartnerList: React.FC = () => {
                           day: 'numeric'
                         })}
                       </span>
-                    </td>
-                    <td className={styles.actionsCell}>
-                      <button
-                        className={styles.actionButton}
-                        onClick={(e) => handleEditVendor(e, partner)}
-                        title="Edit Vendor"
-                      >
-                        <FiEdit />
-                      </button>
                     </td>
                   </tr>
                 ))
