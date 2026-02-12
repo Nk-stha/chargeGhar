@@ -16,7 +16,12 @@ import {
   FiToggleRight,
 } from "react-icons/fi";
 import stationsService from "../../../../lib/api/stations.service";
+import iotService from "../../../../lib/api/iot.service";
 import { StationDetail } from "../../../../types/station.types";
+import { toast } from "sonner";
+import WiFiScanModal from "../../../../components/StationManagement/WiFiScanModal";
+import WiFiConnectModal from "../../../../components/StationManagement/WiFiConnectModal";
+import VolumeControlModal from "../../../../components/StationManagement/VolumeControlModal";
 
 export default function StationDetailsPage() {
   const params = useParams();
@@ -28,6 +33,11 @@ export default function StationDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [hardwareActionLoading, setHardwareActionLoading] = useState<string | null>(null);
+  const [wifiScanModalOpen, setWifiScanModalOpen] = useState(false);
+  const [wifiConnectModalOpen, setWifiConnectModalOpen] = useState(false);
+  const [wifiNetworks, setWifiNetworks] = useState<string[]>([]);
+  const [volumeModalOpen, setVolumeModalOpen] = useState(false);
 
   const fetchStationDetails = useCallback(
     async (isRefresh: boolean = false) => {
@@ -95,6 +105,370 @@ export default function StationDetailsPage() {
 
   const toggleAutoRefresh = () => {
     setAutoRefresh(!autoRefresh);
+  };
+
+  const handleHardwareAction = async (action: string) => {
+    if (!station) return;
+
+    try {
+      setHardwareActionLoading(action);
+
+      const response = await iotService.checkStationStatus({
+        station_id: station.id,
+        include_empty: false,
+        checkAll: false,
+      });
+
+      if (response.success) {
+        toast.success(`${action} command sent successfully!`);
+        // Refresh station details after action
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || `Failed to execute ${action}`);
+      }
+    } catch (err: any) {
+      console.error(`Error executing ${action}:`, err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          `Failed to execute ${action}. Please try again.`
+        );
+      }
+    } finally {
+      setHardwareActionLoading(null);
+    }
+  };
+
+  const handleEject = async () => {
+    if (!station) return;
+
+    try {
+      setHardwareActionLoading("Eject");
+
+      const response = await iotService.ejectPowerbank({
+        station_id: station.id,
+        // Optional: powerbank_sn and reason can be added here
+      });
+
+      if (response.success) {
+        toast.success("Powerbank ejected successfully!");
+        // Refresh station details after eject
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || "Failed to eject powerbank");
+      }
+    } catch (err: any) {
+      console.error("Error ejecting powerbank:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station or powerbank not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Powerbank is currently in use or unavailable.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to eject powerbank. Please try again."
+        );
+      }
+    } finally {
+      setHardwareActionLoading(null);
+    }
+  };
+
+  const handleEjectSpecificPowerbank = async (powerbankSn: string, slotNumber: number) => {
+    if (!station) return;
+
+    // Confirm before ejecting
+    const confirmed = window.confirm(
+      `Are you sure you want to eject powerbank from Slot ${slotNumber}?\n\nPowerbank SN: ${powerbankSn}`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      const response = await iotService.ejectPowerbank({
+        station_id: station.id,
+        powerbank_sn: powerbankSn,
+      });
+
+      if (response.success) {
+        toast.success(`Powerbank from Slot ${slotNumber} ejected successfully!`);
+        // Refresh station details after eject
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || "Failed to eject powerbank");
+      }
+    } catch (err: any) {
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station or powerbank not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Powerbank is currently in use or unavailable.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to eject powerbank. Please try again."
+        );
+      }
+    }
+  };
+
+  const handleReboot = async () => {
+    if (!station) return;
+
+    // Confirm before rebooting
+    const confirmed = window.confirm(
+      "Are you sure you want to reboot this station? This will temporarily interrupt service."
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setHardwareActionLoading("Reboot");
+
+      const response = await iotService.rebootStation({
+        station_id: station.id,
+      });
+
+      if (response.success) {
+        toast.success("Station reboot command sent successfully!");
+        // Refresh station details after reboot
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || "Failed to reboot station");
+      }
+    } catch (err: any) {
+      console.error("Error rebooting station:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Station is currently unavailable for reboot.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to reboot station. Please try again."
+        );
+      }
+    } finally {
+      setHardwareActionLoading(null);
+    }
+  };
+
+  const handleScanWiFi = async () => {
+    if (!station) return;
+
+    try {
+      setHardwareActionLoading("Scan WiFi");
+
+      const response = await iotService.scanWiFi({
+        station_id: station.id,
+      });
+
+      if (response.success && response.data) {
+        toast.success("WiFi scan completed successfully!");
+        setWifiNetworks(response.data.networks || []);
+        setWifiScanModalOpen(true);
+      } else {
+        toast.error(response.message || "Failed to scan WiFi networks");
+      }
+    } catch (err: any) {
+      console.error("Error scanning WiFi networks:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Station is currently unavailable for WiFi scan.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to scan WiFi networks. Please try again."
+        );
+      }
+    } finally {
+      setHardwareActionLoading(null);
+    }
+  };
+
+  const handleOpenConnectModal = () => {
+    if (wifiNetworks.length === 0) {
+      toast.error("Please scan for WiFi networks first");
+      return;
+    }
+    setWifiConnectModalOpen(true);
+  };
+
+  const handleConnectWiFi = async (ssid: string, password: string) => {
+    if (!station) return;
+
+    try {
+      const response = await iotService.connectWiFi({
+        station_id: station.id,
+        wifi_ssid: ssid,
+        wifi_password: password || undefined,
+      });
+
+      if (response.success) {
+        toast.success(`Successfully connected to ${ssid}!`);
+        setWifiConnectModalOpen(false);
+        // Refresh station details after connection
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || "Failed to connect to WiFi");
+      }
+    } catch (err: any) {
+      console.error("Error connecting to WiFi:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Station is currently unavailable or WiFi connection failed.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to connect to WiFi. Please try again."
+        );
+      }
+      throw err; // Re-throw to let modal handle loading state
+    }
+  };
+
+  const handleSetVolume = async (volume: number) => {
+    if (!station) return;
+
+    try {
+      const response = await iotService.setVolume({
+        station_id: station.id,
+        volume: volume,
+      });
+
+      if (response.success) {
+        toast.success(`Volume set to ${volume}% successfully!`);
+        setVolumeModalOpen(false);
+        // Refresh station details after setting volume
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || "Failed to set volume");
+      }
+    } catch (err: any) {
+      console.error("Error setting volume:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Station is currently unavailable.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to set volume. Please try again."
+        );
+      }
+      throw err; // Re-throw to let modal handle loading state
+    }
+  };
+
+  const handleSetNetworkMode = async (mode: "wifi" | "4g") => {
+    if (!station) return;
+
+    const modeLabel = mode === "wifi" ? "WiFi Priority" : "4G Priority";
+
+    try {
+      setHardwareActionLoading(modeLabel);
+
+      const response = await iotService.setNetworkMode({
+        station_id: station.id,
+        mode: mode,
+      });
+
+      if (response.success) {
+        toast.success(`Network mode set to ${modeLabel} successfully!`);
+        // Refresh station details after setting mode
+        fetchStationDetails(true);
+      } else {
+        toast.error(response.message || `Failed to set ${modeLabel}`);
+      }
+    } catch (err: any) {
+      console.error("Error setting network mode:", err);
+      
+      // Handle different error types
+      if (err.response?.status === 401) {
+        toast.error("Session expired. Please login again.");
+      } else if (err.response?.status === 403) {
+        toast.error("You don't have permission to perform this action.");
+      } else if (err.response?.status === 404) {
+        toast.error("Station not found.");
+      } else if (err.response?.status === 409) {
+        toast.error("Station is currently unavailable.");
+      } else if (err.response?.status >= 500) {
+        toast.error("Server error. Please try again later.");
+      } else {
+        toast.error(
+          err.response?.data?.message ||
+          err.message ||
+          `Failed to set ${modeLabel}. Please try again.`
+        );
+      }
+    } finally {
+      setHardwareActionLoading(null);
+    }
   };
 
   if (loading) {
@@ -342,6 +716,115 @@ export default function StationDetailsPage() {
           </div>
         </div>
 
+        {/* Hardware Settings Card */}
+        <div className={styles.card}>
+          <h2 className={styles.cardTitle}>Hardware Settings</h2>
+          <div className={styles.cardContent}>
+            <div className={styles.hardwareButtonsGrid}>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Check Station"
+                onClick={() => handleHardwareAction("Check Station")}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "Check Station" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiActivity className={styles.btnIcon} />
+                )}
+                Check Station
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Eject"
+                onClick={handleEject}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "Eject" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiActivity className={styles.btnIcon} />
+                )}
+                Eject
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Scan WiFi"
+                onClick={handleScanWiFi}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "Scan WiFi" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiWifi className={styles.btnIcon} />
+                )}
+                Scan WiFi
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Set Volume"
+                onClick={() => setVolumeModalOpen(true)}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "Set Volume" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiActivity className={styles.btnIcon} />
+                )}
+                Set Volume
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Reboot"
+                onClick={handleReboot}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "Reboot" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiRefreshCw className={styles.btnIcon} />
+                )}
+                Reboot
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="Connect WiFi"
+                onClick={handleOpenConnectModal}
+                disabled={hardwareActionLoading !== null}
+              >
+                <FiWifi className={styles.btnIcon} />
+                Connect WiFi
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="WiFi Priority"
+                onClick={() => handleSetNetworkMode("wifi")}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "WiFi Priority" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiWifi className={styles.btnIcon} />
+                )}
+                WiFi Priority
+              </button>
+              <button 
+                className={styles.hardwareBtn} 
+                title="4G Priority"
+                onClick={() => handleSetNetworkMode("4g")}
+                disabled={hardwareActionLoading !== null}
+              >
+                {hardwareActionLoading === "4G Priority" ? (
+                  <FiRefreshCw className={`${styles.btnIcon} ${styles.spinning}`} />
+                ) : (
+                  <FiActivity className={styles.btnIcon} />
+                )}
+                4G Priority
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Powerbanks Card */}
         <div className={styles.card}>
           <h2 className={styles.cardTitle}>Powerbanks</h2>
@@ -442,7 +925,9 @@ export default function StationDetailsPage() {
             {station.slots.map((slot) => (
               <div
                 key={slot.id}
-                className={`${styles.slotCard} ${styles[slot.status.toLowerCase()]}`}
+                className={`${styles.slotCard} ${styles[slot.status.toLowerCase()]} ${
+                  slot.powerbank ? styles.clickable : styles.disabled
+                }`}
               >
                 <div className={styles.slotHeader}>
                   <span className={styles.slotNumber}>
@@ -465,6 +950,14 @@ export default function StationDetailsPage() {
                           style={{ width: `${slot.battery_level}%` }}
                         />
                       </div>
+                      <button
+                        className={styles.ejectSlotBtn}
+                        onClick={() => handleEjectSpecificPowerbank(slot.powerbank!.serial_number, slot.slot_number)}
+                        title={`Eject powerbank from Slot ${slot.slot_number}`}
+                      >
+                        <FiActivity className={styles.ejectIcon} />
+                        Eject
+                      </button>
                     </>
                   ) : (
                     <p className={styles.emptySlot}>Empty</p>
@@ -475,6 +968,36 @@ export default function StationDetailsPage() {
           </div>
         </div>
       )}
+
+      {/* WiFi Scan Modal */}
+      <WiFiScanModal
+        isOpen={wifiScanModalOpen}
+        onClose={() => setWifiScanModalOpen(false)}
+        networks={wifiNetworks}
+        stationName={station.station_name}
+        stationImei={station.imei}
+      />
+
+      {/* WiFi Connect Modal */}
+      <WiFiConnectModal
+        isOpen={wifiConnectModalOpen}
+        onClose={() => setWifiConnectModalOpen(false)}
+        networks={wifiNetworks}
+        stationName={station.station_name}
+        stationImei={station.imei}
+        stationId={station.id}
+        onConnect={handleConnectWiFi}
+      />
+
+      {/* Volume Control Modal */}
+      <VolumeControlModal
+        isOpen={volumeModalOpen}
+        onClose={() => setVolumeModalOpen(false)}
+        stationName={station.station_name}
+        stationImei={station.imei}
+        stationId={station.id}
+        onSetVolume={handleSetVolume}
+      />
     </div>
   );
 }

@@ -523,7 +523,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                             <div
                               className={`${styles.navItem} ${styles.parentItem} ${itemIsActive ? styles.active : ""}`}
                               onClick={() => !searchQuery && toggleExpanded(item.label)}
-                              ref={itemIsActive ? activeItemRef : null}
+                              ref={itemIsActive ? activeItemRef as React.RefObject<HTMLDivElement> : null}
                             >
                               <span className={styles.icon}>{item.icon}</span>
                               {!collapsed && (
@@ -559,7 +559,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                                         <Link
                                           href={subItem.href}
                                           className={`${styles.subNavItem} ${subItemIsActive ? styles.active : ""}`}
-                                          ref={subItemIsActive ? activeItemRef : null}
+                                          ref={subItemIsActive ? activeItemRef as React.RefObject<HTMLAnchorElement> : null}
                                         >
                                           <span className={styles.subIcon}>{subItem.icon}</span>
                                           <span className={styles.label}>{subItem.label}</span>
@@ -576,7 +576,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                           <Link
                             href={item.href!}
                             className={`${styles.navItem} ${itemIsActive ? styles.active : ""}`}
-                            ref={itemIsActive ? activeItemRef : null}
+                            ref={itemIsActive ? activeItemRef as React.RefObject<HTMLAnchorElement> : null}
                           >
                             <span className={styles.icon}>{item.icon}</span>
                             {!collapsed && (

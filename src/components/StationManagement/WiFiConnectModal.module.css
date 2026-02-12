@@ -1,0 +1,374 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalContent {
+  background-color: #111;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px;
+  border-bottom: 1px solid #1a1a1a;
+  gap: 16px;
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleIcon {
+  color: #47b216;
+  font-size: 22px;
+}
+
+.modalSubtitle {
+  font-size: 13px;
+  color: #888;
+  margin: 6px 0 0 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.closeBtn:hover {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.connectForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.labelIcon {
+  color: #47b216;
+  font-size: 14px;
+}
+
+.select {
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.select:hover {
+  border-color: #3a3a3a;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #47b216;
+  box-shadow: 0 0 0 3px rgba(71, 178, 22, 0.1);
+}
+
+.select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.select option {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.passwordWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input {
+  flex: 1;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  padding-right: 70px;
+  color: #e0e0e0;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.input:hover {
+  border-color: #3a3a3a;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #47b216;
+  box-shadow: 0 0 0 3px rgba(71, 178, 22, 0.1);
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input::placeholder {
+  color: #666;
+}
+
+.togglePassword {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #47b216;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.togglePassword:hover {
+  background-color: rgba(71, 178, 22, 0.1);
+}
+
+.togglePassword:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint {
+  color: #666;
+  font-size: 12px;
+  margin: 0;
+  font-style: italic;
+}
+
+.connectButton {
+  background-color: #47b216;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.connectButton:hover:not(:disabled) {
+  background-color: #56d61f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(71, 178, 22, 0.3);
+}
+
+.connectButton:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.connectButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 12px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: #444;
+}
+
+.emptyState p {
+  color: #888;
+  font-size: 15px;
+  margin: 0;
+}
+
+.emptyHint {
+  color: #666;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-top: 1px solid #1a1a1a;
+  gap: 16px;
+}
+
+.footerNote {
+  color: #888;
+  font-size: 13px;
+  margin: 0;
+  flex: 1;
+}
+
+.cancelButton {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #222;
+  border-color: #3a3a3a;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .modalOverlay {
+    padding: 10px;
+  }
+
+  .modalHeader {
+    padding: 20px;
+  }
+
+  .modalTitle {
+    font-size: 18px;
+  }
+
+  .modalBody {
+    padding: 20px;
+  }
+
+  .modalFooter {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    padding: 16px 20px;
+  }
+
+  .cancelButton {
+    width: 100%;
+  }
+
+  .footerNote {
+    text-align: center;
+  }
+
+  .connectButton {
+    width: 100%;
+  }
+}
