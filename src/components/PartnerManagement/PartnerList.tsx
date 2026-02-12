@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { FiSearch, FiPlus, FiEdit, FiRefreshCw, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit, FiRefreshCw, FiChevronLeft, FiChevronRight, FiAlertCircle, FiLoader } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import styles from "./PartnerManagement.module.css";
 import { getPartners } from "../../lib/api/partners";
 import { Partner } from "../../types/partner";
+import { extractApiError } from "../../lib/apiErrors";
+import { toast } from "sonner";
 
 const PartnerList: React.FC = () => {
   const router = useRouter();
@@ -45,11 +47,12 @@ const PartnerList: React.FC = () => {
         setPartners(response.data.results);
         setTotalCount(response.data.count);
       } else {
-        setError(response.message || "Failed to fetch partners");
+        toast.error(response.message || "Failed to fetch partners");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Error fetching partners:", err);
-      setError("An error occurred while fetching partners");
+      const apiError = extractApiError(err, "An error occurred while fetching partners");
+      toast.error(apiError.message);
     } finally {
       setLoading(false);
     }
@@ -81,6 +84,15 @@ const PartnerList: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
+  if (loading && partners.length === 0) { // Only show full-page loader if no data is loaded yet
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4 text-gray-400">
+        <FiLoader className="text-4xl text-[#54bc28] animate-spin" />
+        <p>Loading partners...</p>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-6">
       {/* Search & Add Section */}
@@ -130,7 +142,7 @@ const PartnerList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && partners.length === 0 ? ( // Show skeleton loader only if no data and loading
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i} className="animate-pulse">
                     <td colSpan={9} className="py-6">
@@ -138,16 +150,6 @@ const PartnerList: React.FC = () => {
                     </td>
                   </tr>
                 ))
-              ) : error ? (
-                <tr>
-                   <td colSpan={9} className="text-center py-12 text-red-400">
-                     <div className="flex flex-col items-center gap-2">
-                        <span className="text-3xl">⚠️</span>
-                        <p>{error}</p>
-                        <button onClick={() => fetchPartners()} className="text-primary hover:underline text-sm font-bold">Try Again</button>
-                     </div>
-                   </td>
-                </tr>
               ) : partners.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="text-center py-12 text-gray-500">
@@ -270,7 +272,7 @@ const PartnerList: React.FC = () => {
 
       {/* Mobile Card View */}
       <div className={styles.mobileOnly}>
-        {loading ? (
+        {loading && partners.length === 0 ? ( // Show skeleton loader only if no data and loading
           <div className={styles.cardGrid}>
             {Array.from({ length: 3 }).map((_, i) => (
               <div key={i} className={`${styles.partnerCard} animate-pulse`}>
@@ -279,12 +281,6 @@ const PartnerList: React.FC = () => {
                 <div className="h-3 bg-white/5 rounded w-full"></div>
               </div>
             ))}
-          </div>
-        ) : error ? (
-          <div className={styles.emptyState}>
-            <span className="text-4xl">⚠️</span>
-            <p className="text-red-400">{error}</p>
-            <button onClick={() => fetchPartners()} className="text-primary hover:underline text-sm font-bold">Try Again</button>
           </div>
         ) : partners.length === 0 ? (
           <div className={styles.emptyState}>

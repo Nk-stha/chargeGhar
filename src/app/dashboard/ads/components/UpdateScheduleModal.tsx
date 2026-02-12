@@ -128,7 +128,6 @@ function UpdateScheduleModal({
         setError("Failed to update schedule");
       }
     } catch (err: unknown) {
-      console.error("Error updating schedule:", err);
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as { response?: { data?: { error?: { message?: string }; message?: string } } }).response?.data?.error?.message || (err as { response?: { data?: { message?: string } } }).response?.data?.message 
         : "Failed to update schedule";

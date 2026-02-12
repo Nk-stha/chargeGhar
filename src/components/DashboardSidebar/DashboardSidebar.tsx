@@ -110,6 +110,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             { icon: <FiUsers />, label: "All Partners", href: "/dashboard/partners" },
             { icon: <FiMapPin />, label: "Station Distributions", href: "/dashboard/partners/station-distributions" },
             { icon: <FiBarChart2 />, label: "Revenue Analytics", href: "/dashboard/partners/revenue-analytics" },
+            { icon: <FiDollarSign />, label: "Payouts", href: "/dashboard/payouts" },
           ],
         },
       ],

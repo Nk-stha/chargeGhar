@@ -14,6 +14,8 @@ import {
 } from "../../types/revenueAnalytics";
 import { getRevenueAnalytics } from "../../lib/api/revenueAnalytics";
 import RevenueTransactionDetail from "./RevenueTransactionDetail";
+import { extractApiError } from "../../lib/apiErrors";
+import { toast } from "sonner";
 
 interface RevenueListProps {
   onSummaryUpdate?: (summary: RevenueAnalyticsSummary) => void;
@@ -46,7 +48,6 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await getRevenueAnalytics({
         page,
@@ -65,18 +66,13 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
         setError(response.message || "Failed to fetch revenue data");
         setTransactions([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching revenue analytics:", err);
-      if (err.response?.status === 404) {
-        setError(
-          "Revenue analytics feature is not yet available. Please contact your administrator."
-        );
+      const apiError = extractApiError(err, "An error occurred while fetching revenue data");
+      if (apiError.statusCode === 404) {
+        toast.error("Revenue analytics feature is not yet available. Please contact your administrator.");
       } else {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "An error occurred while fetching revenue data"
-        );
+        toast.error(apiError.message);
       }
       setTransactions([]);
     } finally {
@@ -190,38 +186,6 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
                     </td>
                   </tr>
                 ))
-              ) : error ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    style={{ textAlign: "center", padding: "3rem" }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <span style={{ fontSize: "1.875rem" }}>⚠️</span>
-                      <p style={{ color: "#f87171" }}>{error}</p>
-                      <button
-                        onClick={() => fetchData()}
-                        style={{
-                          color: "#54bc28",
-                          fontWeight: 700,
-                          fontSize: "0.875rem",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Try Again
-                      </button>
-                    </div>
-                  </td>
-                </tr>
               ) : transactions.length === 0 ? (
                 <tr>
                   <td
@@ -370,24 +334,6 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
                 </div>
               </div>
             ))}
-          </div>
-        ) : error ? (
-          <div className={styles.emptyState}>
-            <span style={{ fontSize: "2.5rem" }}>⚠️</span>
-            <p style={{ color: "#f87171" }}>{error}</p>
-            <button
-              onClick={() => fetchData()}
-              style={{
-                color: "#54bc28",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Try Again
-            </button>
           </div>
         ) : transactions.length === 0 ? (
           <div className={styles.emptyState}>

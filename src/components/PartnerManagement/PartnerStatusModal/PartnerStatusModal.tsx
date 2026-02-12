@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { FiX, FiCheckCircle, FiXCircle, FiAlertCircle, FiInfo, FiLock, FiEye, FiEyeOff, FiBriefcase } from "react-icons/fi";
 import styles from "./PartnerStatusModal.module.css";
+import { extractApiError } from "@/lib/apiErrors";
+import { toast } from "sonner";
 
 interface PartnerStatusModalProps {
   isOpen: boolean;
@@ -30,7 +32,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<TabType>("status");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Status Tab State
   const [selectedStatus, setSelectedStatus] = useState<PartnerStatus>(currentStatus);
@@ -53,21 +54,19 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setSubmitting(true);
 
     try {
-      setSubmitting(true);
-
       if (activeTab === "status") {
         // Status Update
         if (!statusReason.trim()) {
-          setError("Please provide a reason for the status change");
+          toast.error("Please provide a reason for the status change");
           setSubmitting(false);
           return;
         }
 
         if (selectedStatus === currentStatus) {
-          setError("Please select a different status");
+          toast.error("Please select a different status");
           setSubmitting(false);
           return;
         }
@@ -88,19 +87,19 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
       } else if (activeTab === "password") {
         // Password Reset
         if (!newPassword || !confirmPassword) {
-          setError("Please fill in all password fields");
+          toast.error("Please fill in all password fields");
           setSubmitting(false);
           return;
         }
 
         if (newPassword.length < 8) {
-          setError("Password must be at least 8 characters");
+          toast.error("Password must be at least 8 characters");
           setSubmitting(false);
           return;
         }
 
         if (newPassword !== confirmPassword) {
-          setError("Passwords do not match");
+          toast.error("Passwords do not match");
           setSubmitting(false);
           return;
         }
@@ -118,26 +117,27 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
               new_password: newPassword,
               confirm_password: confirmPassword,
             });
+            toast.success("Password reset successfully");
           }
-        } catch (passwordErr: any) {
-          // Handle specific error for partners without dashboard access
-          if (passwordErr.response?.data?.error?.code === "NO_DASHBOARD_ACCESS") {
-            setError("This partner does not have dashboard access. Password reset is only available for REVENUE partners or FRANCHISE partners.");
+        } catch (passwordErr: unknown) {
+          const passError = extractApiError(passwordErr, "Failed to reset password");
+          if (passError.errorCode === "NO_DASHBOARD_ACCESS") {
+            toast.error("This partner does not have dashboard access. Password reset is only available for REVENUE partners or FRANCHISE partners.");
             setSubmitting(false);
             return;
           }
-          throw passwordErr; // Re-throw to be caught by outer catch
+          throw passwordErr;
         }
       } else if (activeTab === "vendor") {
         // Vendor Type Update
         if (!vendorReason.trim()) {
-          setError("Please provide a reason for the vendor type change");
+          toast.error("Please provide a reason for the vendor type change");
           setSubmitting(false);
           return;
         }
 
         if (selectedVendorType === currentVendorType) {
-          setError("Please select a different vendor type");
+          toast.error("Please select a different vendor type");
           setSubmitting(false);
           return;
         }
@@ -149,7 +149,7 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
 
         if (selectedVendorType === "REVENUE") {
           if (!vendorPassword) {
-            setError("Password is required when changing to REVENUE vendor");
+            toast.error("Password is required when changing to REVENUE vendor");
             setSubmitting(false);
             return;
           }
@@ -159,14 +159,14 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
 
           if (revenueModel === "PERCENTAGE") {
             if (!partnerPercent || parseFloat(partnerPercent) <= 0) {
-              setError("Please provide a valid partner percentage");
+              toast.error("Please provide a valid partner percentage");
               setSubmitting(false);
               return;
             }
             payload.partner_percent = partnerPercent;
           } else {
             if (!fixedAmount || parseFloat(fixedAmount) <= 0) {
-              setError("Please provide a valid fixed amount");
+              toast.error("Please provide a valid fixed amount");
               setSubmitting(false);
               return;
             }
@@ -182,31 +182,21 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
             type: "vendor",
             ...payload,
           });
+          toast.success("Vendor type updated successfully");
         }
       }
 
       // Close modal on success
       handleClose();
-    } catch (err: any) {
-      console.error("Error updating partner:", err);
-      
-      // Extract error message from various response formats
-      let errorMsg = "Failed to update partner";
-      
-      if (err.response?.data?.error) {
-        // Handle structured error object
-        if (err.response.data.error.message) {
-          errorMsg = err.response.data.error.message;
-        } else if (typeof err.response.data.error === 'string') {
-          errorMsg = err.response.data.error;
-        }
-      } else if (err.response?.data?.message) {
-        errorMsg = err.response.data.message;
-      } else if (err.message) {
-        errorMsg = err.message;
+      // Toast for general success if not already handled would go here, 
+      // but status update implies success.
+      if (activeTab === 'status') {
+         toast.success("Partner status updated successfully");
       }
-      
-      setError(errorMsg);
+    } catch (err: unknown) {
+      console.error("Error updating partner:", err);
+      const apiError = extractApiError(err, "Failed to update partner");
+      toast.error(apiError.message);
     } finally {
       setSubmitting(false);
     }
@@ -227,7 +217,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
     setFixedAmount("");
     setVendorReason("");
     setShowVendorPassword(false);
-    setError(null);
     onClose();
   };
 
@@ -267,7 +256,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
             className={`${styles.tab} ${activeTab === "status" ? styles.tabActive : ""}`}
             onClick={() => {
               setActiveTab("status");
-              setError(null);
             }}
             disabled={submitting}
           >
@@ -279,7 +267,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
             className={`${styles.tab} ${activeTab === "password" ? styles.tabActive : ""}`}
             onClick={() => {
               setActiveTab("password");
-              setError(null);
             }}
             disabled={submitting}
           >
@@ -292,7 +279,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
               className={`${styles.tab} ${activeTab === "vendor" ? styles.tabActive : ""}`}
               onClick={() => {
                 setActiveTab("vendor");
-                setError(null);
               }}
               disabled={submitting}
             >
@@ -304,19 +290,6 @@ const PartnerStatusModal: React.FC<PartnerStatusModalProps> = ({
 
         {/* Content */}
         <form onSubmit={handleSubmit} className={styles.content}>
-          {error && (
-            <div className={styles.errorAlert}>
-              <FiInfo />
-              <span>{error}</span>
-              <button 
-                type="button" 
-                onClick={() => setError(null)}
-                className={styles.closeAlert}
-              >
-                <FiX />
-              </button>
-            </div>
-          )}
 
           {/* Status Tab */}
           {activeTab === "status" && (

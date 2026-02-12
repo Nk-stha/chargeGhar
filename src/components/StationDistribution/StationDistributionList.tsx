@@ -12,8 +12,10 @@ import {
   FiDownload,
 } from "react-icons/fi";
 import styles from "./StationDistribution.module.css";
-import { StationDistribution } from "../../types/stationDistribution";
 import { getStationDistributions, deactivateStationDistribution } from "../../lib/api/stationDistributions";
+import { StationDistribution } from "../../types/stationDistribution";
+import { extractApiError } from "../../lib/apiErrors";
+import { toast } from "sonner";
 
 interface StationDistributionListProps {
   onStatsUpdate?: (distributions: StationDistribution[]) => void;
@@ -49,7 +51,6 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
   const fetchDistributions = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
 
       const response = await getStationDistributions({
         page,
@@ -66,18 +67,13 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
         setError(response.message || "Failed to fetch station distributions");
         setDistributions([]);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error fetching station distributions:", err);
-      if (err.response?.status === 404) {
-        setError(
-          "Station distribution feature is not yet available. Please contact your administrator."
-        );
+      const apiError = extractApiError(err, "An error occurred while fetching station distributions");
+      if (apiError.statusCode === 404) {
+        toast.error("Station distribution feature is not yet available. Please contact your administrator.");
       } else {
-        setError(
-          err.response?.data?.message ||
-            err.message ||
-            "An error occurred while fetching station distributions"
-        );
+        toast.error(apiError.message);
       }
       setDistributions([]);
     } finally {
@@ -113,12 +109,11 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
       setDeactivatingId(dist.id);
       await deactivateStationDistribution(dist.id);
       fetchDistributions();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error deactivating distribution:", err);
-      alert(
-        err.response?.data?.message ||
-          "Failed to deactivate distribution. Please try again."
-      );
+      const apiError = extractApiError(err, "Failed to deactivate distribution. Please try again.");
+      toast.error(apiError.message);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setDeactivatingId(null);
     }
@@ -198,38 +193,6 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
                     </td>
                   </tr>
                 ))
-              ) : error ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    style={{ textAlign: "center", padding: "3rem" }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                      }}
-                    >
-                      <span style={{ fontSize: "1.875rem" }}>⚠️</span>
-                      <p style={{ color: "#f87171" }}>{error}</p>
-                      <button
-                        onClick={() => fetchDistributions()}
-                        style={{
-                          color: "#54bc28",
-                          fontWeight: 700,
-                          fontSize: "0.875rem",
-                          background: "none",
-                          border: "none",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Try Again
-                      </button>
-                    </div>
-                  </td>
-                </tr>
               ) : distributions.length === 0 ? (
                 <tr>
                   <td
@@ -384,24 +347,6 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
                 </div>
               </div>
             ))}
-          </div>
-        ) : error ? (
-          <div className={styles.emptyState}>
-            <span style={{ fontSize: "2.5rem" }}>⚠️</span>
-            <p style={{ color: "#f87171" }}>{error}</p>
-            <button
-              onClick={() => fetchDistributions()}
-              style={{
-                color: "#54bc28",
-                fontWeight: 700,
-                fontSize: "0.875rem",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Try Again
-            </button>
           </div>
         ) : distributions.length === 0 ? (
           <div className={styles.emptyState}>

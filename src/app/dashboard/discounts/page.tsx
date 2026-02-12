@@ -115,14 +115,7 @@ export default function DiscountsPage() {
       }
     } catch (err: any) {
       console.error("Error fetching discounts:", err);
-      
-      // If it's a 404 or the endpoint doesn't exist yet, show a friendly message
-      if (err.response?.status === 404) {
-        setError("Discount feature is not yet available on the backend. Please contact your administrator.");
-      } else {
-        setError(err.response?.data?.message || err.message || "Failed to fetch discounts");
-      }
-      
+      setError(err.response?.data?.message || err.message || "Failed to fetch discounts");
       setDiscounts([]);
     } finally {
       setLoading(false);

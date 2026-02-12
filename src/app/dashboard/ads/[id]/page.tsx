@@ -38,7 +38,6 @@ function AdDetailPage() {
         setError("Failed to fetch ad details");
       }
     } catch (err: unknown) {
-      console.error("Error fetching ad detail:", err);
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
         : "Failed to fetch ad details";

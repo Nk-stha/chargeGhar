@@ -64,7 +64,6 @@ function AdsPage() {
           setError("Failed to fetch ad requests");
         }
       } catch (err: unknown) {
-        console.error("Error fetching ads:", err);
         const errorMessage = err instanceof Error && 'response' in err 
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
           : "Failed to fetch ad requests";

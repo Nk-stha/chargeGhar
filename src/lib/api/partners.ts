@@ -76,6 +76,7 @@ export interface UpdatePartnerRequest {
     upfront_amount?: number;
     revenue_share_percent?: number;
     notes?: string;
+    station_ids?: string[];
 }
 
 export const updatePartner = async (id: string, data: UpdatePartnerRequest): Promise<any> => {
@@ -88,6 +89,9 @@ export const updatePartner = async (id: string, data: UpdatePartnerRequest): Pro
     if (data.upfront_amount !== undefined) formData.append("upfront_amount", data.upfront_amount.toString());
     if (data.revenue_share_percent !== undefined) formData.append("revenue_share_percent", data.revenue_share_percent.toString());
     if (data.notes !== undefined) formData.append("notes", data.notes);
+    if (data.station_ids && data.station_ids.length > 0) {
+        data.station_ids.forEach(id => formData.append("station_ids", id));
+    }
 
     const response = await instance.patch(`/api/admin/partners/${id}`, formData, {
         headers: { "Content-Type": "multipart/form-data" }

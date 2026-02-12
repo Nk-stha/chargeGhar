@@ -57,7 +57,7 @@ function ReviewAdModal({
           setStations(response.data.results);
         }
       } catch (err) {
-        console.error("Error fetching stations:", err);
+        // Silent error - stations are optional
       } finally {
         setLoadingStations(false);
       }
@@ -216,7 +216,6 @@ function ReviewAdModal({
         setError("Failed to review ad request");
       }
     } catch (err: unknown) {
-      console.error("Error reviewing ad:", err);
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
         : "Failed to review ad request";

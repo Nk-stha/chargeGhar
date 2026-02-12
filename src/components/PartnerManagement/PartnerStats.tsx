@@ -5,6 +5,7 @@ import { FiUsers, FiDollarSign } from "react-icons/fi";
 import { MdHandshake } from "react-icons/md";
 import styles from "./PartnerManagement.module.css";
 import { getPartners } from "../../lib/api/partners";
+import { extractApiError } from "../../lib/apiErrors";
 
 interface Stats {
   totalVendors: number;
@@ -19,6 +20,7 @@ const PartnerStats: React.FC = () => {
     aggregatedEarnings: 0.0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -33,8 +35,10 @@ const PartnerStats: React.FC = () => {
             aggregatedEarnings: 0.0, // Backend doesn't provide this yet
           });
         }
-      } catch (error) {
-        console.error("Failed to fetch partner stats:", error);
+      } catch (err: unknown) {
+        console.error("Failed to fetch partner stats:", err);
+        const apiError = extractApiError(err, "Failed to load partner statistics");
+        setError(apiError.message);
       } finally {
         setLoading(false);
       }
@@ -51,6 +55,19 @@ const PartnerStats: React.FC = () => {
   };
 
   return (
+    <div className="space-y-2">
+      {error && (
+        <div className="p-3 rounded-xl text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
+          <span>⚠️</span>
+          <span>{error}</span>
+          <button
+            onClick={() => { setError(null); setLoading(true); }}
+            className="ml-auto text-amber-400 hover:text-amber-300 font-bold text-xs"
+          >
+            Retry
+          </button>
+        </div>
+      )}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {/* Total Vendors */}
       <div className={styles.statCard}>
@@ -95,6 +112,7 @@ const PartnerStats: React.FC = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

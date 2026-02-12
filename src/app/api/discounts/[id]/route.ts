@@ -8,14 +8,9 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    
-    console.log("=== DETAIL API ROUTE ===");
-    console.log("Requested discount ID:", id);
-    
     const authHeader = request.headers.get("Authorization");
 
     if (!authHeader) {
-      console.log("No auth header found");
       return NextResponse.json(
         { success: false, message: "Authorization header missing" },
         { status: 401 }
@@ -23,8 +18,6 @@ export async function GET(
     }
 
     const url = `${BASE_URL}/admin/discounts/${id}`;
-    console.log("Fetching from backend URL:", url);
-    console.log("Auth header present:", !!authHeader);
     
     const response = await fetch(url, {
       method: "GET",
@@ -34,13 +27,9 @@ export async function GET(
       },
     });
 
-    console.log("Backend response status:", response.status);
-    
     const data = await response.json();
-    console.log("Backend response data:", JSON.stringify(data, null, 2));
 
     if (!response.ok) {
-      console.log("Backend returned error");
       return NextResponse.json(
         {
           success: false,
@@ -50,15 +39,11 @@ export async function GET(
       );
     }
 
-    console.log("Returning success response");
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error("Error in detail API route:", error);
+    console.error("Error fetching discount detail:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message || "Internal server error",
-      },
+      { success: false, message: "Failed to fetch discount detail" },
       { status: 500 }
     );
   }
@@ -121,14 +106,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    
-    console.log("=== DELETE API ROUTE ===");
-    console.log("Deleting discount ID:", id);
-    
     const authHeader = request.headers.get("Authorization");
 
     if (!authHeader) {
-      console.log("No auth header found");
       return NextResponse.json(
         { success: false, message: "Authorization header missing" },
         { status: 401 }
@@ -136,7 +116,6 @@ export async function DELETE(
     }
 
     const url = `${BASE_URL}/admin/discounts/${id}`;
-    console.log("Deleting from backend URL:", url);
     
     const response = await fetch(url, {
       method: "DELETE",
@@ -146,11 +125,8 @@ export async function DELETE(
       },
     });
 
-    console.log("Backend response status:", response.status);
-
-    // Handle 204 No Content (no response body)
+    // Handle 204 No Content
     if (response.status === 204) {
-      console.log("Delete successful (204 No Content)");
       return NextResponse.json(
         { success: true, message: "Discount deleted successfully" },
         { status: 200 }
@@ -163,7 +139,6 @@ export async function DELETE(
       const text = await response.text();
       data = text ? JSON.parse(text) : {};
     } catch (e) {
-      console.log("No JSON response body");
       if (response.ok) {
         return NextResponse.json(
           { success: true, message: "Discount deleted successfully" },
@@ -174,7 +149,6 @@ export async function DELETE(
     }
 
     if (!response.ok) {
-      console.log("Backend returned error:", data);
       return NextResponse.json(
         {
           success: false,
@@ -184,15 +158,11 @@ export async function DELETE(
       );
     }
 
-    console.log("Delete successful:", data);
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
     console.error("Error deleting discount:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message || "Internal server error",
-      },
+      { success: false, message: "Failed to delete discount" },
       { status: 500 }
     );
   }

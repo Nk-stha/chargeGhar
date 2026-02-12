@@ -187,7 +187,6 @@ function ActionModal({
         setError("Failed to execute action");
       }
     } catch (err: unknown) {
-      console.error("Error executing action:", err);
       const errorMessage = err instanceof Error && 'response' in err 
         ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
         : "Failed to execute action";

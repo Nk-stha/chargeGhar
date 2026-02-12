@@ -41,6 +41,7 @@ export interface PartnerDetail {
     notes: string | null;
     stations_count: number;
     vendors_count: number;
+    station_ids?: string[];
 }
 
 export interface PartnerListResponse {

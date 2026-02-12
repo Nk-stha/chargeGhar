@@ -4,12 +4,9 @@ const BASE_URL = process.env.BASE_URL || "https://main.chargeghar.com/api";
 
 export async function GET(request: NextRequest) {
   try {
-    console.log("=== DISCOUNTS GET ROUTE ===");
     const authHeader = request.headers.get("Authorization");
-    console.log("Auth header present:", !!authHeader);
 
     if (!authHeader) {
-      console.log("No auth header, returning 401");
       return NextResponse.json(
         { success: false, message: "Authorization header missing" },
         { status: 401 }
@@ -21,8 +18,6 @@ export async function GET(request: NextRequest) {
     const pageSize = searchParams.get("page_size") || "20";
 
     const url = `${BASE_URL}/admin/discounts?page=${page}&page_size=${pageSize}`;
-    console.log("BASE_URL:", BASE_URL);
-    console.log("Fetching discounts from:", url);
     
     const response = await fetch(url, {
       method: "GET",
@@ -32,14 +27,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    console.log("Backend response status:", response.status);
-    console.log("Backend response ok:", response.ok);
-
     const data = await response.json();
-    console.log("Backend response data:", JSON.stringify(data, null, 2));
 
     if (!response.ok) {
-      console.log("Backend returned error, forwarding");
       return NextResponse.json(
         {
           success: false,
@@ -49,19 +39,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    console.log("Returning success response");
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error("=== ERROR IN DISCOUNTS ROUTE ===");
-    console.error("Error type:", error.constructor.name);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
+    console.error("Error fetching discounts:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: error.message || "Internal server error",
-        error: error.toString(),
-      },
+      { success: false, message: "Failed to fetch discounts" },
       { status: 500 }
     );
   }

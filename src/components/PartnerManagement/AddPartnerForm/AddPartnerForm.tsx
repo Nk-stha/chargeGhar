@@ -9,6 +9,8 @@ import {
 import { useRouter } from "next/navigation";
 import styles from "./AddPartnerForm.module.css";
 import { createVendor, createFranchise } from "../../../lib/api/partners";
+import { extractApiError } from "../../../lib/apiErrors";
+import { toast } from "sonner";
 
 type PartnerType = "VENDOR" | "FRANCHISE";
 type VendorType = "REVENUE" | "NON_REVENUE";
@@ -19,7 +21,8 @@ const AddPartnerForm: React.FC = () => {
   const [partnerType, setPartnerType] = useState<PartnerType>("VENDOR");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Removed top-level error state in favor of toast
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   // Refs for click outside detection
   const userDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -36,11 +39,40 @@ const AddPartnerForm: React.FC = () => {
 
   const [stationSearchQuery, setStationSearchQuery] = useState("");
   const [isSearchingStation, setIsSearchingStation] = useState(false);
-  const [allStations, setAllStations] = useState<import("../../../types/station.types").Station[]>([]);
-  const [filteredStations, setFilteredStations] = useState<import("../../../types/station.types").Station[]>([]);
+  const [allStations, setAllStations] = useState<import("../../../lib/api/availableStations.service").AvailableStation[]>([]);
+  const [filteredStations, setFilteredStations] = useState<import("../../../lib/api/availableStations.service").AvailableStation[]>([]);
   const [showStationDropdown, setShowStationDropdown] = useState(false);
   const [selectedStationDisplay, setSelectedStationDisplay] = useState("");
   const [stationLoadError, setStationLoadError] = useState<string | null>(null);
+
+  // Function to refresh available stations
+  const refreshAvailableStations = async () => {
+    setIsSearchingStation(true);
+    setStationLoadError(null);
+    try {
+      const { availableStationsService } = await import("../../../lib/api/availableStations.service");
+      const response = await availableStationsService.getAvailableStations();
+      
+      if (response.success && response.data) {
+        if (response.data.length === 0) {
+          setStationLoadError("No available stations. All stations are already assigned to partners.");
+        }
+        setAllStations(response.data);
+        setFilteredStations(response.data);
+      } else {
+        setStationLoadError("Failed to load available stations. Please try again.");
+        setAllStations([]);
+        setFilteredStations([]);
+      }
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || err.message || "Failed to load available stations. Please check your connection.";
+      setStationLoadError(errorMsg);
+      setAllStations([]);
+      setFilteredStations([]);
+    } finally {
+      setIsSearchingStation(false);
+    }
+  };
 
   // Form State
   const [formData, setFormData] = useState({
@@ -93,37 +125,15 @@ const AddPartnerForm: React.FC = () => {
     loadAllUsers();
   }, []);
 
-  // Load all stations on component mount
+  // Load available stations on component mount
   useEffect(() => {
-    const loadAllStations = async () => {
-      setIsSearchingStation(true);
-      setStationLoadError(null);
-      try {
-        const { stationsService } = await import("../../../lib/api/stations.service");
-        const response = await stationsService.getStations({ page: 1, page_size: 100 });
-        
-        if (response.success && response.data && response.data.results) {
-          if (response.data.results.length === 0) {
-            setStationLoadError("No stations available in the system. Please create stations first from the Stations page.");
-          }
-          setAllStations(response.data.results);
-          setFilteredStations(response.data.results);
-        } else {
-          setStationLoadError("Failed to load stations. Please try again.");
-          setAllStations([]);
-          setFilteredStations([]);
-        }
-      } catch (err: any) {
-        console.error("Failed to load stations:", err);
-        const errorMsg = err.response?.data?.message || err.message || "Failed to load stations. Please check your connection.";
-        setStationLoadError(errorMsg);
-        setAllStations([]);
-        setFilteredStations([]);
-      } finally {
-        setIsSearchingStation(false);
-      }
-    };
-    loadAllStations();
+    // Load stations immediately when component mounts
+    refreshAvailableStations();
+    
+    // Also refresh every 30 seconds to keep data fresh
+    const interval = setInterval(refreshAvailableStations, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   // Filter users based on search query
@@ -179,6 +189,14 @@ const AddPartnerForm: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[id]) {
+      setFieldErrors(prev => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+    }
   };
 
   const selectUser = (user: import("../../../lib/api/user.service").User) => {
@@ -199,7 +217,7 @@ const AddPartnerForm: React.FC = () => {
     setUserSearchQuery("");
   };
 
-  const selectStation = (station: import("../../../types/station.types").Station) => {
+  const selectStation = (station: import("../../../lib/api/availableStations.service").AvailableStation) => {
     if (partnerType === "VENDOR") {
       setFormData(prev => ({ ...prev, station_id: station.id }));
       setSelectedStationDisplay(`${station.station_name} (ID: ${station.id.substring(0, 8)}...)`);
@@ -230,40 +248,45 @@ const AddPartnerForm: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submission
     setLoading(true);
-    setError(null);
+    setFieldErrors({});
 
     try {
       // Validation
       if (!formData.user_id) {
-        setError("Please select a user");
+        toast.error("Please select a user");
         setLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
       if (!formData.business_name.trim()) {
-        setError("Business name is required");
+        toast.error("Business name is required");
         setLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
       if (!formData.contact_phone.trim()) {
-        setError("Contact phone is required");
+        toast.error("Contact phone is required");
         setLoading(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         return;
       }
 
       if (partnerType === "VENDOR") {
         if (!formData.station_id) {
-          setError("Please select a station for the vendor");
+          toast.error("Please select a station for the vendor");
           setLoading(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
 
         if (formData.vendor_type === "REVENUE" && !formData.password) {
-          setError("Password is required for revenue vendors");
+          toast.error("Password is required for revenue vendors");
           setLoading(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
 
@@ -289,8 +312,9 @@ const AddPartnerForm: React.FC = () => {
       } else {
         // Franchise validation
         if (!formData.password) {
-          setError("Password is required for franchise partners");
+          toast.error("Password is required for franchise partners");
           setLoading(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
           return;
         }
 
@@ -309,31 +333,19 @@ const AddPartnerForm: React.FC = () => {
         await createFranchise(payload);
       }
       
+      toast.success("Partner created successfully!");
       // Success - redirect to partners list
       router.push("/dashboard/partners");
-    } catch (err: any) {
-      console.error("Partner creation error:", err);
+    } catch (err: unknown) {
+      const apiError = extractApiError(err, "Failed to create partner. Please check your details.");
       
-      // Extract error message from different response structures
-      let errorMessage = "Failed to create partner. Please check your details.";
+      // Show toast notification
+      toast.error(apiError.message);
       
-      if (err.response?.data) {
-        if (typeof err.response.data === 'string') {
-          errorMessage = err.response.data;
-        } else if (err.response.data.message) {
-          errorMessage = err.response.data.message;
-        } else if (err.response.data.error) {
-          errorMessage = err.response.data.error;
-        } else if (err.response.data.detail) {
-          errorMessage = err.response.data.detail;
-        }
-      } else if (err.message) {
-        errorMessage = err.message;
+      // Set field errors silently (no additional toast)
+      if (apiError.fieldErrors) {
+        setFieldErrors(apiError.fieldErrors);
       }
-      
-      setError(errorMessage);
-      
-      // Scroll to top to show error
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } finally {
       setLoading(false);
@@ -399,11 +411,6 @@ const AddPartnerForm: React.FC = () => {
 
             {/* Form */}
             <form onSubmit={handleSubmit}>
-              {error && (
-                <div className="mb-6 p-4 bg-red-500/10 border border-red-500/50 rounded-xl text-red-500 text-sm flex items-center gap-3">
-                  <FiInfo /> {error}
-                </div>
-              )}
 
           {/* Authentication & User Section */}
           <section className={styles.formSection} style={{ overflow: 'visible', position: 'relative', zIndex: 100 }}>
@@ -520,7 +527,7 @@ const AddPartnerForm: React.FC = () => {
                   </label>
                   <div className={styles.passwordWrapper}>
                     <input 
-                      className={styles.input} 
+                      className={`${styles.input} ${fieldErrors.password ? styles.inputError : ''}`} 
                       id="password" 
                       type={showPassword ? "text" : "password"} 
                       placeholder="••••••••" 
@@ -536,6 +543,9 @@ const AddPartnerForm: React.FC = () => {
                       {showPassword ? <FiEyeOff /> : <FiEye />}
                     </button>
                   </div>
+                  {fieldErrors.password && (
+                    <span className={styles.fieldError}>{fieldErrors.password[0]}</span>
+                  )}
                 </div>
               )}
             </div>
@@ -554,39 +564,48 @@ const AddPartnerForm: React.FC = () => {
                 Business Name <span className={styles.required}>*</span>
               </label>
               <input 
-                className={styles.input} 
+                className={`${styles.input} ${fieldErrors.business_name ? styles.inputError : ''}`} 
                 id="business_name" 
                 placeholder="Registered Company Name" 
                 value={formData.business_name}
                 onChange={handleInputChange}
                 required 
               />
+              {fieldErrors.business_name && (
+                <span className={styles.fieldError}>{fieldErrors.business_name[0]}</span>
+              )}
             </div>
             <div>
               <label className={styles.label} htmlFor="contact_phone">
                 Contact Phone <span className={styles.required}>*</span>
               </label>
               <input 
-                className={styles.input} 
+                className={`${styles.input} ${fieldErrors.contact_phone ? styles.inputError : ''}`} 
                 id="contact_phone" 
                 placeholder="+977-98XXXXXXXX" 
                 value={formData.contact_phone}
                 onChange={handleInputChange}
                 required 
               />
+              {fieldErrors.contact_phone && (
+                <span className={styles.fieldError}>{fieldErrors.contact_phone[0]}</span>
+              )}
             </div>
             <div>
               <label className={styles.label} htmlFor="contact_email">
                 Contact Email
               </label>
               <input 
-                className={styles.input} 
+                className={`${styles.input} ${fieldErrors.contact_email ? styles.inputError : ''}`} 
                 id="contact_email" 
                 type="email" 
                 placeholder="contact@business.com" 
                 value={formData.contact_email}
                 onChange={handleInputChange}
               />
+              {fieldErrors.contact_email && (
+                <span className={styles.fieldError}>{fieldErrors.contact_email[0]}</span>
+              )}
             </div>
             <div className="md:col-span-2">
               <label className={styles.label} htmlFor="address">
@@ -814,6 +833,15 @@ const AddPartnerForm: React.FC = () => {
                           <span className="text-xs text-gray-400 mr-3">
                             Showing {filteredStations.length} of {allStations.length} stations
                           </span>
+                          <button
+                            type="button"
+                            onClick={refreshAvailableStations}
+                            className={styles.dropdownCloseBtn}
+                            title="Refresh station list"
+                            disabled={isSearchingStation}
+                          >
+                            {isSearchingStation ? "Refreshing..." : "Refresh"}
+                          </button>
                           <button
                             type="button"
                             onClick={() => {
