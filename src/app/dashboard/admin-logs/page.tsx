@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./admin-logs.module.css";
 import Navbar from "../../../components/Navbar/Navbar";
 import {
@@ -58,11 +59,14 @@ const AdminLogsPage: React.FC = () => {
         setActionLogs(response.data.data);
         setLastUpdate(new Date());
       } else {
-        setError(response.data.message || "Failed to load logs");
+        const errorMessage = response.data.message || "Failed to load logs";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.error("Error fetching action logs:", err);
-      setError("Failed to load system logs");
+      const errorMessage = err.response?.data?.message || "Failed to load system logs";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       if (showLoader) setLoading(false);
     }
@@ -90,7 +94,7 @@ const AdminLogsPage: React.FC = () => {
     // Filter by type
     if (filterType !== "all") {
       filtered = filtered.filter((log) =>
-        log.action_type.toLowerCase().includes(filterType.toLowerCase()),
+        (log?.action_type || "").toLowerCase().includes(filterType.toLowerCase()),
       );
     }
 
@@ -99,10 +103,10 @@ const AdminLogsPage: React.FC = () => {
       const search = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (log) =>
-          log.description.toLowerCase().includes(search) ||
-          log.admin_username.toLowerCase().includes(search) ||
-          log.action_type.toLowerCase().includes(search) ||
-          log.target_model.toLowerCase().includes(search),
+          (log?.description || "").toLowerCase().includes(search) ||
+          (log?.admin_username || "").toLowerCase().includes(search) ||
+          (log?.action_type || "").toLowerCase().includes(search) ||
+          (log?.target_model || "").toLowerCase().includes(search),
       );
     }
 
@@ -309,35 +313,35 @@ const AdminLogsPage: React.FC = () => {
       ) : (
         <div className={styles.logsContainer}>
           {filteredLogs.map((log) => {
-            const updateType = getUpdateType(log.action_type);
+            const updateType = getUpdateType(log?.action_type || "");
             return (
-              <div key={log.id} className={styles.logCard}>
+              <div key={log?.id || Math.random()} className={styles.logCard}>
                 <div className={styles.logHeader}>
                   <div className={styles.logTitle}>
                     <div className={styles.iconContainer}>
                       {getIcon(updateType)}
                     </div>
                     <div>
-                      <h3>{formatTitle(log.action_type)}</h3>
+                      <h3>{formatTitle(log?.action_type || "Unknown Action")}</h3>
                       <span className={styles.targetModel}>
-                        {log.target_model}
+                        {log?.target_model || "N/A"}
                       </span>
                     </div>
                   </div>
                   <div className={styles.logMeta}>
                     <span className={styles.timeAgo}>
-                      {formatTimeAgo(log.created_at)}
+                      {formatTimeAgo(log?.created_at || new Date().toISOString())}
                     </span>
                     <span className={styles.timestamp}>
-                      {formatDateTime(log.created_at)}
+                      {formatDateTime(log?.created_at || new Date().toISOString())}
                     </span>
                   </div>
                 </div>
 
                 <div className={styles.logBody}>
-                  <p className={styles.description}>{log.description}</p>
+                  <p className={styles.description}>{log?.description || "No description"}</p>
 
-                  {Object.keys(log.changes).length > 0 && (
+                  {log?.changes && Object.keys(log.changes).length > 0 && (
                     <div className={styles.changesContainer}>
                       <h4>Changes:</h4>
                       <div className={styles.changes}>
@@ -347,7 +351,7 @@ const AdminLogsPage: React.FC = () => {
                             <span className={styles.changeValue}>
                               {typeof value === "object"
                                 ? JSON.stringify(value)
-                                : String(value)}
+                                : String(value ?? "N/A")}
                             </span>
                           </div>
                         ))}
@@ -359,14 +363,14 @@ const AdminLogsPage: React.FC = () => {
                 <div className={styles.logFooter}>
                   <div className={styles.adminInfo}>
                     <span className={styles.adminName}>
-                      {log.admin_username}
+                      {log?.admin_username || "Unknown"}
                     </span>
                     <span className={styles.adminEmail}>
-                      {log.admin_email}
+                      {log?.admin_email || "N/A"}
                     </span>
                   </div>
                   <div className={styles.technicalInfo}>
-                    <span className={styles.ipAddress}>{log.ip_address}</span>
+                    <span className={styles.ipAddress}>{log?.ip_address || "N/A"}</span>
                   </div>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./faqs.module.css";
 import {
   FiHelpCircle,
@@ -9,7 +10,6 @@ import {
   FiTrash2,
   FiRefreshCw,
   FiAlertCircle,
-  FiDownload,
   FiX,
   FiEye,
   FiEyeOff,
@@ -53,19 +53,22 @@ export default function FAQManagementPage() {
 
       if (response.success) {
         // Sort by sort_order and then by created_at
-        const sortedFAQs = response.data.sort((a, b) => {
-          if (a.sort_order !== b.sort_order) {
-            return a.sort_order - b.sort_order;
+        const sortedFAQs = (response.data ?? []).sort((a, b) => {
+          if (a?.sort_order !== b?.sort_order) {
+            return (a?.sort_order ?? 0) - (b?.sort_order ?? 0);
           }
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return new Date(b?.created_at ?? 0).getTime() - new Date(a?.created_at ?? 0).getTime();
         });
         setFAQs(sortedFAQs);
       } else {
-        setError("Failed to fetch FAQs");
+        const errorMsg = "Failed to fetch FAQs";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching FAQs:", err);
-      setError("Unable to load FAQs. Please try again.");
+      const errorMsg = err?.response?.data?.message || "Unable to load FAQs. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -79,25 +82,16 @@ export default function FAQManagementPage() {
     fetchFAQs();
   };
 
-  const handleExportCSV = () => {
-    if (faqs.length === 0) {
-      alert("No data to export");
-      return;
-    }
-    const timestamp = new Date().toISOString().split("T")[0];
-    faqService.downloadCSV(faqs, `faqs_${timestamp}.csv`);
-  };
-
   const handleOpenModal = (faq?: FAQ) => {
     if (faq) {
       setIsEditMode(true);
       setSelectedFAQ(faq);
       setFormData({
-        question: faq.question,
-        answer: faq.answer,
-        category: faq.category,
-        sort_order: faq.sort_order,
-        is_active: faq.is_active,
+        question: faq?.question ?? "",
+        answer: faq?.answer ?? "",
+        category: faq?.category ?? "",
+        sort_order: faq?.sort_order ?? 1,
+        is_active: faq?.is_active ?? true,
       });
     } else {
       setIsEditMode(false);
@@ -106,7 +100,7 @@ export default function FAQManagementPage() {
         question: "",
         answer: "",
         category: "",
-        sort_order: faqs.length + 1,
+        sort_order: (faqs?.length ?? 0) + 1,
         is_active: true,
       });
     }
@@ -179,23 +173,28 @@ export default function FAQManagementPage() {
       if (isEditMode && selectedFAQ) {
         const response = await faqService.updateFAQ(selectedFAQ.id, payload);
         if (response.success) {
+          toast.success("FAQ updated successfully");
           await fetchFAQs();
           handleCloseModal();
         } else {
-          setError("Failed to update FAQ");
+          const errorMsg = "Failed to update FAQ";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } else {
         const response = await faqService.createFAQ(payload);
         if (response.success) {
+          toast.success("FAQ created successfully");
           await fetchFAQs();
           handleCloseModal();
         } else {
-          setError("Failed to create FAQ");
+          const errorMsg = "Failed to create FAQ";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       }
     } catch (err: any) {
-      console.error("Error saving FAQ:", err);
-      const errorData = err.response?.data;
+      const errorData = err?.response?.data;
       let errorMessage = "Failed to save FAQ";
 
       if (errorData?.error?.message) {
@@ -205,6 +204,7 @@ export default function FAQManagementPage() {
       }
 
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -218,14 +218,18 @@ export default function FAQManagementPage() {
       const response = await faqService.deleteFAQ(faqToDelete.id);
 
       if (response.success) {
+        toast.success("FAQ deleted successfully");
         await fetchFAQs();
         handleCloseDeleteModal();
       } else {
-        setError("Failed to delete FAQ");
+        const errorMsg = "Failed to delete FAQ";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting FAQ:", err);
-      setError("Failed to delete FAQ");
+      const errorMsg = err?.response?.data?.message || "Failed to delete FAQ";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(false);
     }
@@ -233,17 +237,18 @@ export default function FAQManagementPage() {
 
   const filteredFAQs = faqs.filter(
     (faq) =>
-      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      faq.answer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      faq.category.toLowerCase().includes(searchTerm.toLowerCase()),
+      faq?.question?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq?.answer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq?.category?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Group FAQs by category
   const groupedFAQs = filteredFAQs.reduce((acc, faq) => {
-    if (!acc[faq.category]) {
-      acc[faq.category] = [];
+    const category = faq?.category ?? "Uncategorized";
+    if (!acc[category]) {
+      acc[category] = [];
     }
-    acc[faq.category].push(faq);
+    acc[category].push(faq);
     return acc;
   }, {} as Record<string, FAQ[]>);
 
@@ -268,9 +273,6 @@ export default function FAQManagementPage() {
             title="Refresh"
           >
             <FiRefreshCw className={loading ? styles.spinning : ""} />
-          </button>
-          <button onClick={handleExportCSV} className={styles.exportBtn}>
-            <FiDownload /> Export CSV
           </button>
           <button className={styles.addBtn} onClick={() => handleOpenModal()}>
             <FiPlus /> Add FAQ
@@ -304,6 +306,15 @@ export default function FAQManagementPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchTerm("")}
+                title="Clear search"
+              >
+                <FiX />
+              </button>
+            )}
           </div>
         </div>
 
@@ -330,54 +341,58 @@ export default function FAQManagementPage() {
             )}
           </div>
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Category</th>
-                  <th>Question</th>
-                  <th>Answer</th>
-                  <th>Status</th>
-                  <th>Updated By</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredFAQs.map((faq) => (
-                  <tr key={faq.id}>
+          <>
+            {/* Desktop Table View */}
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Category</th>
+                    <th>Question</th>
+                    <th>Answer</th>
+                    <th>Status</th>
+                    <th>Updated By</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredFAQs.map((faq) => (
+                  <tr key={faq?.id ?? Math.random()}>
                     <td>
-                      <span className={styles.sortOrder}>#{faq.sort_order}</span>
+                      <span className={styles.sortOrder}>#{faq?.sort_order ?? "N/A"}</span>
                     </td>
                     <td>
                       <div className={styles.categoryCell}>
                         <FiList className={styles.categoryIcon} />
                         <span className={styles.categoryLabel}>
-                          {faq.category}
+                          {faq?.category ?? "N/A"}
                         </span>
                       </div>
                     </td>
                     <td>
                       <span className={styles.questionText}>
-                        {faq.question}
+                        {faq?.question ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.answerText}>
-                        {faq.answer.length > 100
-                          ? `${faq.answer.substring(0, 100)}...`
-                          : faq.answer}
+                        {faq?.answer
+                          ? faq.answer.length > 100
+                            ? `${faq.answer.substring(0, 100)}...`
+                            : faq.answer
+                          : "N/A"}
                       </span>
                     </td>
                     <td>
                       <span
                         className={`${styles.status} ${
-                          faq.is_active
+                          faq?.is_active
                             ? styles.statusActive
                             : styles.statusInactive
                         }`}
                       >
-                        {faq.is_active ? (
+                        {faq?.is_active ? (
                           <>
                             <FiEye size={12} /> Active
                           </>
@@ -390,7 +405,7 @@ export default function FAQManagementPage() {
                     </td>
                     <td>
                       <span className={styles.updatedBy}>
-                        {faq.updated_by_username}
+                        {faq?.updated_by_username ?? "N/A"}
                       </span>
                     </td>
                     <td>
@@ -416,6 +431,80 @@ export default function FAQManagementPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {filteredFAQs.map((faq) => (
+              <div key={faq?.id ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>{faq?.question ?? "N/A"}</h3>
+                    <p>
+                      <FiList size={14} /> {faq?.category ?? "N/A"} • Order #{faq?.sort_order ?? "N/A"}
+                    </p>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleOpenModal(faq)}
+                      title="Edit"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleOpenDeleteModal(faq)}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Answer</span>
+                    <span className={styles.mobileCardValue}>
+                      {faq?.answer
+                        ? faq.answer.length > 80
+                          ? `${faq.answer.substring(0, 80)}...`
+                          : faq.answer
+                        : "N/A"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Status</span>
+                    <span
+                      className={`${styles.status} ${
+                        faq?.is_active
+                          ? styles.statusActive
+                          : styles.statusInactive
+                      }`}
+                    >
+                      {faq?.is_active ? (
+                        <>
+                          <FiEye size={12} /> Active
+                        </>
+                      ) : (
+                        <>
+                          <FiEyeOff size={12} /> Inactive
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Updated By</span>
+                    <span className={styles.mobileCardValue}>
+                      {faq?.updated_by_username ?? "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </section>
 
@@ -590,13 +679,13 @@ export default function FAQManagementPage() {
                 <div className={styles.deleteDetailRow}>
                   <span className={styles.deleteDetailLabel}>Category:</span>
                   <span className={styles.deleteDetailValue}>
-                    {faqToDelete.category}
+                    {faqToDelete?.category ?? "N/A"}
                   </span>
                 </div>
                 <div className={styles.deleteDetailRow}>
                   <span className={styles.deleteDetailLabel}>Question:</span>
                   <span className={styles.deleteDetailValue}>
-                    {faqToDelete.question}
+                    {faqToDelete?.question ?? "N/A"}
                   </span>
                 </div>
               </div>

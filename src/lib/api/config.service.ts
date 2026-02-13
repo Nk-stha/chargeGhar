@@ -56,6 +56,7 @@ export interface CreateConfigRequest {
   value: string;
   description?: string;
   is_active: boolean;
+  is_public?: boolean;
 }
 
 export interface UpdateConfigRequest {
@@ -64,6 +65,7 @@ export interface UpdateConfigRequest {
   value?: string;
   description?: string;
   is_active?: boolean;
+  is_public?: boolean;
 }
 
 /**

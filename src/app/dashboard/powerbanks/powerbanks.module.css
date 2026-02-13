@@ -536,7 +536,40 @@
 .analyticsContainer {
   display: flex;
   flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Analytics Category */
+.analyticsCategory {
+  display: flex;
+  flex-direction: column;
   gap: 1.5rem;
+}
+
+.categoryHeader {
+  border-bottom: 2px solid #2a2a2a;
+  padding-bottom: 1rem;
+}
+
+.categoryTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #82ea80;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.categoryTitle svg {
+  font-size: 1.75rem;
+}
+
+.categorySubtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 0;
+  font-weight: 400;
 }
 
 /* Stats Grid */
@@ -772,6 +805,26 @@
     font-size: 1.5rem;
   }
 
+  .categoryTitle {
+    font-size: 1.25rem;
+  }
+
+  .categoryTitle svg {
+    font-size: 1.5rem;
+  }
+
+  .categorySubtitle {
+    font-size: 0.85rem;
+  }
+
+  .analyticsContainer {
+    gap: 2rem;
+  }
+
+  .analyticsCategory {
+    gap: 1.25rem;
+  }
+
   .tabContainer {
     flex-direction: column;
     align-items: stretch;
@@ -872,6 +925,30 @@
 
   .subtitle {
     font-size: 0.85rem;
+  }
+
+  .categoryHeader {
+    padding-bottom: 0.75rem;
+  }
+
+  .categoryTitle {
+    font-size: 1.1rem;
+  }
+
+  .categoryTitle svg {
+    font-size: 1.25rem;
+  }
+
+  .categorySubtitle {
+    font-size: 0.8rem;
+  }
+
+  .analyticsContainer {
+    gap: 1.5rem;
+  }
+
+  .analyticsCategory {
+    gap: 1rem;
   }
 
   .tab {

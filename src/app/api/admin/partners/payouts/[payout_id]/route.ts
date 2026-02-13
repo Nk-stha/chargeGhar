@@ -41,7 +41,6 @@ export async function GET(
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error("Error fetching payout details:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch payout details" },
       { status: 500 }

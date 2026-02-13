@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import styles from "./kyc.module.css";
 import {
   FiFileText,
@@ -13,6 +14,8 @@ import {
   FiClock,
   FiCheckCircle,
   FiXCircle,
+  FiX,
+  FiAlertCircle,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 import DataTable from "@/components/DataTable/dataTable";
@@ -67,16 +70,18 @@ export default function KYCPage() {
     try {
       const response = await axiosInstance.get("/api/admin/kyc");
       if (response.data.success) {
-        setSubmissions(response.data.data.kyc_submissions);
-        setPagination(response.data.data.pagination);
+        setSubmissions(response.data.data?.kyc_submissions || []);
+        setPagination(response.data.data?.pagination || null);
+        toast.success("KYC submissions loaded successfully");
       } else {
-        setError("Failed to fetch KYC submissions");
+        const errorMsg = "Failed to fetch KYC submissions";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching KYC submissions:", err);
-      setError(
-        err.response?.data?.message || "Failed to fetch KYC submissions",
-      );
+      const errorMsg = err.response?.data?.message || "Failed to fetch KYC submissions";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -104,12 +109,14 @@ export default function KYCPage() {
     if (!selectedSubmission) return;
 
     if (editStatus === "REJECTED" && !rejectionReason.trim()) {
-      alert("Please provide a rejection reason when status is REJECTED");
+      const errorMsg = "Please provide a rejection reason when status is REJECTED";
+      toast.error(errorMsg);
       return;
     }
 
     if (!editStatus) {
-      alert("Please select a status");
+      const errorMsg = "Please select a status";
+      toast.error(errorMsg);
       return;
     }
 
@@ -125,17 +132,19 @@ export default function KYCPage() {
       );
 
       if (response.data.success) {
+        toast.success("KYC status updated successfully!");
         await fetchSubmissions();
         setShowModal(false);
         setSelectedSubmission(null);
         setRejectionReason("");
         setEditStatus("");
       } else {
-        alert("Failed to update KYC status");
+        const errorMsg = "Failed to update KYC status";
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error updating KYC status:", err);
-      alert(err.response?.data?.message || "Failed to update KYC status");
+      const errorMsg = err.response?.data?.message || "Failed to update KYC status";
+      toast.error(errorMsg);
     } finally {
       setProcessing(false);
     }
@@ -146,7 +155,7 @@ export default function KYCPage() {
 
     // Filter by status
     if (statusFilter !== "ALL") {
-      list = list.filter((sub) => sub.status === statusFilter);
+      list = list.filter((sub) => sub?.status === statusFilter);
     }
 
     // Search filter
@@ -154,10 +163,11 @@ export default function KYCPage() {
       const q = search.trim().toLowerCase();
       list = list.filter(
         (sub) =>
-          sub.username.toLowerCase().includes(q) ||
-          sub.email.toLowerCase().includes(q) ||
-          sub.document_number.toLowerCase().includes(q) ||
-          sub.document_type.toLowerCase().includes(q),
+          (sub?.username && sub.username.toLowerCase().includes(q)) ||
+          (sub?.email && sub.email.toLowerCase().includes(q)) ||
+          (sub?.document_number && sub.document_number.toLowerCase().includes(q)) ||
+          (sub?.document_type && sub.document_type.toLowerCase().includes(q)) ||
+          (sub?.phone_number && sub.phone_number.toLowerCase().includes(q)),
       );
     }
 
@@ -268,7 +278,7 @@ export default function KYCPage() {
               className={styles.clearBtn}
               title="Clear search"
             >
-              ×
+              <FiX />
             </button>
           )}
         </div>
@@ -304,8 +314,8 @@ export default function KYCPage() {
             accessor: "username",
             render: (_: any, row: KYCSubmission) => (
               <div className={styles.userInfo}>
-                <div className={styles.userName}>{row.username}</div>
-                <div className={styles.userEmail}>{row.email}</div>
+                <div className={styles.userName}>{row?.username || "Unknown"}</div>
+                <div className={styles.userEmail}>{row?.email || "No email"}</div>
               </div>
             ),
           },
@@ -313,26 +323,27 @@ export default function KYCPage() {
             header: "Document Type",
             accessor: "document_type",
             render: (value: string) => (
-              <span className={styles.docType}>{value}</span>
+              <span className={styles.docType}>{value || "N/A"}</span>
             ),
           },
           {
             header: "Document Number",
             accessor: "document_number",
+            render: (value: string) => value || "N/A",
           },
           {
             header: "Status",
             accessor: "status",
             render: (value: string) => (
               <span
-                className={`${styles.statusBadge} ${value === "APPROVED"
+                className={`${styles.statusBadge} ${(value || "PENDING") === "APPROVED"
                     ? styles.statusApproved
-                    : value === "REJECTED"
+                    : (value || "PENDING") === "REJECTED"
                       ? styles.statusRejected
                       : styles.statusPending
                   }`}
               >
-                {value}
+                {value || "PENDING"}
               </span>
             ),
           },
@@ -340,7 +351,7 @@ export default function KYCPage() {
             header: "Submitted Date",
             accessor: "created_at",
             render: (value: string) =>
-              new Date(value).toLocaleDateString(),
+              value ? new Date(value).toLocaleDateString() : "N/A",
           },
           {
             header: "Verified By",
@@ -380,27 +391,27 @@ export default function KYCPage() {
         mobileCardRender={(row: KYCSubmission) => (
           <>
             <div className={styles.userInfo} style={{ marginBottom: "0.75rem" }}>
-              <div className={styles.userName}>{row.username}</div>
-              <div className={styles.userEmail}>{row.email}</div>
+              <div className={styles.userName}>{row?.username || "Unknown"}</div>
+              <div className={styles.userEmail}>{row?.email || "No email"}</div>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.75rem" }}>
-              <span className={styles.docType}>{row.document_type}</span>
+              <span className={styles.docType}>{row?.document_type || "N/A"}</span>
               <span
-                className={`${styles.statusBadge} ${row.status === "APPROVED"
+                className={`${styles.statusBadge} ${(row?.status || "PENDING") === "APPROVED"
                     ? styles.statusApproved
-                    : row.status === "REJECTED"
+                    : (row?.status || "PENDING") === "REJECTED"
                       ? styles.statusRejected
                       : styles.statusPending
                   }`}
               >
-                {row.status}
+                {row?.status || "PENDING"}
               </span>
             </div>
             <p style={{ margin: 0, fontSize: "0.8rem", color: "#888", marginBottom: "0.5rem" }}>
-              Document: {row.document_number}
+              Document: {row?.document_number || "N/A"}
             </p>
             <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
-              Submitted {new Date(row.created_at).toLocaleDateString()}
+              Submitted {row?.created_at ? new Date(row.created_at).toLocaleDateString() : "N/A"}
             </p>
             <div className={styles.actionButtons} style={{ marginTop: "0.75rem", paddingTop: "0.75rem", borderTop: "1px solid #222" }}>
               <button
@@ -443,10 +454,10 @@ export default function KYCPage() {
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>User:</span>
                     <span className={styles.detailValue}>
-                      {selectedSubmission.username} ({selectedSubmission.email})
+                      {selectedSubmission?.username || "Unknown"} ({selectedSubmission?.email || "No email"})
                     </span>
                   </div>
-                  {selectedSubmission.phone_number && (
+                  {selectedSubmission?.phone_number && (
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>Phone:</span>
                       <span className={styles.detailValue}>
@@ -457,35 +468,35 @@ export default function KYCPage() {
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Document Type:</span>
                     <span className={styles.detailValue}>
-                      {selectedSubmission.document_type}
+                      {selectedSubmission?.document_type || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Document Number:</span>
                     <span className={styles.detailValue}>
-                      {selectedSubmission.document_number}
+                      {selectedSubmission?.document_number || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Status:</span>
                     <span
-                      className={`${styles.statusBadge} ${selectedSubmission.status === "APPROVED"
+                      className={`${styles.statusBadge} ${(selectedSubmission?.status || "PENDING") === "APPROVED"
                         ? styles.statusApproved
-                        : selectedSubmission.status === "REJECTED"
+                        : (selectedSubmission?.status || "PENDING") === "REJECTED"
                           ? styles.statusRejected
                           : styles.statusPending
                         }`}
                     >
-                      {selectedSubmission.status}
+                      {selectedSubmission?.status || "PENDING"}
                     </span>
                   </div>
                   <div className={styles.detailRow}>
                     <span className={styles.detailLabel}>Submitted:</span>
                     <span className={styles.detailValue}>
-                      {new Date(selectedSubmission.created_at).toLocaleString()}
+                      {selectedSubmission?.created_at ? new Date(selectedSubmission.created_at).toLocaleString() : "N/A"}
                     </span>
                   </div>
-                  {selectedSubmission.verified_by_username && (
+                  {selectedSubmission?.verified_by_username && (
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>Verified By:</span>
                       <span className={styles.detailValue}>
@@ -493,17 +504,15 @@ export default function KYCPage() {
                       </span>
                     </div>
                   )}
-                  {selectedSubmission.verified_at && (
+                  {selectedSubmission?.verified_at && (
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>Verified At:</span>
                       <span className={styles.detailValue}>
-                        {new Date(
-                          selectedSubmission.verified_at,
-                        ).toLocaleString()}
+                        {new Date(selectedSubmission.verified_at).toLocaleString()}
                       </span>
                     </div>
                   )}
-                  {selectedSubmission.rejection_reason && (
+                  {selectedSubmission?.rejection_reason && (
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>
                         Rejection Reason:
@@ -545,8 +554,8 @@ export default function KYCPage() {
                     <div className={styles.detailRow}>
                       <span className={styles.detailLabel}>User:</span>
                       <span className={styles.detailValue}>
-                        {selectedSubmission.username} (
-                        {selectedSubmission.email})
+                        {selectedSubmission?.username || "Unknown"} (
+                        {selectedSubmission?.email || "No email"})
                       </span>
                     </div>
                     <div className={styles.detailRow}>
@@ -554,14 +563,14 @@ export default function KYCPage() {
                         Current Status:
                       </span>
                       <span
-                        className={`${styles.statusBadge} ${selectedSubmission.status === "APPROVED"
+                        className={`${styles.statusBadge} ${(selectedSubmission?.status || "PENDING") === "APPROVED"
                           ? styles.statusApproved
-                          : selectedSubmission.status === "REJECTED"
+                          : (selectedSubmission?.status || "PENDING") === "REJECTED"
                             ? styles.statusRejected
                             : styles.statusPending
                           }`}
                       >
-                        {selectedSubmission.status}
+                        {selectedSubmission?.status || "PENDING"}
                       </span>
                     </div>
 
@@ -599,11 +608,11 @@ export default function KYCPage() {
                       </div>
                     )}
 
-                    {editStatus && editStatus !== selectedSubmission.status && (
+                    {editStatus && editStatus !== (selectedSubmission?.status || "") && (
                       <div className={styles.changeNotice}>
                         <p>
                           <strong>Status Change:</strong>{" "}
-                          {selectedSubmission.status} → {editStatus}
+                          {selectedSubmission?.status || "PENDING"} → {editStatus}
                         </p>
                       </div>
                     )}
@@ -625,7 +634,7 @@ export default function KYCPage() {
                     className={styles.modalBtnPrimary}
                     onClick={() => {
                       setModalMode("edit");
-                      setEditStatus(selectedSubmission.status);
+                      setEditStatus(selectedSubmission?.status || "PENDING");
                     }}
                   >
                     <FiEdit /> Edit Status

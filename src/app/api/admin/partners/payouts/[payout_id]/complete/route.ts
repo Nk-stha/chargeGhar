@@ -44,7 +44,6 @@ export async function PATCH(
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error("Error completing payout:", error);
     return NextResponse.json(
       { success: false, message: "Failed to complete payout" },
       { status: 500 }

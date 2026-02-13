@@ -6,8 +6,8 @@ import {
   FiRefreshCw,
   FiChevronLeft,
   FiChevronRight,
-  FiEye,
   FiTrash2,
+  FiX,
 } from "react-icons/fi";
 import styles from "./StationDistribution.module.css";
 import { getStationDistributions, deactivateStationDistribution } from "../../lib/api/stationDistributions";
@@ -49,6 +49,7 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
   const fetchDistributions = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
 
       const response = await getStationDistributions({
         page,
@@ -57,22 +58,24 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
         is_active: true,
       });
 
-      if (response.success) {
-        setDistributions(response.data.results);
-        setTotalCount(response.data.count);
-        setTotalPages(response.data.total_pages);
+      if (response?.success) {
+        setDistributions(response?.data?.results ?? []);
+        setTotalCount(response?.data?.count ?? 0);
+        setTotalPages(response?.data?.total_pages ?? 1);
       } else {
-        setError(response.message || "Failed to fetch station distributions");
+        const errorMsg = response?.message || "Failed to fetch station distributions";
+        setError(errorMsg);
+        toast.error(errorMsg);
         setDistributions([]);
       }
     } catch (err: unknown) {
-      console.error("Error fetching station distributions:", err);
       const apiError = extractApiError(err, "An error occurred while fetching station distributions");
-      if (apiError.statusCode === 404) {
-        toast.error("Station distribution feature is not yet available. Please contact your administrator.");
-      } else {
-        toast.error(apiError.message);
-      }
+      const errorMsg = apiError.statusCode === 404 
+        ? "Station distribution feature is not yet available. Please contact your administrator."
+        : apiError.message;
+      
+      setError(errorMsg);
+      toast.error(errorMsg);
       setDistributions([]);
     } finally {
       setLoading(false);
@@ -99,16 +102,16 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
   const handleDeactivate = async (e: React.MouseEvent, dist: StationDistribution) => {
     e.stopPropagation();
     const confirmed = window.confirm(
-      `Are you sure you want to deactivate the distribution for "${dist.station_name}" → "${dist.partner_name}"?`
+      `Are you sure you want to deactivate the distribution for "${dist?.station_name ?? "this station"}" → "${dist?.partner_name ?? "this partner"}"?`
     );
     if (!confirmed) return;
 
     try {
-      setDeactivatingId(dist.id);
-      await deactivateStationDistribution(dist.id);
+      setDeactivatingId(dist?.id);
+      await deactivateStationDistribution(dist?.id);
+      toast.success("Distribution deactivated successfully");
       fetchDistributions();
     } catch (err: unknown) {
-      console.error("Error deactivating distribution:", err);
       const apiError = extractApiError(err, "Failed to deactivate distribution. Please try again.");
       toast.error(apiError.message);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -118,6 +121,7 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
   };
 
   const formatDate = (dateStr: string) => {
+    if (!dateStr) return "N/A";
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -128,6 +132,16 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Error Banner */}
+      {error && (
+        <div className={styles.errorBanner}>
+          <span>{error}</span>
+          <button onClick={() => setError(null)} className={styles.closeBanner}>
+            <FiX />
+          </button>
+        </div>
+      )}
+
       {/* Search & Actions */}
       <div className={styles.searchSection}>
         <div className={styles.searchWrapper}>
@@ -139,6 +153,15 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+          {searchQuery && (
+            <button
+              className={styles.clearSearch}
+              onClick={() => setSearchQuery("")}
+              title="Clear search"
+            >
+              ×
+            </button>
+          )}
         </div>
         <div className={styles.buttonGroup}>
           <button
@@ -208,57 +231,51 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
                 </tr>
               ) : (
                 distributions.map((dist) => (
-                  <tr key={dist.id} className={styles.tableRow}>
+                  <tr key={dist?.id ?? Math.random()} className={styles.tableRow}>
                     <td>
                       <span className={styles.stationName}>
-                        {dist.station_name}
+                        {dist?.station_name ?? "N/A"}
                       </span>
                       <span className={styles.stationCode}>
-                        {dist.station_code}
+                        {dist?.station_code ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.partnerName}>
-                        {dist.partner_name}
+                        {dist?.partner_name ?? "N/A"}
                       </span>
                       <span className={styles.partnerCode}>
-                        {dist.partner_code}
+                        {dist?.partner_code ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.typeBadge}>
-                        {dist.distribution_type}
+                        {dist?.distribution_type ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.dateText}>
-                        {formatDate(dist.effective_date)}
+                        {formatDate(dist?.effective_date ?? "")}
                       </span>
                     </td>
                     <td style={{ textAlign: "center" }}>
                       <span
                         className={`${styles.statusBadge} ${
-                          dist.is_active
+                          dist?.is_active
                             ? styles.statusActive
                             : styles.statusInactive
                         }`}
                       >
-                        {dist.is_active ? "ACTIVE" : "INACTIVE"}
+                        {dist?.is_active ? "ACTIVE" : "INACTIVE"}
                       </span>
                     </td>
                     <td className={styles.actionsCell}>
                       <button
                         className={styles.actionButton}
-                        title="View details"
-                      >
-                        <FiEye />
-                      </button>
-                      <button
-                        className={styles.actionButton}
                         title="Deactivate distribution"
                         onClick={(e) => handleDeactivate(e, dist)}
-                        disabled={deactivatingId === dist.id}
-                        style={deactivatingId === dist.id ? { opacity: 0.5 } : {}}
+                        disabled={deactivatingId === dist?.id}
+                        style={deactivatingId === dist?.id ? { opacity: 0.5 } : {}}
                       >
                         <FiTrash2 />
                       </button>
@@ -349,22 +366,22 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
           <>
             <div className={styles.cardGrid}>
               {distributions.map((dist) => (
-                <div key={dist.id} className={styles.distributionCard}>
+                <div key={dist?.id ?? Math.random()} className={styles.distributionCard}>
                   <div className={styles.cardHeader}>
                     <div className={styles.cardTitle}>
-                      <h3>{dist.station_name}</h3>
+                      <h3>{dist?.station_name ?? "N/A"}</h3>
                       <span className={styles.stationCode}>
-                        {dist.station_code}
+                        {dist?.station_code ?? "N/A"}
                       </span>
                     </div>
                     <span
                       className={`${styles.statusBadge} ${
-                        dist.is_active
+                        dist?.is_active
                           ? styles.statusActive
                           : styles.statusInactive
                       }`}
                     >
-                      {dist.is_active ? "ACTIVE" : "INACTIVE"}
+                      {dist?.is_active ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
 
@@ -372,38 +389,34 @@ const StationDistributionList: React.FC<StationDistributionListProps> = ({
                     <div className={styles.cardRow}>
                       <span className={styles.cardLabel}>Partner</span>
                       <span className={styles.cardValue}>
-                        {dist.partner_name}
+                        {dist?.partner_name ?? "N/A"}
                       </span>
                     </div>
 
                     <div className={styles.cardRow}>
                       <span className={styles.cardLabel}>Type</span>
                       <span className={styles.typeBadge}>
-                        {dist.distribution_type}
+                        {dist?.distribution_type ?? "N/A"}
                       </span>
                     </div>
 
                     <div className={styles.cardRow}>
                       <span className={styles.cardLabel}>Effective</span>
                       <span className={styles.cardValue}>
-                        {formatDate(dist.effective_date)}
+                        {formatDate(dist?.effective_date ?? "")}
                       </span>
                     </div>
                   </div>
 
                   <div className={styles.cardFooter}>
-                    <button className={styles.cardActionButton}>
-                      <FiEye />
-                      View
-                    </button>
                     <button
                       className={styles.cardActionButton}
                       onClick={(e) => handleDeactivate(e, dist)}
-                      disabled={deactivatingId === dist.id}
-                      style={deactivatingId === dist.id ? { opacity: 0.5 } : {}}
+                      disabled={deactivatingId === dist?.id}
+                      style={deactivatingId === dist?.id ? { opacity: 0.5 } : {}}
                     >
                       <FiTrash2 />
-                      {deactivatingId === dist.id ? "Deactivating..." : "Deactivate"}
+                      {deactivatingId === dist?.id ? "Deactivating..." : "Deactivate"}
                     </button>
                   </div>
                 </div>

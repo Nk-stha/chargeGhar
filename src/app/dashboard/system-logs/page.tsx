@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./system-logs.module.css";
 import {
   FiInfo,
@@ -11,6 +12,7 @@ import {
   FiSearch,
   FiChevronDown,
   FiChevronUp,
+  FiX,
 } from "react-icons/fi";
 import axiosInstance from "../../../lib/axios";
 
@@ -85,14 +87,16 @@ const SystemLogsPage: React.FC = () => {
           setPagination(response.data.data.pagination);
           setLastUpdate(new Date());
         } else {
-          setError("Failed to load system logs");
+          const errorMessage = "Failed to load system logs";
+          setError(errorMessage);
+          toast.error(errorMessage);
         }
       } catch (err: any) {
-        console.error("Error fetching system logs:", err);
-        setError(
+        const errorMessage =
           err.response?.data?.message ||
-          "Failed to load system logs. Please try again."
-        );
+          "Failed to load system logs. Please try again.";
+        setError(errorMessage);
+        toast.error(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -221,6 +225,15 @@ const SystemLogsPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
+          {searchTerm && (
+            <button
+              className={styles.clearButton}
+              onClick={() => setSearchTerm("")}
+              title="Clear search"
+            >
+              <FiX />
+            </button>
+          )}
         </div>
 
         <button
@@ -285,40 +298,40 @@ const SystemLogsPage: React.FC = () => {
           <div className={styles.logsContainer}>
             {logs.length > 0 ? (
               logs.map((log) => (
-                <div key={log.id} className={styles.logCard}>
+                <div key={log?.id || Math.random()} className={styles.logCard}>
                   <div className={styles.logHeader}>
                     <div className={styles.logLevel}>
-                      {getLevelIcon(log.level)}
-                      <span className={getLevelClass(log.level)}>
-                        {log.level.toUpperCase()}
+                      {getLevelIcon(log?.level || "INFO")}
+                      <span className={getLevelClass(log?.level || "INFO")}>
+                        {(log?.level || "INFO").toUpperCase()}
                       </span>
                     </div>
                     <div className={styles.logMeta}>
-                      {log.source && (
+                      {log?.source && (
                         <span className={styles.logSource}>
                           {log.source}
                         </span>
                       )}
-                      {log.module && (
+                      {log?.module && (
                         <span className={styles.logModule}>
                           {log.module}
                         </span>
                       )}
                       <span className={styles.logTimestamp}>
-                        {formatDate(log.timestamp || log.created_at)}
+                        {formatDate(log?.timestamp || log?.created_at || new Date().toISOString())}
                       </span>
                     </div>
                   </div>
 
-                  <div className={styles.logMessage}>{log.message}</div>
+                  <div className={styles.logMessage}>{log?.message || "No message"}</div>
 
-                  {(log.details || log.user || log.ip_address) && (
+                  {(log?.details || log?.user || log?.ip_address) && (
                     <>
                       <button
                         className={styles.expandButton}
-                        onClick={() => toggleLogExpansion(log.id)}
+                        onClick={() => toggleLogExpansion(log?.id)}
                       >
-                        {expandedLog === log.id ? (
+                        {expandedLog === log?.id ? (
                           <>
                             <FiChevronUp /> Hide Details
                           </>
@@ -329,21 +342,21 @@ const SystemLogsPage: React.FC = () => {
                         )}
                       </button>
 
-                      {expandedLog === log.id && (
+                      {expandedLog === log?.id && (
                         <div className={styles.logDetails}>
-                          {log.details && (
+                          {log?.details && (
                             <div className={styles.detailItem}>
                               <strong>Details:</strong>
                               <pre>{log.details}</pre>
                             </div>
                           )}
-                          {log.user && (
+                          {log?.user && (
                             <div className={styles.detailItem}>
                               <strong>User:</strong>
                               <span>{log.user}</span>
                             </div>
                           )}
-                          {log.ip_address && (
+                          {log?.ip_address && (
                             <div className={styles.detailItem}>
                               <strong>IP Address:</strong>
                               <span>{log.ip_address}</span>

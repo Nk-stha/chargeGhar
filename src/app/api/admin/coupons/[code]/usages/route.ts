@@ -28,7 +28,6 @@ export async function GET(
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Admin coupon usages route error:', error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });

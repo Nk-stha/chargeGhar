@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
     const start_date = searchParams.get("start_date");
     const end_date = searchParams.get("end_date");
     const search = searchParams.get("search");
+    const source = searchParams.get("source");
 
     // Build query string
     const params = new URLSearchParams();
@@ -30,6 +31,7 @@ export async function GET(req: NextRequest) {
     if (start_date) params.append("start_date", start_date);
     if (end_date) params.append("end_date", end_date);
     if (search) params.append("search", search);
+    if (source) params.append("source", source);
 
     const queryString = params.toString();
     const url = `${process.env.BASE_URL}/admin/transactions${
@@ -44,7 +46,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin transactions GET route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

@@ -21,7 +21,6 @@ export async function GET(req: NextRequest) {
     const data = response.data;
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Coupons route error (GET):', error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });
@@ -63,7 +62,6 @@ export async function POST(req: NextRequest) {
     const data = response.data;
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Coupons route error:', error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });

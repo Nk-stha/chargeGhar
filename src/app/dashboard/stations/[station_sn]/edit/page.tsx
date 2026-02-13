@@ -10,6 +10,7 @@ import {
   FiMapPin,
   FiArrowLeft,
 } from "react-icons/fi";
+import { toast } from "sonner";
 import styles from "./edit.module.css";
 import stationsService from "../../../../../lib/api/stations.service";
 import ImageUpload from "../../../../../components/StationManagement/ImageUpload";
@@ -112,7 +113,6 @@ const EditStationPage: React.FC = () => {
           setError("Failed to load station data");
         }
       } catch (err: any) {
-        console.error("Error fetching station:", err);
         setError(err.response?.data?.message || "Failed to load station data");
       } finally {
         setFetchLoading(false);
@@ -241,19 +241,75 @@ const EditStationPage: React.FC = () => {
 
       if (response.success) {
         setSuccess(true);
+        toast.success("Station updated successfully!");
         setTimeout(() => {
           router.push(`/dashboard/stations/${stationSn}`);
         }, 2000);
       } else {
-        setError("Failed to update station");
+        const errorText = response.message || "Failed to update station";
+        setError(errorText);
+        toast.error(errorText);
       }
     } catch (err: any) {
-      console.error("Error updating station:", err);
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to update station",
-      );
+      // Handle network/API errors
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Check for validation errors
+        if (errorData.error?.code === "validation_error" && errorData.error?.context?.validation_errors) {
+          const validationErrors = errorData.error.context.validation_errors;
+          const errorMessages: string[] = [];
+
+          Object.keys(validationErrors).forEach((field) => {
+            const fieldErrors = validationErrors[field];
+            
+            if (Array.isArray(fieldErrors)) {
+              fieldErrors.forEach((err: any) => {
+                if (typeof err === 'string') {
+                  errorMessages.push(`${field}: ${err}`);
+                } else if (err && typeof err === 'object') {
+                  const errMsg = err.string || err.message || JSON.stringify(err);
+                  errorMessages.push(`${field}: ${errMsg}`);
+                  toast.error(`${field}: ${errMsg}`);
+                }
+              });
+            } else if (typeof fieldErrors === 'object') {
+              Object.keys(fieldErrors).forEach((key) => {
+                const nestedErrors = fieldErrors[key];
+                if (Array.isArray(nestedErrors)) {
+                  nestedErrors.forEach((err: any) => {
+                    if (typeof err === 'string') {
+                      errorMessages.push(`${field}[${key}]: ${err}`);
+                      toast.error(`${field}[${key}]: ${err}`);
+                    } else if (err && typeof err === 'object') {
+                      const errMsg = err.string || err.message || JSON.stringify(err);
+                      errorMessages.push(`${field}[${key}]: ${errMsg}`);
+                      toast.error(`${field}[${key}]: ${errMsg}`);
+                    }
+                  });
+                }
+              });
+            }
+          });
+
+          if (errorMessages.length > 0) {
+            const errorText = errorMessages.join("; ");
+            setError(errorText);
+          } else {
+            const errorText = errorData.error?.message || "Validation failed";
+            setError(errorText);
+            toast.error(errorText);
+          }
+        } else {
+          const errorText = errorData.message || errorData.error?.message || "Failed to update station";
+          setError(errorText);
+          toast.error(errorText);
+        }
+      } else {
+        const errorText = err.message || "Failed to update station";
+        setError(errorText);
+        toast.error(errorText);
+      }
     } finally {
       setLoading(false);
     }
@@ -286,6 +342,7 @@ const EditStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("station_name", e.target.value)
                   }
+                  required
                 />
                 {validationErrors.station_name && (
                   <span className={styles.errorText}>
@@ -349,6 +406,7 @@ const EditStationPage: React.FC = () => {
                   placeholder="e.g., Kathmandu Mall, New Baneshwor"
                   value={formData.address || ""}
                   onChange={(e) => handleInputChange("address", e.target.value)}
+                  required
                 />
                 {validationErrors.address && (
                   <span className={styles.errorText}>
@@ -437,6 +495,7 @@ const EditStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("latitude", parseFloat(e.target.value))
                   }
+                  required
                 />
                 {validationErrors.latitude && (
                   <span className={styles.errorText}>
@@ -458,6 +517,7 @@ const EditStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("longitude", parseFloat(e.target.value))
                   }
+                  required
                 />
                 {validationErrors.longitude && (
                   <span className={styles.errorText}>

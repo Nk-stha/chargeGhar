@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./points.module.css";
 import Navbar from "../../../components/Navbar/Navbar";
 import {
@@ -54,14 +55,16 @@ const PointsPage: React.FC = () => {
       if (response.success) {
         setAnalytics(response.data);
       } else {
-        setError("Failed to load points analytics");
+        const errorMessage = "Failed to load points analytics";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.error("Error fetching points analytics:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load points analytics. Please try again.";
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -80,7 +83,8 @@ const PointsPage: React.FC = () => {
     // Validate input
     const validation = rewardsService.validateAdjustPoints(input);
     if (!validation.valid) {
-      setError(validation.error || "Invalid input");
+      const errorMessage = validation.error || "Invalid input";
+      toast.error(errorMessage);
       return;
     }
 
@@ -91,9 +95,8 @@ const PointsPage: React.FC = () => {
       const response = await rewardsService.adjustUserPoints(input);
 
       if (response.success) {
-        setSuccessMessage(
-          `Successfully ${input.adjustment_type === "add" ? "added" : "deducted"} ${input.points} points ${input.adjustment_type === "add" ? "to" : "from"} user ${response.data.username}`,
-        );
+        const successMsg = `Successfully ${input.adjustment_type === "add" ? "added" : "deducted"} ${input.points} points ${input.adjustment_type === "add" ? "to" : "from"} user ${response.data?.username || input.user_id}`;
+        toast.success(successMsg);
         setShowAdjustModal(false);
         setAdjustmentForm({
           user_id: "",
@@ -103,25 +106,23 @@ const PointsPage: React.FC = () => {
         });
         // Refresh analytics
         fetchPointsAnalytics();
-
-        // Clear success message after 5 seconds
-        setTimeout(() => setSuccessMessage(null), 5000);
       } else {
-        setError("Failed to adjust points");
+        const errorMessage = "Failed to adjust points";
+        toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.error("Error adjusting points:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to adjust points. Please try again.";
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setAdjustmentLoading(false);
     }
   };
 
   const filteredTopEarners = analytics?.top_earners.filter((earner) =>
-    earner.username.toLowerCase().includes(searchTerm.toLowerCase()),
+    (earner?.username && earner.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (earner?.user_id && earner.user_id.toString().includes(searchTerm)),
   );
 
   const formatDate = (dateString: string) => {
@@ -194,7 +195,7 @@ const PointsPage: React.FC = () => {
                 <div className={styles.statContent}>
                   <p className={styles.statLabel}>Total Points Earned</p>
                   <h3 className={styles.statValue}>
-                    {analytics.earned.total_points.toLocaleString()}
+                    {(analytics?.earned?.total_points ?? 0).toLocaleString()}
                   </h3>
                 </div>
               </div>
@@ -206,7 +207,7 @@ const PointsPage: React.FC = () => {
                 <div className={styles.statContent}>
                   <p className={styles.statLabel}>Total Points Spent</p>
                   <h3 className={styles.statValue}>
-                    {analytics.spent.total_points.toLocaleString()}
+                    {(analytics?.spent?.total_points ?? 0).toLocaleString()}
                   </h3>
                 </div>
               </div>
@@ -219,8 +220,8 @@ const PointsPage: React.FC = () => {
                   <p className={styles.statLabel}>Net Points</p>
                   <h3 className={styles.statValue}>
                     {(
-                      analytics.earned.total_points -
-                      analytics.spent.total_points
+                      (analytics?.earned?.total_points ?? 0) -
+                      (analytics?.spent?.total_points ?? 0)
                     ).toLocaleString()}
                   </h3>
                 </div>
@@ -233,7 +234,7 @@ const PointsPage: React.FC = () => {
                 <div className={styles.statContent}>
                   <p className={styles.statLabel}>Total Transactions</p>
                   <h3 className={styles.statValue}>
-                    {analytics.total_transactions.toLocaleString()}
+                    {(analytics?.total_transactions ?? 0).toLocaleString()}
                   </h3>
                 </div>
               </div>
@@ -250,10 +251,10 @@ const PointsPage: React.FC = () => {
                   <div className={styles.breakdownContent}>
                     <p className={styles.breakdownLabel}>Earned</p>
                     <h3 className={styles.breakdownValue}>
-                      {analytics.earned.total_points.toLocaleString()}
+                      {(analytics?.earned?.total_points ?? 0).toLocaleString()}
                     </h3>
                     <p className={styles.breakdownSubtext}>
-                      {analytics.earned.transaction_count} transactions
+                      {analytics?.earned?.transaction_count ?? 0} transactions
                     </p>
                   </div>
                 </div>
@@ -265,10 +266,10 @@ const PointsPage: React.FC = () => {
                   <div className={styles.breakdownContent}>
                     <p className={styles.breakdownLabel}>Spent</p>
                     <h3 className={styles.breakdownValue}>
-                      {analytics.spent.total_points.toLocaleString()}
+                      {(analytics?.spent?.total_points ?? 0).toLocaleString()}
                     </h3>
                     <p className={styles.breakdownSubtext}>
-                      {analytics.spent.transaction_count} transactions
+                      {analytics?.spent?.transaction_count ?? 0} transactions
                     </p>
                   </div>
                 </div>
@@ -280,10 +281,10 @@ const PointsPage: React.FC = () => {
                   <div className={styles.breakdownContent}>
                     <p className={styles.breakdownLabel}>Adjustments</p>
                     <h3 className={styles.breakdownValue}>
-                      {analytics.adjustments.total_points.toLocaleString()}
+                      {(analytics?.adjustments?.total_points ?? 0).toLocaleString()}
                     </h3>
                     <p className={styles.breakdownSubtext}>
-                      {analytics.adjustments.transaction_count} transactions
+                      {analytics?.adjustments?.transaction_count ?? 0} transactions
                     </p>
                   </div>
                 </div>
@@ -301,19 +302,19 @@ const PointsPage: React.FC = () => {
                 </p>
               </div>
               <div className={styles.sourceGrid}>
-                {analytics.source_breakdown.map((item, index) => (
+                {(analytics?.source_breakdown || []).map((item, index) => (
                   <div key={index} className={styles.sourceItem}>
                     <p className={styles.sourceLabel}>
-                      {item.source
+                      {(item?.source || "Unknown")
                         .replace(/_/g, " ")
                         .toLowerCase()
                         .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </p>
                     <p className={styles.sourceValue}>
-                      {item.total_points.toLocaleString()} pts
+                      {(item?.total_points ?? 0).toLocaleString()} pts
                     </p>
                     <p className={styles.sourceCount}>
-                      {item.transaction_count} transactions
+                      {item?.transaction_count ?? 0} transactions
                     </p>
                   </div>
                 ))}
@@ -336,11 +337,20 @@ const PointsPage: React.FC = () => {
                   <FiSearch className={styles.searchIcon} />
                   <input
                     type="text"
-                    placeholder="Search by username or email..."
+                    placeholder="Search by username or user ID..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={styles.searchInput}
                   />
+                  {searchTerm && (
+                    <button
+                      className={styles.clearButton}
+                      onClick={() => setSearchTerm("")}
+                      title="Clear search"
+                    >
+                      <FiX />
+                    </button>
+                  )}
                 </div>
                 <button
                   className={styles.refreshBtn}
@@ -359,7 +369,7 @@ const PointsPage: React.FC = () => {
                     header: "Rank",
                     accessor: "user_id",
                     render: (_: any, row: any) => {
-                      const index = (filteredTopEarners || []).findIndex(e => e.user_id === row.user_id);
+                      const index = (filteredTopEarners || []).findIndex(e => e?.user_id === row?.user_id);
                       return index + 1;
                     },
                   },
@@ -367,21 +377,21 @@ const PointsPage: React.FC = () => {
                     header: "Username",
                     accessor: "username",
                     render: (value: string) => (
-                      <span className={styles.username}>{value}</span>
+                      <span className={styles.username}>{value || "N/A"}</span>
                     ),
                   },
                   {
                     header: "User ID",
                     accessor: "user_id",
                     render: (value: number) => (
-                      <span className={styles.userId}>ID: {value}</span>
+                      <span className={styles.userId}>ID: {value ?? "N/A"}</span>
                     ),
                   },
                   {
                     header: "Total Points Earned",
                     accessor: "total_earned",
                     render: (value: number) => (
-                      <span className={styles.points}>{value.toLocaleString()} pts</span>
+                      <span className={styles.points}>{(value ?? 0).toLocaleString()} pts</span>
                     ),
                   },
                 ]}
@@ -393,14 +403,14 @@ const PointsPage: React.FC = () => {
                     : "No top earners found"
                 }
                 mobileCardRender={(row: any) => {
-                  const index = (filteredTopEarners || []).findIndex(e => e.user_id === row.user_id);
+                  const index = (filteredTopEarners || []).findIndex(e => e?.user_id === row?.user_id);
                   return (
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <div>
-                        <p style={{ margin: 0, fontWeight: 600 }}>#{index + 1} {row.username}</p>
-                        <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>ID: {row.user_id}</p>
+                        <p style={{ margin: 0, fontWeight: 600 }}>#{index + 1} {row?.username || "N/A"}</p>
+                        <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>ID: {row?.user_id ?? "N/A"}</p>
                       </div>
-                      <span className={styles.points}>{row.total_earned.toLocaleString()} pts</span>
+                      <span className={styles.points}>{(row?.total_earned ?? 0).toLocaleString()} pts</span>
                     </div>
                   );
                 }}

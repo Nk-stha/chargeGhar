@@ -40,7 +40,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
-    console.error("Error fetching payout requests:", error);
     return NextResponse.json(
       { success: false, message: "Failed to fetch payout requests" },
       { status: 500 }

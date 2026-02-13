@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./config.module.css";
 import {
   FiSettings,
@@ -9,7 +10,6 @@ import {
   FiTrash2,
   FiRefreshCw,
   FiAlertCircle,
-  FiDownload,
   FiX,
   FiSearch,
   FiAlertTriangle,
@@ -47,12 +47,12 @@ export default function ConfigManagementPage() {
   );
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
-  // Form state
+  // Form state (using is_active internally, maps to is_public in API)
   const [formData, setFormData] = useState({
     key: "",
     value: "",
     description: "",
-    is_active: true,
+    is_active: true, // This maps to is_public in the API
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -66,20 +66,23 @@ export default function ConfigManagementPage() {
       if (response.success) {
         // Convert object to array
         const configArray: ConfigEntry[] = Object.entries(
-          response.data.configs,
+          response.data?.configs ?? {},
         ).map(([key, config]) => ({
           key,
-          ...config,
+          ...(config as any),
         }));
         // Sort by key
-        configArray.sort((a, b) => a.key.localeCompare(b.key));
+        configArray.sort((a, b) => (a?.key ?? "").localeCompare(b?.key ?? ""));
         setConfigs(configArray);
       } else {
-        setError("Failed to fetch configurations");
+        const errorMsg = "Failed to fetch configurations";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching configs:", err);
-      setError("Unable to load configurations. Please try again.");
+      const errorMsg = err?.response?.data?.message || "Unable to load configurations. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -93,34 +96,24 @@ export default function ConfigManagementPage() {
     fetchConfigs();
   };
 
-  const handleExportCSV = () => {
-    if (configs.length === 0) {
-      alert("No data to export");
-      return;
-    }
-    const timestamp = new Date().toISOString().split("T")[0];
-    const configsData: ConfigsData = configs.reduce((acc, config) => {
-      acc[config.key] = {
-        value: config.value,
-        description: config.description,
-        is_public: config.is_public,
-        created_at: config.created_at,
-        updated_at: config.updated_at,
-      };
-      return acc;
-    }, {} as ConfigsData);
-    configService.downloadCSV(configsData, `configs_${timestamp}.csv`);
-  };
-
   const handleOpenModal = (config?: ConfigEntry) => {
     if (config) {
       setIsEditMode(true);
       setSelectedConfig(config);
+      // Parse JSON value for display in form
+      let displayValue = config?.value ?? "";
+      try {
+        // Try to parse and display the JSON value in a readable format
+        displayValue = JSON.parse(config?.value ?? '""');
+      } catch {
+        // If parsing fails, use the raw value
+        displayValue = config?.value ?? "";
+      }
       setFormData({
-        key: config.key,
-        value: config.value,
-        description: config.description,
-        is_active: config.is_public,
+        key: config?.key ?? "",
+        value: displayValue,
+        description: config?.description ?? "",
+        is_active: config?.is_public ?? true,
       });
     } else {
       setIsEditMode(false);
@@ -185,9 +178,10 @@ export default function ConfigManagementPage() {
 
       const payload = {
         key: formData.key.trim(),
-        value: formData.value.trim(),
+        value: JSON.stringify(formData.value.trim()), // JSON encode the value
         description: formData.description.trim() || undefined,
-        is_active: formData.is_active,
+        is_active: formData.is_active, // Keep is_active for the interface
+        is_public: formData.is_active, // Map is_active to is_public for API
       };
 
       if (isEditMode && selectedConfig) {
@@ -195,26 +189,31 @@ export default function ConfigManagementPage() {
           key: selectedConfig.key,
           value: payload.value,
           description: payload.description,
-          is_active: payload.is_active,
+          is_public: payload.is_public, // Use is_public for API
         });
         if (response.success) {
+          toast.success("Configuration updated successfully");
           await fetchConfigs();
           handleCloseModal();
         } else {
-          setError("Failed to update configuration");
+          const errorMsg = "Failed to update configuration";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } else {
         const response = await configService.createConfig(payload);
         if (response.success) {
+          toast.success("Configuration created successfully");
           await fetchConfigs();
           handleCloseModal();
         } else {
-          setError("Failed to create configuration");
+          const errorMsg = "Failed to create configuration";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       }
     } catch (err: any) {
-      console.error("Error saving config:", err);
-      const errorData = err.response?.data;
+      const errorData = err?.response?.data;
       let errorMessage = "Failed to save configuration";
 
       if (errorData?.error?.message) {
@@ -224,6 +223,7 @@ export default function ConfigManagementPage() {
       }
 
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -240,14 +240,18 @@ export default function ConfigManagementPage() {
       );
 
       if (response.success) {
+        toast.success("Configuration deleted successfully");
         await fetchConfigs();
         handleCloseDeleteModal();
       } else {
-        setError("Failed to delete configuration");
+        const errorMsg = "Failed to delete configuration";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting config:", err);
-      setError("Failed to delete configuration");
+      const errorMsg = err?.response?.data?.message || "Failed to delete configuration";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(false);
     }
@@ -255,9 +259,9 @@ export default function ConfigManagementPage() {
 
   const filteredConfigs = configs.filter(
     (config) =>
-      config.key.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      config.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      config.description.toLowerCase().includes(searchTerm.toLowerCase()),
+      config?.key?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      config?.value?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      config?.description?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -279,9 +283,6 @@ export default function ConfigManagementPage() {
             title="Refresh"
           >
             <FiRefreshCw className={loading ? styles.spinning : ""} />
-          </button>
-          <button onClick={handleExportCSV} className={styles.exportBtn}>
-            <FiDownload /> Export CSV
           </button>
           <button className={styles.addBtn} onClick={() => handleOpenModal()}>
             <FiPlus /> Add Config
@@ -315,6 +316,15 @@ export default function ConfigManagementPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchTerm("")}
+                title="Clear search"
+              >
+                <FiX />
+              </button>
+            )}
           </div>
         </div>
 
@@ -341,44 +351,56 @@ export default function ConfigManagementPage() {
             )}
           </div>
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Key</th>
-                  <th>Value</th>
-                  <th>Description</th>
-                  <th>Public</th>
-                  <th>Updated At</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredConfigs.map((config) => (
-                  <tr key={config.key}>
+          <>
+            {/* Desktop Table View */}
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Public</th>
+                    <th>Updated At</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredConfigs.map((config) => (
+                  <tr key={config?.key ?? Math.random()}>
                     <td>
                       <div className={styles.keyCell}>
                         <FiKey className={styles.keyIcon} />
-                        <span className={styles.keyText}>{config.key}</span>
+                        <span className={styles.keyText}>{config?.key ?? "N/A"}</span>
                       </div>
                     </td>
                     <td>
-                      <span className={styles.valueText}>{config.value}</span>
+                      <span className={styles.valueText}>
+                        {(() => {
+                          try {
+                            // Try to parse and display JSON value
+                            const parsed = JSON.parse(config?.value ?? '""');
+                            return typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+                          } catch {
+                            return config?.value ?? "N/A";
+                          }
+                        })()}
+                      </span>
                     </td>
                     <td>
                       <span className={styles.descriptionText}>
-                        {config.description || "-"}
+                        {config?.description || "-"}
                       </span>
                     </td>
                     <td>
                       <span
                         className={`${styles.status} ${
-                          config.is_public
+                          config?.is_public
                             ? styles.statusActive
                             : styles.statusInactive
                         }`}
                       >
-                        {config.is_public ? (
+                        {config?.is_public ? (
                           <>
                             <FiEye size={12} /> Public
                           </>
@@ -391,7 +413,9 @@ export default function ConfigManagementPage() {
                     </td>
                     <td>
                       <span className={styles.dateText}>
-                        {new Date(config.updated_at).toLocaleDateString()}
+                        {config?.updated_at
+                          ? new Date(config.updated_at).toLocaleDateString()
+                          : "N/A"}
                       </span>
                     </td>
                     <td>
@@ -417,6 +441,84 @@ export default function ConfigManagementPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {filteredConfigs.map((config) => (
+              <div key={config?.key ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>
+                      <FiKey size={16} /> {config?.key ?? "N/A"}
+                    </h3>
+                    <p>
+                      {config?.is_public ? (
+                        <>
+                          <FiEye size={14} /> Public
+                        </>
+                      ) : (
+                        <>
+                          <FiEyeOff size={14} /> Private
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleOpenModal(config)}
+                      title="Edit"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleOpenDeleteModal(config)}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Value</span>
+                    <span className={styles.mobileCardValue}>
+                      {(() => {
+                        try {
+                          // Try to parse and display JSON value
+                          const parsed = JSON.parse(config?.value ?? '""');
+                          return typeof parsed === 'string' ? parsed : JSON.stringify(parsed);
+                        } catch {
+                          return config?.value ?? "N/A";
+                        }
+                      })()}
+                    </span>
+                  </div>
+
+                  {config?.description && (
+                    <div className={styles.mobileCardRow}>
+                      <span className={styles.mobileCardLabel}>Description</span>
+                      <span className={styles.mobileCardValue}>
+                        {config.description}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Updated At</span>
+                    <span className={styles.mobileCardValue}>
+                      {config?.updated_at
+                        ? new Date(config.updated_at).toLocaleDateString()
+                        : "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </section>
 
@@ -492,7 +594,8 @@ export default function ConfigManagementPage() {
                   </span>
                 )}
                 <span className={styles.helpText}>
-                  Enter simple text values like: 24, true, 100, or text strings
+                  Enter simple text values like: 24, true, 100, or text strings. 
+                  Values will be automatically JSON-encoded when saved.
                 </span>
               </div>
 
@@ -568,13 +671,13 @@ export default function ConfigManagementPage() {
                 <div className={styles.deleteDetailRow}>
                   <span className={styles.deleteDetailLabel}>Key:</span>
                   <span className={styles.deleteDetailValue}>
-                    {configToDelete.key}
+                    {configToDelete?.key ?? "N/A"}
                   </span>
                 </div>
                 <div className={styles.deleteDetailRow}>
                   <span className={styles.deleteDetailLabel}>Value:</span>
                   <span className={styles.deleteDetailValue}>
-                    {configToDelete.value}
+                    {configToDelete?.value ?? "N/A"}
                   </span>
                 </div>
               </div>

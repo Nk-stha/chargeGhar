@@ -30,7 +30,6 @@ export async function GET(
     const data = response.data;
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Coupons route error (GET):", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -91,7 +90,6 @@ export async function PATCH(
     const data = response.data;
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Coupons route error (PATCH):", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -125,7 +123,6 @@ export async function DELETE(
     const data = response.data;
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error("Coupons route error (DELETE):", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./transactions.module.css";
-import { FiDownload, FiFilter, FiRefreshCw, FiSearch } from "react-icons/fi";
+import { FiFilter, FiRefreshCw, FiSearch, FiX } from "react-icons/fi";
 import axiosInstance from "../../../lib/axios";
 import Table from "../../../components/DataTable/dataTable";
 
@@ -78,7 +79,10 @@ const Transactions: React.FC = () => {
       const params = new URLSearchParams();
       params.append("page", currentPage.toString());
       params.append("page_size", "50");
-      params.append("source", filter);
+      
+      if (filter !== "all") {
+        params.append("source", filter);
+      }
 
       if (searchTerm) {
         params.append("search", searchTerm);
@@ -89,17 +93,19 @@ const Transactions: React.FC = () => {
       );
 
       if (response.data.success) {
-        setTransactions(response.data.data.results);
+        setTransactions(response.data.data.results || []);
         setPagination(response.data.data.pagination);
       } else {
-        setError("Failed to load transactions");
+        const errorMessage = "Failed to load transactions";
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (err: any) {
-      console.error("Error fetching transactions:", err);
-      setError(
+      const errorMessage =
         err.response?.data?.message ||
-          "Failed to load transactions. Please try again."
-      );
+        "Failed to load transactions. Please try again.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -117,45 +123,13 @@ const Transactions: React.FC = () => {
 
   const sortedTransactions = [...transactions].sort((a, b) => {
     if (sortBy === "amount") {
-      const amountA = a.amount || a.points || 0;
-      const amountB = b.amount || b.points || 0;
+      const amountA = a?.amount ?? a?.points ?? 0;
+      const amountB = b?.amount ?? b?.points ?? 0;
       return amountB - amountA;
     }
-    if (sortBy === "status") return a.status.localeCompare(b.status);
-    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    if (sortBy === "status") return (a?.status || "").localeCompare(b?.status || "");
+    return new Date(b?.created_at || 0).getTime() - new Date(a?.created_at || 0).getTime();
   });
-
-  const downloadCSV = () => {
-    const headers = [
-      "Transaction ID",
-      "User",
-      "Type",
-      "Source",
-      "Amount/Points",
-      "Status",
-      "Description",
-      "Date",
-    ];
-    const rows = sortedTransactions.map((t) => [
-      t.transaction_id,
-      t.user?.username || t.user?.email || "N/A",
-      t.type,
-      t.source,
-      t.amount ? `Rs.${(t.amount || 0).toFixed(2)}` : `${t.points || 0} points`,
-      t.status,
-      t.description,
-      new Date(t.created_at).toLocaleString(),
-    ]);
-    const csvContent = [headers, ...rows].map((e) => e.join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `transactions_${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && pagination && newPage <= pagination.total_pages) {
@@ -172,6 +146,7 @@ const Transactions: React.FC = () => {
     {
       header: "Transaction ID",
       accessor: "transaction_id",
+      render: (value: string) => value || "N/A",
     },
     {
       header: "User",
@@ -182,9 +157,9 @@ const Transactions: React.FC = () => {
       header: "Amount/Points",
       accessor: "amount",
       render: (_: any, row: Transaction) =>
-        row.amount
-          ? `Rs. ${(row.amount || 0).toFixed(2)}`
-          : `${row.points || 0} points`,
+        row?.amount
+          ? `Rs. ${(row.amount ?? 0).toFixed(2)}`
+          : `${row?.points ?? 0} points`,
     },
     {
       header: "Source",
@@ -192,7 +167,7 @@ const Transactions: React.FC = () => {
       render: (value: string) => (
         <span
           style={{
-            backgroundColor: sourceColors[value.toLowerCase()] || "#6c757d",
+            backgroundColor: sourceColors[(value || "").toLowerCase()] || "#6c757d",
             color: "#000",
             padding: "4px 8px",
             borderRadius: "4px",
@@ -200,7 +175,7 @@ const Transactions: React.FC = () => {
             fontWeight: 600,
           }}
         >
-          {value}
+          {value || "N/A"}
         </span>
       ),
     },
@@ -210,7 +185,7 @@ const Transactions: React.FC = () => {
       render: (value: string) => (
         <span
           style={{
-            backgroundColor: statusColors[value.toUpperCase()] || "#6c757d",
+            backgroundColor: statusColors[(value || "").toUpperCase()] || "#6c757d",
             color: "#000",
             padding: "4px 8px",
             borderRadius: "4px",
@@ -218,7 +193,7 @@ const Transactions: React.FC = () => {
             fontWeight: 600,
           }}
         >
-          {value}
+          {value || "N/A"}
         </span>
       ),
     },
@@ -226,13 +201,13 @@ const Transactions: React.FC = () => {
       header: "Date/Time",
       accessor: "created_at",
       render: (value: string) =>
-        new Date(value).toLocaleString("en-US", {
+        value ? new Date(value).toLocaleString("en-US", {
           year: "numeric",
           month: "short",
           day: "numeric",
           hour: "2-digit",
           minute: "2-digit",
-        }),
+        }) : "N/A",
     },
   ];
 
@@ -291,6 +266,15 @@ const Transactions: React.FC = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className={styles.searchInput}
             />
+            {searchTerm && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchTerm("")}
+                title="Clear search"
+              >
+                <FiX />
+              </button>
+            )}
           </div>
 
           <div
@@ -356,13 +340,6 @@ const Transactions: React.FC = () => {
               </span>
             )}
           </div>
-          <button
-            className={styles.csvButton}
-            onClick={downloadCSV}
-            disabled={loading || transactions.length === 0}
-          >
-            <FiDownload /> Export CSV
-          </button>
         </div>
 
         <Table

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import styles from "./discounts.module.css";
 import {
   FiPercent,
@@ -13,6 +14,7 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiRefreshCw,
+  FiX,
 } from "react-icons/fi";
 import DiscountModal from "./DiscountModal";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
@@ -74,7 +76,9 @@ export default function DiscountsPage() {
       const token = localStorage.getItem("accessToken");
       
       if (!token) {
-        setError("Authentication required. Please login.");
+        const errorMsg = "Authentication required. Please login.";
+        setError(errorMsg);
+        toast.error(errorMsg);
         setLoading(false);
         return;
       }
@@ -84,8 +88,6 @@ export default function DiscountsPage() {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      console.log("Discounts API Response:", response.data);
 
       if (response.data.success) {
         // Handle multiple possible response structures
@@ -102,20 +104,17 @@ export default function DiscountsPage() {
           discountsData = response.data.results;
         }
         
-        console.log("Parsed discounts data:", discountsData);
-        console.log("First discount object (if exists):", discountsData[0]);
-        console.log("First discount ID field:", discountsData[0]?.id);
-        console.log("First discount discount_id field:", discountsData[0]?.discount_id);
-        console.log("All keys in first discount:", discountsData[0] ? Object.keys(discountsData[0]) : "No discounts");
-        
         setDiscounts(Array.isArray(discountsData) ? discountsData : []);
       } else {
-        setError(response.data.message || "Failed to fetch discounts");
+        const errorMsg = response.data.message || "Failed to fetch discounts";
+        setError(errorMsg);
+        toast.error(errorMsg);
         setDiscounts([]);
       }
     } catch (err: any) {
-      console.error("Error fetching discounts:", err);
-      setError(err.response?.data?.message || err.message || "Failed to fetch discounts");
+      const errorMsg = err.response?.data?.message || err.message || "Failed to fetch discounts";
+      setError(errorMsg);
+      toast.error(errorMsg);
       setDiscounts([]);
     } finally {
       setLoading(false);
@@ -165,35 +164,29 @@ export default function DiscountsPage() {
       });
 
       if (response.data.success) {
+        toast.success("Discount deleted successfully!");
         setSuccessMessage("Discount deleted successfully");
         fetchDiscounts();
+      } else {
+        toast.error("Failed to delete discount");
       }
     } catch (err: any) {
-      console.error("Error deleting discount:", err);
-      alert(err.response?.data?.message || "Failed to delete discount");
+      const errorMsg = err.response?.data?.message || "Failed to delete discount";
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
     }
   };
 
   const handleRowClick = (discount: Discount) => {
-    console.log("=== ROW CLICK DEBUG ===");
-    console.log("Full discount object:", discount);
-    console.log("discount.id:", discount.id);
-    console.log("discount.discount_id:", (discount as any).discount_id);
-    console.log("All keys:", Object.keys(discount));
-    console.log("======================");
-    
     // Try to find the correct ID field
-    const discountId = discount.id || (discount as any).discount_id;
+    const discountId = discount?.id || (discount as any)?.discount_id;
     
     if (!discountId) {
-      console.error("No ID found in discount object!");
-      alert("Cannot navigate: Discount ID not found");
+      toast.error("Cannot navigate: Discount ID not found");
       return;
     }
     
-    console.log("Navigating with ID:", discountId);
     router.push(`/dashboard/discounts/${discountId}`);
   };
 
@@ -220,9 +213,10 @@ export default function DiscountsPage() {
     const query = search.toLowerCase();
     return discounts.filter(
       (discount) =>
-        discount.station_name?.toLowerCase().includes(query) ||
-        discount.package_name?.toLowerCase().includes(query) ||
-        discount.status.toLowerCase().includes(query)
+        (discount?.station_name && discount.station_name.toLowerCase().includes(query)) ||
+        (discount?.package_name && discount.package_name.toLowerCase().includes(query)) ||
+        (discount?.status && discount.status.toLowerCase().includes(query)) ||
+        (discount?.discount_percent && discount.discount_percent.toString().includes(query))
     );
   }, [search, discounts]);
 
@@ -340,7 +334,7 @@ export default function DiscountsPage() {
               onClick={() => setSearch("")}
               title="Clear search"
             >
-              ×
+              <FiX />
             </button>
           )}
         </div>
@@ -372,16 +366,18 @@ export default function DiscountsPage() {
             header: "Discount",
             accessor: "discount_percent",
             render: (value: number) => (
-              <span className={styles.discountValue}>{value}%</span>
+              <span className={styles.discountValue}>{value || 0}%</span>
             ),
           },
           {
             header: "Max Total Uses",
             accessor: "max_total_uses",
+            render: (value: number) => value || 0,
           },
           {
             header: "Max Uses/User",
             accessor: "max_uses_per_user",
+            render: (value: number) => value || 0,
           },
           {
             header: "Total Uses",
@@ -394,14 +390,14 @@ export default function DiscountsPage() {
             render: (value: string) => (
               <span
                 className={`${styles.statusBadge} ${
-                  value === "ACTIVE"
+                  (value || "INACTIVE") === "ACTIVE"
                     ? styles.statusActive
-                    : value === "INACTIVE"
+                    : (value || "INACTIVE") === "INACTIVE"
                     ? styles.statusInactive
                     : styles.statusExpired
                 }`}
               >
-                {value}
+                {value || "INACTIVE"}
               </span>
             ),
           },
@@ -410,7 +406,7 @@ export default function DiscountsPage() {
             accessor: "valid_until",
             render: (value: string) => (
               <span className={styles.date}>
-                {new Date(value).toLocaleDateString()}
+                {value ? new Date(value).toLocaleDateString() : "N/A"}
               </span>
             ),
           },
@@ -433,12 +429,12 @@ export default function DiscountsPage() {
                   className={styles.deleteBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(row.id);
+                    handleDelete(row?.id || "");
                   }}
-                  disabled={deleteLoading === row.id}
+                  disabled={deleteLoading === row?.id}
                   title="Delete discount"
                 >
-                  {deleteLoading === row.id ? (
+                  {deleteLoading === row?.id ? (
                     <FiLoader className={styles.spinner} />
                   ) : (
                     <FiTrash2 />
@@ -461,29 +457,29 @@ export default function DiscountsPage() {
             onClick={() => handleRowClick(row)}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-              <span className={styles.stationName}>{row.station_name || "N/A"}</span>
+              <span className={styles.stationName}>{row?.station_name || "N/A"}</span>
               <span
                 className={`${styles.statusBadge} ${
-                  row.status === "ACTIVE"
+                  (row?.status || "INACTIVE") === "ACTIVE"
                     ? styles.statusActive
-                    : row.status === "INACTIVE"
+                    : (row?.status || "INACTIVE") === "INACTIVE"
                     ? styles.statusInactive
                     : styles.statusExpired
                 }`}
               >
-                {row.status}
+                {row?.status || "INACTIVE"}
               </span>
             </div>
-            <p className={styles.packageName}>{row.package_name || "N/A"}</p>
+            <p className={styles.packageName}>{row?.package_name || "N/A"}</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              <span className={styles.discountValue}>{row.discount_percent}% OFF</span>
+              <span className={styles.discountValue}>{row?.discount_percent || 0}% OFF</span>
               <span className={styles.usageInfo}>
-                Uses: {row.usage_count || 0}/{row.max_total_uses}
+                Uses: {row?.usage_count || 0}/{row?.max_total_uses || 0}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span className={styles.date}>
-                Until: {new Date(row.valid_until).toLocaleDateString()}
+                Until: {row?.valid_until ? new Date(row.valid_until).toLocaleDateString() : "N/A"}
               </span>
               <div className={styles.actions}>
                 <button
@@ -500,12 +496,12 @@ export default function DiscountsPage() {
                   className={styles.deleteBtn}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDelete(row.id);
+                    handleDelete(row?.id || "");
                   }}
-                  disabled={deleteLoading === row.id}
+                  disabled={deleteLoading === row?.id}
                   title="Delete discount"
                 >
-                  {deleteLoading === row.id ? <FiLoader className={styles.spinner} /> : <FiTrash2 />}
+                  {deleteLoading === row?.id ? <FiLoader className={styles.spinner} /> : <FiTrash2 />}
                 </button>
               </div>
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import styles from "./packages.module.css";
 import {
   FiPackage,
@@ -11,6 +12,7 @@ import {
   FiLoader,
   FiAlertCircle,
   FiCheckCircle,
+  FiX,
 } from "react-icons/fi";
 import PackageModal from "./PackageModal";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
@@ -70,11 +72,16 @@ export default function PackagesPage() {
       });
 
       if (response.data.success) {
-        setPackages(response.data.data.rental_packages);
+        setPackages(response.data.data?.rental_packages || []);
+      } else {
+        const errorMsg = "Failed to fetch rental packages";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching rental packages:", err);
-      setError(err.response?.data?.message || "Failed to fetch rental packages");
+      const errorMsg = err.response?.data?.message || "Failed to fetch rental packages";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -109,12 +116,15 @@ export default function PackagesPage() {
       });
 
       if (response.data.success) {
+        toast.success("Package deleted successfully!");
         setSuccessMessage("Package deleted successfully");
         fetchPackages();
+      } else {
+        toast.error("Failed to delete package");
       }
     } catch (err: any) {
-      console.error("Error deleting package:", err);
-      alert(err.response?.data?.message || "Failed to delete package");
+      const errorMsg = err.response?.data?.message || "Failed to delete package";
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
     }
@@ -142,10 +152,11 @@ export default function PackagesPage() {
     const query = search.toLowerCase();
     return packages.filter(
       (pkg) =>
-        pkg.name.toLowerCase().includes(query) ||
-        pkg.description.toLowerCase().includes(query) ||
-        pkg.package_type.toLowerCase().includes(query) ||
-        pkg.payment_model.toLowerCase().includes(query)
+        (pkg?.name && pkg.name.toLowerCase().includes(query)) ||
+        (pkg?.description && pkg.description.toLowerCase().includes(query)) ||
+        (pkg?.package_type && pkg.package_type.toLowerCase().includes(query)) ||
+        (pkg?.payment_model && pkg.payment_model.toLowerCase().includes(query)) ||
+        (pkg?.duration_display && pkg.duration_display.toLowerCase().includes(query))
     );
   }, [search, packages]);
 
@@ -209,7 +220,7 @@ export default function PackagesPage() {
               onClick={() => setSearch("")}
               title="Clear search"
             >
-              ×
+              <FiX />
             </button>
           )}
         </div>
@@ -234,42 +245,42 @@ export default function PackagesPage() {
             header: "Package Name",
             accessor: "name",
             render: (value: string) => (
-              <span className={styles.packageName}>{value}</span>
+              <span className={styles.packageName}>{value || "Unnamed Package"}</span>
             ),
           },
           {
             header: "Description",
             accessor: "description",
             render: (value: string) => (
-              <span className={styles.description}>{value}</span>
+              <span className={styles.description}>{value || "No description"}</span>
             ),
           },
           {
             header: "Duration",
             accessor: "duration_display",
             render: (value: string) => (
-              <span className={styles.duration}>{value}</span>
+              <span className={styles.duration}>{value || "N/A"}</span>
             ),
           },
           {
             header: "Price",
             accessor: "price",
             render: (value: string) => (
-              <span className={styles.price}>₹{value}</span>
+              <span className={styles.price}>₹{value || "0"}</span>
             ),
           },
           {
             header: "Type",
             accessor: "package_type",
             render: (value: string) => (
-              <span className={styles.typeTag}>{value}</span>
+              <span className={styles.typeTag}>{value || "N/A"}</span>
             ),
           },
           {
             header: "Payment",
             accessor: "payment_model",
             render: (value: string) => (
-              <span className={styles.paymentTag}>{value}</span>
+              <span className={styles.paymentTag}>{value || "N/A"}</span>
             ),
           },
           {
@@ -286,7 +297,7 @@ export default function PackagesPage() {
             accessor: "created_at",
             render: (value: string) => (
               <span className={styles.date}>
-                {new Date(value).toLocaleDateString()}
+                {value ? new Date(value).toLocaleDateString() : "N/A"}
               </span>
             ),
           },
@@ -328,19 +339,19 @@ export default function PackagesPage() {
         mobileCardRender={(row: RentalPackage) => (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-              <span className={styles.packageName}>{row.name}</span>
-              <span className={row.is_active ? styles.statusActive : styles.statusInactive}>
-                {row.is_active ? "Active" : "Inactive"}
+              <span className={styles.packageName}>{row?.name || "Unnamed Package"}</span>
+              <span className={row?.is_active ? styles.statusActive : styles.statusInactive}>
+                {row?.is_active ? "Active" : "Inactive"}
               </span>
             </div>
-            <p className={styles.description}>{row.description}</p>
+            <p className={styles.description}>{row?.description || "No description"}</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
-              <span className={styles.typeTag}>{row.package_type}</span>
-              <span className={styles.paymentTag}>{row.payment_model}</span>
-              <span className={styles.duration}>{row.duration_display}</span>
+              <span className={styles.typeTag}>{row?.package_type || "N/A"}</span>
+              <span className={styles.paymentTag}>{row?.payment_model || "N/A"}</span>
+              <span className={styles.duration}>{row?.duration_display || "N/A"}</span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span className={styles.price}>₹{row.price}</span>
+              <span className={styles.price}>₹{row?.price || "0"}</span>
               <div className={styles.actions}>
                 <button
                   className={styles.editBtn}
@@ -351,11 +362,11 @@ export default function PackagesPage() {
                 </button>
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => handleDelete(row.id, row.name)}
-                  disabled={deleteLoading === row.id}
+                  onClick={() => handleDelete(row?.id || "", row?.name || "this package")}
+                  disabled={deleteLoading === row?.id}
                   title="Delete package"
                 >
-                  {deleteLoading === row.id ? <FiLoader className={styles.spinner} /> : <FiTrash2 />}
+                  {deleteLoading === row?.id ? <FiLoader className={styles.spinner} /> : <FiTrash2 />}
                 </button>
               </div>
             </div>

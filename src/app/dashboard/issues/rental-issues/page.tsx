@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./rental-issues.module.css";
 import {
   FiAlertCircle,
@@ -51,13 +52,16 @@ export default function RentalIssuesPage() {
         const response = await rentalIssuesService.getRentalIssues(filters);
 
         if (response.success) {
-          setIssues(response.data);
+          setIssues(response.data || []);
         } else {
-          setError("Failed to fetch rental issues");
+          const errorMsg = "Failed to fetch rental issues";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (err: any) {
-        console.error("Error fetching rental issues:", err);
-        setError("Unable to load rental issues. Please try again.");
+        const errorMsg = err.response?.data?.message || "Unable to load rental issues. Please try again.";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -81,19 +85,30 @@ export default function RentalIssuesPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    // Auto-search when cleared
+    if (!e.target.value.trim() && searchQuery) {
+      fetchIssues(activeTab === "ALL" ? undefined : activeTab, "");
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    fetchIssues(activeTab === "ALL" ? undefined : activeTab, "");
   };
 
   const handleRefresh = () => {
+    toast.info("Refreshing rental issues...");
     fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
   };
 
   const handleExportCSV = () => {
     if (issues.length === 0) {
-      alert("No data to export");
+      toast.warning("No data to export");
       return;
     }
     const timestamp = new Date().toISOString().split("T")[0];
     rentalIssuesService.downloadCSV(issues, `rental_issues_${timestamp}.csv`);
+    toast.success("CSV exported successfully!");
   };
 
   const handleViewDetails = async (issueId: string) => {
@@ -103,11 +118,15 @@ export default function RentalIssuesPage() {
       const response = await rentalIssuesService.getRentalIssueDetail(issueId);
       if (response.success) {
         setSelectedIssue(response.data);
-        setNotes(response.data.notes || "");
+        setNotes(response.data?.notes || "");
+      } else {
+        const errorMsg = "Failed to load issue details";
+        toast.error(errorMsg);
+        setIsModalOpen(false);
       }
-    } catch (err) {
-      console.error("Error fetching issue details:", err);
-      alert("Failed to load issue details");
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || "Failed to load issue details";
+      toast.error(errorMsg);
       setIsModalOpen(false);
     } finally {
       setModalLoading(false);
@@ -134,11 +153,13 @@ export default function RentalIssuesPage() {
       if (response.success) {
         setSelectedIssue(response.data);
         fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
-        alert(`Issue ${newStatus.toLowerCase()} successfully`);
+        toast.success(`Issue ${newStatus.toLowerCase()} successfully!`);
+      } else {
+        toast.error("Failed to update issue status");
       }
     } catch (err: any) {
-      console.error("Error updating issue:", err);
-      alert("Failed to update issue status");
+      const errorMsg = err.response?.data?.message || "Failed to update issue status";
+      toast.error(errorMsg);
     } finally {
       setUpdateLoading(false);
     }
@@ -156,11 +177,13 @@ export default function RentalIssuesPage() {
       if (response.success) {
         handleCloseModal();
         fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
-        alert("Issue deleted successfully");
+        toast.success("Issue deleted successfully!");
+      } else {
+        toast.error("Failed to delete issue");
       }
     } catch (err: any) {
-      console.error("Error deleting issue:", err);
-      alert("Failed to delete issue");
+      const errorMsg = err.response?.data?.message || "Failed to delete issue";
+      toast.error(errorMsg);
     } finally {
       setUpdateLoading(false);
     }

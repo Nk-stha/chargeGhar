@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./coupons.module.css";
 import {
   FiGift,
@@ -95,8 +96,9 @@ const CouponsPage: React.FC = () => {
     if (searchTerm) {
       const filtered = coupons.filter(
         (coupon) =>
-          coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          coupon.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          (coupon?.code && coupon.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (coupon?.name && coupon.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+          (coupon?.status && coupon.status.toLowerCase().includes(searchTerm.toLowerCase())),
       );
       setFilteredCoupons(filtered);
     } else {
@@ -119,8 +121,9 @@ const CouponsPage: React.FC = () => {
         setPagination(response.data.data.pagination);
       }
     } catch (err: any) {
-      console.error("Error fetching coupons:", err);
-      setError(err.response?.data?.message || "Failed to load coupons");
+      const errorMessage = err.response?.data?.message || "Failed to load coupons";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -136,9 +139,8 @@ const CouponsPage: React.FC = () => {
         setShowDetailsModal(true);
       }
     } catch (err: any) {
-      console.error("Error fetching coupon details:", err);
-      setError(err.response?.data?.message || "Failed to load coupon details");
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || "Failed to load coupon details";
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -156,9 +158,8 @@ const CouponsPage: React.FC = () => {
         setShowUsageModal(true);
       }
     } catch (err: any) {
-      console.error("Error fetching usage history:", err);
-      setError(err.response?.data?.message || "Failed to load usage history");
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || "Failed to load usage history";
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -184,7 +185,7 @@ const CouponsPage: React.FC = () => {
       );
 
       if (response.data.success) {
-        setSuccessMessage("Coupon created successfully");
+        toast.success("Coupon created successfully");
         setShowAddModal(false);
         setFormData({
           code: "",
@@ -195,12 +196,10 @@ const CouponsPage: React.FC = () => {
           valid_until: "",
         });
         fetchCoupons();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error creating coupon:", err);
-      setError(err.response?.data?.message || "Failed to create coupon");
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || "Failed to create coupon";
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -223,17 +222,15 @@ const CouponsPage: React.FC = () => {
       );
 
       if (response.data.success) {
-        setSuccessMessage("Coupon status updated successfully");
+        toast.success("Coupon status updated successfully");
         setShowStatusModal(false);
         setNewStatus("");
         setSelectedCoupon(null);
         fetchCoupons();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error updating status:", err);
-      setError(err.response?.data?.message || "Failed to update status");
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || "Failed to update status";
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -247,14 +244,12 @@ const CouponsPage: React.FC = () => {
       const response = await axiosInstance.delete(`/api/admin/coupons/${code}`);
 
       if (response.data.success) {
-        setSuccessMessage("Coupon deleted successfully");
+        toast.success("Coupon deleted successfully");
         fetchCoupons();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error deleting coupon:", err);
-      setError(err.response?.data?.message || "Failed to delete coupon");
-      setTimeout(() => setError(null), 3000);
+      const errorMessage = err.response?.data?.message || "Failed to delete coupon";
+      toast.error(errorMessage);
     } finally {
       setActionLoading(false);
     }
@@ -388,11 +383,20 @@ const CouponsPage: React.FC = () => {
           <FiSearch className={styles.searchIcon} />
           <input
             type="text"
-            placeholder="Search by code or name..."
+            placeholder="Search by code, name, or status..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
+          {searchTerm && (
+            <button
+              className={styles.clearButton}
+              onClick={() => setSearchTerm("")}
+              title="Clear search"
+            >
+              <FiX />
+            </button>
+          )}
         </div>
         <button className={styles.refreshButton} onClick={() => fetchCoupons()}>
           <FiRefreshCw /> Refresh
@@ -409,28 +413,30 @@ const CouponsPage: React.FC = () => {
             header: "Code",
             accessor: "code",
             render: (value: string) => (
-              <span className={styles.codeCell}>{value}</span>
+              <span className={styles.codeCell}>{value || "N/A"}</span>
             ),
           },
           {
             header: "Name",
             accessor: "name",
+            render: (value: string) => value || "N/A",
           },
           {
             header: "Points Value",
             accessor: "points_value",
             render: (value: number) => (
-              <span className={styles.pointsCell}>{value} pts</span>
+              <span className={styles.pointsCell}>{value ?? 0} pts</span>
             ),
           },
           {
             header: "Max Uses/User",
             accessor: "max_uses_per_user",
+            render: (value: number) => value ?? 0,
           },
           {
             header: "Total Uses",
             accessor: "total_uses",
-            render: (value: number) => value || 0,
+            render: (value: number) => value ?? 0,
           },
           {
             header: "Status",
@@ -439,12 +445,12 @@ const CouponsPage: React.FC = () => {
               <span
                 className={styles.statusBadge}
                 style={{
-                  backgroundColor: `${getStatusColor(value)}22`,
-                  color: getStatusColor(value),
-                  borderColor: getStatusColor(value),
+                  backgroundColor: `${getStatusColor(value || "INACTIVE")}22`,
+                  color: getStatusColor(value || "INACTIVE"),
+                  borderColor: getStatusColor(value || "INACTIVE"),
                 }}
               >
-                {value}
+                {value || "N/A"}
               </span>
             ),
           },
@@ -453,7 +459,7 @@ const CouponsPage: React.FC = () => {
             accessor: "valid_until",
             render: (value: string) => (
               <span className={styles.dateCell}>
-                {new Date(value).toLocaleDateString()}
+                {value ? new Date(value).toLocaleDateString() : "N/A"}
               </span>
             ),
           },
@@ -464,8 +470,9 @@ const CouponsPage: React.FC = () => {
               <div className={styles.actions}>
                 <button
                   className={styles.actionButton}
-                  onClick={() => fetchCouponDetails(row.code)}
+                  onClick={() => fetchCouponDetails(row?.code)}
                   title="View Details"
+                  disabled={!row?.code}
                 >
                   <FiEye />
                 </button>
@@ -473,13 +480,15 @@ const CouponsPage: React.FC = () => {
                   className={styles.actionButton}
                   onClick={() => openStatusModal(row)}
                   title="Update Status"
+                  disabled={!row?.code}
                 >
                   <FiEdit2 />
                 </button>
                 <button
                   className={`${styles.actionButton} ${styles.deleteButton}`}
-                  onClick={() => handleDelete(row.code)}
+                  onClick={() => handleDelete(row?.code)}
                   title="Delete"
+                  disabled={!row?.code}
                 >
                   <FiTrash2 />
                 </button>
@@ -493,31 +502,32 @@ const CouponsPage: React.FC = () => {
         mobileCardRender={(row: Coupon) => (
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-              <span className={styles.codeCell}>{row.code}</span>
+              <span className={styles.codeCell}>{row?.code || "N/A"}</span>
               <span
                 className={styles.statusBadge}
                 style={{
-                  backgroundColor: `${getStatusColor(row.status)}22`,
-                  color: getStatusColor(row.status),
-                  borderColor: getStatusColor(row.status),
+                  backgroundColor: `${getStatusColor(row?.status || "INACTIVE")}22`,
+                  color: getStatusColor(row?.status || "INACTIVE"),
+                  borderColor: getStatusColor(row?.status || "INACTIVE"),
                 }}
               >
-                {row.status}
+                {row?.status || "N/A"}
               </span>
             </div>
-            <p style={{ margin: 0, fontWeight: 500 }}>{row.name}</p>
+            <p style={{ margin: 0, fontWeight: 500 }}>{row?.name || "N/A"}</p>
             <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "#aaa" }}>
-              <span className={styles.pointsCell}>{row.points_value} pts</span>
-              <span>Uses: {row.total_uses || 0}/{row.max_uses_per_user}</span>
+              <span className={styles.pointsCell}>{row?.points_value ?? 0} pts</span>
+              <span>Uses: {row?.total_uses ?? 0}/{row?.max_uses_per_user ?? 0}</span>
             </div>
             <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>
-              Valid until: {new Date(row.valid_until).toLocaleDateString()}
+              Valid until: {row?.valid_until ? new Date(row.valid_until).toLocaleDateString() : "N/A"}
             </p>
             <div className={styles.actions} style={{ marginTop: "0.5rem" }}>
               <button
                 className={styles.actionButton}
-                onClick={() => fetchCouponDetails(row.code)}
+                onClick={() => fetchCouponDetails(row?.code)}
                 title="View Details"
+                disabled={!row?.code}
               >
                 <FiEye /> View
               </button>
@@ -525,13 +535,15 @@ const CouponsPage: React.FC = () => {
                 className={styles.actionButton}
                 onClick={() => openStatusModal(row)}
                 title="Update Status"
+                disabled={!row?.code}
               >
                 <FiEdit2 /> Edit
               </button>
               <button
                 className={`${styles.actionButton} ${styles.deleteButton}`}
-                onClick={() => handleDelete(row.code)}
+                onClick={() => handleDelete(row?.code)}
                 title="Delete"
+                disabled={!row?.code}
               >
                 <FiTrash2 /> Delete
               </button>
@@ -691,45 +703,45 @@ const CouponsPage: React.FC = () => {
                   <div className={styles.detailItem}>
                     <label>Code:</label>
                     <span className={styles.codeCell}>
-                      {selectedCoupon.code}
+                      {selectedCoupon?.code || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Name:</label>
-                    <span>{selectedCoupon.name}</span>
+                    <span>{selectedCoupon?.name || "N/A"}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Points Value:</label>
                     <span className={styles.pointsCell}>
-                      {selectedCoupon.points_value} pts
+                      {selectedCoupon?.points_value ?? 0} pts
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Max Uses Per User:</label>
-                    <span>{selectedCoupon.max_uses_per_user}</span>
+                    <span>{selectedCoupon?.max_uses_per_user ?? 0}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Status:</label>
                     <span
                       className={styles.statusBadge}
                       style={{
-                        backgroundColor: `${getStatusColor(selectedCoupon.status)}22`,
-                        color: getStatusColor(selectedCoupon.status),
-                        borderColor: getStatusColor(selectedCoupon.status),
+                        backgroundColor: `${getStatusColor(selectedCoupon?.status || "INACTIVE")}22`,
+                        color: getStatusColor(selectedCoupon?.status || "INACTIVE"),
+                        borderColor: getStatusColor(selectedCoupon?.status || "INACTIVE"),
                       }}
                     >
-                      {selectedCoupon.status}
+                      {selectedCoupon?.status || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Currently Valid:</label>
                     <span>
-                      {selectedCoupon.is_currently_valid ? "Yes" : "No"}
+                      {selectedCoupon?.is_currently_valid ? "Yes" : "No"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Days Remaining:</label>
-                    <span>{selectedCoupon.days_remaining}</span>
+                    <span>{selectedCoupon?.days_remaining ?? 0}</span>
                   </div>
                 </div>
               </div>
@@ -739,20 +751,20 @@ const CouponsPage: React.FC = () => {
                 <div className={styles.detailGrid}>
                   <div className={styles.detailItem}>
                     <label>Valid From:</label>
-                    <span>{formatDate(selectedCoupon.valid_from)}</span>
+                    <span>{selectedCoupon?.valid_from ? formatDate(selectedCoupon.valid_from) : "N/A"}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Valid Until:</label>
-                    <span>{formatDate(selectedCoupon.valid_until)}</span>
+                    <span>{selectedCoupon?.valid_until ? formatDate(selectedCoupon.valid_until) : "N/A"}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Created At:</label>
-                    <span>{formatDate(selectedCoupon.created_at)}</span>
+                    <span>{selectedCoupon?.created_at ? formatDate(selectedCoupon.created_at) : "N/A"}</span>
                   </div>
                 </div>
               </div>
 
-              {selectedCoupon.usage_stats && (
+              {selectedCoupon?.usage_stats && (
                 <div className={styles.detailSection}>
                   <div className={styles.sectionHeader}>
                     <h3>Usage Statistics</h3>
@@ -760,8 +772,9 @@ const CouponsPage: React.FC = () => {
                       className={styles.linkButton}
                       onClick={() => {
                         closeAllModals();
-                        fetchCouponUsages(selectedCoupon.code);
+                        fetchCouponUsages(selectedCoupon?.code);
                       }}
+                      disabled={!selectedCoupon?.code}
                     >
                       View History <FiTrendingUp />
                     </button>
@@ -772,7 +785,7 @@ const CouponsPage: React.FC = () => {
                       <div>
                         <p className={styles.miniStatLabel}>Unique Users</p>
                         <p className={styles.miniStatValue}>
-                          {selectedCoupon.usage_stats.unique_users}
+                          {selectedCoupon.usage_stats.unique_users ?? 0}
                         </p>
                       </div>
                     </div>
@@ -781,7 +794,7 @@ const CouponsPage: React.FC = () => {
                       <div>
                         <p className={styles.miniStatLabel}>Total Uses</p>
                         <p className={styles.miniStatValue}>
-                          {selectedCoupon.usage_stats.total_uses}
+                          {selectedCoupon.usage_stats.total_uses ?? 0}
                         </p>
                       </div>
                     </div>
@@ -790,7 +803,7 @@ const CouponsPage: React.FC = () => {
                       <div>
                         <p className={styles.miniStatLabel}>Points Awarded</p>
                         <p className={styles.miniStatValue}>
-                          {selectedCoupon.usage_stats.total_points_awarded}
+                          {selectedCoupon.usage_stats.total_points_awarded ?? 0}
                         </p>
                       </div>
                     </div>
@@ -818,7 +831,7 @@ const CouponsPage: React.FC = () => {
 
             <div className={styles.modalBody}>
               <p className={styles.modalText}>
-                Update status for coupon: <strong>{selectedCoupon.code}</strong>
+                Update status for coupon: <strong>{selectedCoupon?.code || "N/A"}</strong>
               </p>
 
               <div className={styles.formGroup}>
@@ -887,15 +900,15 @@ const CouponsPage: React.FC = () => {
                     </thead>
                     <tbody>
                       {couponUsages.map((usage) => (
-                        <tr key={usage.id}>
+                        <tr key={usage?.id || Math.random()}>
                           <td className={styles.usernameCell}>
-                            {usage.user_username}
+                            {usage?.user_username || "N/A"}
                           </td>
                           <td className={styles.pointsCell}>
-                            {usage.points_awarded} pts
+                            {usage?.points_awarded ?? 0} pts
                           </td>
                           <td className={styles.dateCell}>
-                            {formatDate(usage.used_at)}
+                            {usage?.used_at ? formatDate(usage.used_at) : "N/A"}
                           </td>
                         </tr>
                       ))}

@@ -29,7 +29,6 @@ export async function PATCH(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error updating ad schedule:", error.response?.data || error.message);
     return NextResponse.json(
       { message: error.response?.data?.message || "Failed to update ad schedule" },
       { status: error.response?.status || 500 }

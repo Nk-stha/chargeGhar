@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { FiRefreshCw, FiSearch } from "react-icons/fi";
+import { toast } from "sonner";
+import { FiRefreshCw, FiSearch, FiX } from "react-icons/fi";
 import adsService from "@/lib/api/ads.service";
 import { AdRequestListItem, AdStatus } from "@/types/ads.types";
 import styles from "./ads.module.css";
@@ -52,22 +53,28 @@ function AdsPage() {
         const response = await adsService.getAdRequests(filters);
 
         if (response.success) {
-          setAds(response.data);
-          setTotalCount(response.data.length);
+          setAds(response.data || []);
+          setTotalCount((response.data || []).length);
           
           const counts: Record<string, number> = {};
-          response.data.forEach((ad) => {
-            counts[ad.status] = (counts[ad.status] || 0) + 1;
+          (response.data || []).forEach((ad) => {
+            if (ad?.status) {
+              counts[ad.status] = (counts[ad.status] || 0) + 1;
+            }
           });
           setStatusCounts(counts);
         } else {
-          setError("Failed to fetch ad requests");
+          const errorMsg = "Failed to fetch ad requests";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (err: unknown) {
         const errorMessage = err instanceof Error && 'response' in err 
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message 
           : "Failed to fetch ad requests";
-        setError(errorMessage || "Failed to fetch ad requests");
+        const errorMsg = errorMessage || "Failed to fetch ad requests";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -91,15 +98,29 @@ function AdsPage() {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setCurrentPage(1);
-    fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, searchQuery);
+    if (searchQuery.trim()) {
+      setCurrentPage(1);
+      fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, searchQuery);
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    // Auto-search when cleared
+    if (!e.target.value.trim() && searchQuery) {
+      setCurrentPage(1);
+      fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, "");
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setCurrentPage(1);
+    fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, "");
   };
 
   const handleRefresh = () => {
+    toast.info("Refreshing ad requests...");
     fetchAds(
       activeTab === "ALL" ? undefined : activeTab,
       currentPage,
@@ -190,13 +211,11 @@ function AdsPage() {
               {searchQuery && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchQuery("");
-                    setCurrentPage(1);
-                  }}
+                  onClick={handleClearSearch}
                   className={styles.clearSearch}
+                  title="Clear search"
                 >
-                  ×
+                  <FiX />
                 </button>
               )}
             </div>
@@ -261,44 +280,44 @@ function AdsPage() {
                   </tr>
                 ) : (
                   ads.map((ad) => (
-                    <tr key={ad.id} onClick={() => handleViewDetail(ad.id)}>
+                    <tr key={ad?.id || Math.random()} onClick={() => ad?.id && handleViewDetail(ad.id)}>
                       <td>
-                        <span className={ad.title ? styles.adTitle : styles.adTitleEmpty}>
-                          {ad.title || "Untitled Ad"}
+                        <span className={ad?.title ? styles.adTitle : styles.adTitleEmpty}>
+                          {ad?.title || "Untitled Ad"}
                         </span>
                       </td>
                       <td>
                         <div className={styles.requesterInfo}>
-                          <span className={styles.requesterName}>{ad.full_name}</span>
-                          <span className={styles.requesterEmail}>{ad.user_email}</span>
+                          <span className={styles.requesterName}>{ad?.full_name || "Unknown"}</span>
+                          <span className={styles.requesterEmail}>{ad?.user_email || "No email"}</span>
                         </div>
                       </td>
                       <td>
-                        <span className={styles.contact}>{ad.contact_number}</span>
+                        <span className={styles.contact}>{ad?.contact_number || "N/A"}</span>
                       </td>
                       <td>
-                        <span className={ad.duration_days ? styles.duration : styles.durationEmpty}>
-                          {ad.duration_days ? `${ad.duration_days} days` : "N/A"}
+                        <span className={ad?.duration_days ? styles.duration : styles.durationEmpty}>
+                          {ad?.duration_days ? `${ad.duration_days} days` : "N/A"}
                         </span>
                       </td>
                       <td>
-                        <span className={ad.admin_price ? styles.price : styles.priceEmpty}>
-                          {ad.admin_price ? adsService.formatAmount(ad.admin_price) : "N/A"}
+                        <span className={ad?.admin_price ? styles.price : styles.priceEmpty}>
+                          {ad?.admin_price ? adsService.formatAmount(ad.admin_price) : "N/A"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.stationCount}>
-                          {ad.station_count} station{ad.station_count !== 1 ? "s" : ""}
+                          {ad?.station_count || 0} station{(ad?.station_count || 0) !== 1 ? "s" : ""}
                         </span>
                       </td>
                       <td>
                         <span className={styles.date}>
-                          {adsService.formatDate(ad.submitted_at)}
+                          {ad?.submitted_at ? adsService.formatDate(ad.submitted_at) : "N/A"}
                         </span>
                       </td>
                       <td className={styles.statusCell}>
-                        <span className={`${styles.statusBadge} ${getStatusBadgeClass(ad.status)}`}>
-                          {getStatusLabel(ad.status)}
+                        <span className={`${styles.statusBadge} ${getStatusBadgeClass(ad?.status || "SUBMITTED")}`}>
+                          {getStatusLabel(ad?.status || "SUBMITTED")}
                         </span>
                       </td>
                     </tr>

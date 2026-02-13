@@ -81,7 +81,6 @@ class UserService {
         data: response.data,
       };
     } catch (error: any) {
-      console.error("Error fetching users:", error);
       throw error;
     }
   }
@@ -112,7 +111,6 @@ class UserService {
         data: response.data,
       };
     } catch (error: any) {
-      console.error(`Error fetching user ${userId}:`, error);
       throw error;
     }
   }
@@ -148,19 +146,11 @@ class UserService {
             userMap.set(userId, user);
           }
         });
-
-        // Log how many users were found
-        console.log(
-          `Fetched ${userMap.size} out of ${uniqueIds.length} requested users`,
-        );
       }
 
       return userMap;
     } catch (error: any) {
-      console.error("Error fetching users by IDs:", error);
       // Fallback: try individual calls if bulk fetch fails
-      console.log("Attempting individual user fetches as fallback...");
-
       for (const id of uniqueIds) {
         try {
           const userResponse = await this.getUserById(id);
@@ -168,7 +158,7 @@ class UserService {
             userMap.set(id, userResponse.data);
           }
         } catch (err) {
-          console.warn(`Failed to fetch user ${id}:`, err);
+          // Silent error - continue with other users
         }
       }
 

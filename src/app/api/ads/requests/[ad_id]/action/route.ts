@@ -29,7 +29,6 @@ export async function POST(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error executing ad action:", error.response?.data || error.message);
     return NextResponse.json(
       { message: error.response?.data?.message || "Failed to execute ad action" },
       { status: error.response?.status || 500 }

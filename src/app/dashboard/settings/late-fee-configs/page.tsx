@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { toast } from "sonner";
 import styles from "./late-fee-configs.module.css";
 import {
   FiDollarSign,
@@ -73,16 +74,24 @@ export default function LateFeeConfigsPage() {
       const data: LateFeeConfigsResponse = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to fetch configurations");
+        const errorMsg = data?.message || "Failed to fetch configurations";
+        setError(errorMsg);
+        toast.error(errorMsg);
+        return;
       }
 
-      setConfigurations(data.data.configurations);
-      setTotalPages(data.data.pagination.total_pages);
-      setTotalCount(data.data.pagination.total_count);
-      setSummary(data.data.summary);
+      setConfigurations(data?.data?.configurations ?? []);
+      setTotalPages(data?.data?.pagination?.total_pages ?? 1);
+      setTotalCount(data?.data?.pagination?.total_count ?? 0);
+      setSummary(data?.data?.summary ?? {
+        total_configurations: 0,
+        active_configurations: 0,
+        inactive_configurations: 0,
+      });
     } catch (err: any) {
-      console.error("Error fetching late fee configurations:", err);
-      setError(err.message || "Failed to fetch configurations");
+      const errorMsg = err?.message || "Failed to fetch configurations";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -101,9 +110,7 @@ export default function LateFeeConfigsPage() {
 
   const handleDelete = async (id: string, name: string, isActive: boolean) => {
     if (isActive) {
-      alert(
-        "Cannot delete an active configuration. Please deactivate it first."
-      );
+      toast.error("Cannot delete an active configuration. Please deactivate it first.");
       return;
     }
 
@@ -125,14 +132,18 @@ export default function LateFeeConfigsPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || "Failed to delete configuration");
+        const errorMsg = data?.message || "Failed to delete configuration";
+        setError(errorMsg);
+        toast.error(errorMsg);
+        return;
       }
 
-      setSuccessMessage(`Configuration "${name}" deleted successfully`);
+      toast.success(`Configuration "${name}" deleted successfully`);
       fetchConfigurations();
     } catch (err: any) {
-      console.error("Error deleting configuration:", err);
-      setError(err.message || "Failed to delete configuration");
+      const errorMsg = err?.message || "Failed to delete configuration";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
     }
@@ -149,7 +160,7 @@ export default function LateFeeConfigsPage() {
   };
 
   const handleModalSuccess = () => {
-    setSuccessMessage(
+    toast.success(
       editingConfig
         ? "Configuration updated successfully"
         : "Configuration created successfully"
@@ -309,16 +320,16 @@ export default function LateFeeConfigsPage() {
 
       <div className={styles.stats}>
         <div className={styles.statItem}>
-          Total: <strong>{summary.total_configurations}</strong>
+          Total: <strong>{summary?.total_configurations ?? 0}</strong>
         </div>
         <div className={styles.statItem}>
           Active:{" "}
           <strong className={styles.activeCount}>
-            {summary.active_configurations}
+            {summary?.active_configurations ?? 0}
           </strong>
         </div>
         <div className={styles.statItem}>
-          Inactive: <strong>{summary.inactive_configurations}</strong>
+          Inactive: <strong>{summary?.inactive_configurations ?? 0}</strong>
         </div>
       </div>
 
@@ -370,14 +381,14 @@ export default function LateFeeConfigsPage() {
                 </thead>
                 <tbody>
                   {configurations.map((config) => (
-                    <tr key={config.id}>
+                    <tr key={config?.id ?? Math.random()}>
                       <td>
                         <div className={styles.nameCell}>
                           <div>
                             <div className={styles.configName}>
-                              {config.name}
+                              {config?.name ?? "N/A"}
                             </div>
-                            {config.metadata?.description && (
+                            {config?.metadata?.description && (
                               <div className={styles.description}>
                                 {config.metadata.description}
                               </div>
@@ -387,35 +398,35 @@ export default function LateFeeConfigsPage() {
                       </td>
                       <td>
                         <span
-                          className={`${styles.feeTypeBadge} ${getFeeTypeBadgeColor(config.fee_type)}`}
+                          className={`${styles.feeTypeBadge} ${getFeeTypeBadgeColor(config?.fee_type ?? "")}`}
                         >
-                          {config.fee_type}
+                          {config?.fee_type ?? "N/A"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.value}>
-                          {parseFloat(config.multiplier) > 0
+                          {parseFloat(config?.multiplier ?? "0") > 0
                             ? `${config.multiplier}x`
                             : "-"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.value}>
-                          {parseFloat(config.flat_rate_per_hour) > 0
+                          {parseFloat(config?.flat_rate_per_hour ?? "0") > 0
                             ? `NPR ${parseFloat(config.flat_rate_per_hour).toFixed(2)}`
                             : "-"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.value}>
-                          {config.grace_period_minutes > 0
+                          {(config?.grace_period_minutes ?? 0) > 0
                             ? `${config.grace_period_minutes} min`
                             : "None"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.value}>
-                          {parseFloat(config.max_daily_rate) > 0
+                          {parseFloat(config?.max_daily_rate ?? "0") > 0
                             ? `NPR ${parseFloat(config.max_daily_rate).toFixed(2)}`
                             : "No Limit"}
                         </span>
@@ -423,12 +434,12 @@ export default function LateFeeConfigsPage() {
                       <td>
                         <span
                           className={
-                            config.is_active
+                            config?.is_active
                               ? styles.statusActive
                               : styles.statusInactive
                           }
                         >
-                          {config.is_active ? "Active" : "Inactive"}
+                          {config?.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td>
@@ -443,18 +454,18 @@ export default function LateFeeConfigsPage() {
                           <button
                             className={styles.deleteBtn}
                             onClick={() =>
-                              handleDelete(config.id, config.name, config.is_active)
+                              handleDelete(config?.id, config?.name ?? "configuration", config?.is_active ?? false)
                             }
                             disabled={
-                              deleteLoading === config.id || config.is_active
+                              deleteLoading === config?.id || config?.is_active
                             }
                             title={
-                              config.is_active
+                              config?.is_active
                                 ? "Cannot delete active configuration"
                                 : "Delete configuration"
                             }
                           >
-                            {deleteLoading === config.id ? (
+                            {deleteLoading === config?.id ? (
                               <FiLoader className={styles.spinner} />
                             ) : (
                               <FiTrash2 />
@@ -467,6 +478,107 @@ export default function LateFeeConfigsPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {configurations.map((config) => (
+              <div key={config?.id ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>{config?.name ?? "N/A"}</h3>
+                    <span
+                      className={`${styles.feeTypeBadge} ${getFeeTypeBadgeColor(config?.fee_type ?? "")}`}
+                    >
+                      {config?.fee_type ?? "N/A"}
+                    </span>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleEdit(config)}
+                      title="Edit"
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() =>
+                        handleDelete(config?.id, config?.name ?? "configuration", config?.is_active ?? false)
+                      }
+                      disabled={deleteLoading === config?.id || config?.is_active}
+                      title={config?.is_active ? "Cannot delete active" : "Delete"}
+                    >
+                      {deleteLoading === config?.id ? (
+                        <FiLoader className={styles.spinner} />
+                      ) : (
+                        <FiTrash2 />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  {config?.metadata?.description && (
+                    <div className={styles.mobileCardRow}>
+                      <span className={styles.mobileCardLabel}>Description</span>
+                      <span className={styles.mobileCardValue}>
+                        {config.metadata.description}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Multiplier</span>
+                    <span className={styles.mobileCardValue}>
+                      {parseFloat(config?.multiplier ?? "0") > 0
+                        ? `${config.multiplier}x`
+                        : "-"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Flat Rate</span>
+                    <span className={styles.mobileCardValue}>
+                      {parseFloat(config?.flat_rate_per_hour ?? "0") > 0
+                        ? `NPR ${parseFloat(config.flat_rate_per_hour).toFixed(2)}`
+                        : "-"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Grace Period</span>
+                    <span className={styles.mobileCardValue}>
+                      {(config?.grace_period_minutes ?? 0) > 0
+                        ? `${config.grace_period_minutes} min`
+                        : "None"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Max Daily Rate</span>
+                    <span className={styles.mobileCardValue}>
+                      {parseFloat(config?.max_daily_rate ?? "0") > 0
+                        ? `NPR ${parseFloat(config.max_daily_rate).toFixed(2)}`
+                        : "No Limit"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Status</span>
+                    <span
+                      className={
+                        config?.is_active
+                          ? styles.statusActive
+                          : styles.statusInactive
+                      }
+                    >
+                      {config?.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           {totalPages > 1 && (

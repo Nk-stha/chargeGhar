@@ -86,6 +86,26 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
   const [isLocating, setIsLocating] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Suppress Google Maps console errors
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args: any[]) => {
+      // Suppress Google Maps API errors
+      if (
+        args[0]?.includes?.('Google Maps') ||
+        args[0]?.includes?.('ApiProjectMapError') ||
+        args[0]?.includes?.('places.Autocomplete')
+      ) {
+        return;
+      }
+      originalError.apply(console, args);
+    };
+
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
+
   // Load Google Maps
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY || "",
@@ -170,7 +190,6 @@ export const LocationPicker: React.FC<LocationPickerProps> = ({
         setIsLocating(false);
       },
       (error) => {
-        console.error("Geolocation error:", error);
         alert("Unable to get your location. Please select manually.");
         setIsLocating(false);
       },

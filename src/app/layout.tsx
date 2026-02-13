@@ -2,6 +2,7 @@
 import "./globals.css";
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
+import { ErrorSuppressor } from "@/components/ErrorSuppressor";
 
 export const metadata: Metadata = {
   title: "ChargeGhar Dashboard",
@@ -16,6 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <ErrorSuppressor />
         {children}
         <Toaster richColors position="top-right" />
       </body>

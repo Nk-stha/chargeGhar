@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import { toast } from "sonner";
 import styles from "./users.module.css";
 import {
   FiShield,
@@ -153,28 +154,72 @@ export default function UsersPage() {
     if (!selectedUser) return;
 
     if (!balanceAmount || parseFloat(balanceAmount) <= 0) {
-      setBalanceError("Please enter a valid amount");
+      const errorMsg = "Please enter a valid amount";
+      setBalanceError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     if (!balanceReason.trim()) {
-      setBalanceError("Please enter a reason");
+      const errorMsg = "Please enter a reason";
+      setBalanceError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     try {
       setBalanceLoading(true);
       setBalanceError("");
-      await userService.addBalance(
-        selectedUser.id,
+      
+      const response = await userService.addBalance(
+        selectedUser?.id || "",
         balanceAmount,
         balanceReason,
       );
-      alert("Balance added successfully!");
+      
+      toast.success(response.message || "Balance added successfully!");
       handleCloseAddBalance();
       refetchUsers();
     } catch (err: any) {
-      setBalanceError(err.response?.data?.message || "Failed to add balance");
+      // Parse error response
+      let errorMsg = "Failed to add balance";
+      
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Check for validation errors
+        if (errorData.error?.code === "validation_error" && errorData.error?.context?.validation_errors) {
+          const validationErrors = errorData.error.context.validation_errors;
+          const errorMessages: string[] = [];
+
+          Object.keys(validationErrors).forEach((field) => {
+            const fieldErrors = validationErrors[field];
+            
+            if (Array.isArray(fieldErrors)) {
+              fieldErrors.forEach((err: any) => {
+                const msg = typeof err === 'string' ? err : (err.string || err.message || JSON.stringify(err));
+                errorMessages.push(`${field}: ${msg}`);
+                toast.error(`${field}: ${msg}`);
+              });
+            }
+          });
+
+          if (errorMessages.length > 0) {
+            errorMsg = errorMessages.join("; ");
+          } else {
+            errorMsg = errorData.error?.message || errorMsg;
+          }
+        } else {
+          errorMsg = errorData.message || errorData.error?.message || errorMsg;
+        }
+      } else {
+        errorMsg = err.message || errorMsg;
+      }
+      
+      setBalanceError(errorMsg);
+      if (!err.response?.data?.error?.context?.validation_errors) {
+        toast.error(errorMsg);
+      }
     } finally {
       setBalanceLoading(false);
     }
@@ -182,7 +227,7 @@ export default function UsersPage() {
 
   const handleOpenStatusModal = (user: User) => {
     setStatusUser(user);
-    setNewStatus(user.status as "ACTIVE" | "BANNED" | "INACTIVE");
+    setNewStatus((user?.status as "ACTIVE" | "BANNED" | "INACTIVE") || "ACTIVE");
     setStatusReason("");
     setStatusError("");
     setShowStatusModal(true);
@@ -200,19 +245,61 @@ export default function UsersPage() {
     if (!statusUser) return;
 
     if (!statusReason.trim()) {
-      setStatusError("Please enter a reason for status change");
+      const errorMsg = "Please enter a reason for status change";
+      setStatusError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
     try {
       setStatusLoading(true);
       setStatusError("");
-      await userService.updateStatus(statusUser.id, newStatus, statusReason);
-      alert("User status updated successfully!");
+      
+      const response = await userService.updateStatus(statusUser?.id || "", newStatus, statusReason);
+      
+      toast.success(response.message || "User status updated successfully!");
       handleCloseStatusModal();
       refetchUsers();
     } catch (err: any) {
-      setStatusError(err.response?.data?.message || "Failed to update status");
+      // Parse error response
+      let errorMsg = "Failed to update status";
+      
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Check for validation errors
+        if (errorData.error?.code === "validation_error" && errorData.error?.context?.validation_errors) {
+          const validationErrors = errorData.error.context.validation_errors;
+          const errorMessages: string[] = [];
+
+          Object.keys(validationErrors).forEach((field) => {
+            const fieldErrors = validationErrors[field];
+            
+            if (Array.isArray(fieldErrors)) {
+              fieldErrors.forEach((err: any) => {
+                const msg = typeof err === 'string' ? err : (err.string || err.message || JSON.stringify(err));
+                errorMessages.push(`${field}: ${msg}`);
+                toast.error(`${field}: ${msg}`);
+              });
+            }
+          });
+
+          if (errorMessages.length > 0) {
+            errorMsg = errorMessages.join("; ");
+          } else {
+            errorMsg = errorData.error?.message || errorMsg;
+          }
+        } else {
+          errorMsg = errorData.message || errorData.error?.message || errorMsg;
+        }
+      } else {
+        errorMsg = err.message || errorMsg;
+      }
+      
+      setStatusError(errorMsg);
+      if (!err.response?.data?.error?.context?.validation_errors) {
+        toast.error(errorMsg);
+      }
     } finally {
       setStatusLoading(false);
     }
@@ -227,12 +314,14 @@ export default function UsersPage() {
       list = list.filter(
         (u) =>
           u.id.toString().includes(q) ||
-          u.username.toLowerCase().includes(q) ||
-          u.status.toLowerCase().includes(q) ||
+          (u.username && u.username.toLowerCase().includes(q)) ||
+          (u.status && u.status.toLowerCase().includes(q)) ||
           (u.referral_code && u.referral_code.toLowerCase().includes(q)) ||
           (u.email && u.email.toLowerCase().includes(q)) ||
           (u.phone_number && u.phone_number.toLowerCase().includes(q)) ||
-          (u.profile?.full_name && u.profile.full_name.toLowerCase().includes(q)),
+          (u.profile?.full_name && u.profile.full_name.toLowerCase().includes(q)) ||
+          (u.kyc_status && u.kyc_status.toLowerCase().includes(q)) ||
+          (u.social_provider && u.social_provider.toLowerCase().includes(q)),
       );
     }
 
@@ -362,10 +451,10 @@ export default function UsersPage() {
                   fontSize: "0.75rem",
                   fontWeight: "500",
                   textTransform: "capitalize",
-                  backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
-                  color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
+                  backgroundColor: row?.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
+                  color: row?.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
                 }}>
-                  {row.role.replace("_", " ")}
+                  {(row?.role || "user").replace("_", " ")}
                 </span>
               ),
             },
@@ -412,10 +501,10 @@ export default function UsersPage() {
             <>
               <div style={{ marginBottom: "0.75rem" }}>
                 <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: "600", color: "#eee" }}>
-                  {row.username}
+                  {row.username || "Unknown User"}
                 </p>
                 <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.8rem", color: "#888" }}>
-                  {row.email}
+                  {row.email || "No email"}
                 </p>
               </div>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
@@ -428,7 +517,7 @@ export default function UsersPage() {
                   backgroundColor: row.is_super_admin ? "rgba(130, 234, 128, 0.1)" : "rgba(156, 163, 175, 0.1)",
                   color: row.is_super_admin ? "#82ea80" : "rgb(156, 163, 175)",
                 }}>
-                  {row.role.replace("_", " ")}
+                  {(row.role || "user").replace("_", " ")}
                 </span>
                 <span style={{
                   padding: "0.25rem 0.5rem",
@@ -608,14 +697,14 @@ export default function UsersPage() {
                       flexShrink: 0,
                     }}
                   >
-                    {row.username.charAt(0).toUpperCase()}
+                    {row.username?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div style={{ minWidth: 0 }}>
                     <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.profile?.full_name || row.username}
+                      {row.profile?.full_name || row.username || "Unknown User"}
                     </p>
                     <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      @{row.username}
+                      @{row.username || "unknown"}
                     </p>
                   </div>
                 </div>
@@ -658,7 +747,7 @@ export default function UsersPage() {
                     textTransform: "uppercase",
                     letterSpacing: "0.5px"
                   }}>
-                    {row.social_provider}
+                    {row.social_provider || "UNKNOWN"}
                   </p>
                 </div>
               ),
@@ -667,12 +756,13 @@ export default function UsersPage() {
               header: "KYC",
               accessor: "kyc_status",
               render: (v) => {
+                const status = v || "NOT_SUBMITTED";
                 const getKYCStyle = (status: string) => {
                   if (status === "APPROVED") return { bg: "rgba(34, 197, 94, 0.1)", color: "rgb(34, 197, 94)" };
                   if (status === "PENDING") return { bg: "rgba(234, 179, 8, 0.1)", color: "rgb(234, 179, 8)" };
                   return { bg: "rgba(156, 163, 175, 0.1)", color: "rgb(156, 163, 175)" };
                 };
-                const style = getKYCStyle(v);
+                const style = getKYCStyle(status);
                 return (
                   <span style={{
                     display: "inline-block",
@@ -683,7 +773,7 @@ export default function UsersPage() {
                     backgroundColor: style.bg,
                     color: style.color,
                   }}>
-                    {v.replace("_", " ")}
+                    {status.replace("_", " ")}
                   </span>
                 );
               },
@@ -691,19 +781,22 @@ export default function UsersPage() {
             {
               header: "Status",
               accessor: "status",
-              render: (v) => (
-                <span style={{
-                  display: "inline-block",
-                  padding: "0.25rem 0.5rem",
-                  borderRadius: "4px",
-                  fontSize: "0.75rem",
-                  fontWeight: "500",
-                  backgroundColor: v === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
-                  color: v === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
-                }}>
-                  {v}
-                </span>
-              ),
+              render: (v) => {
+                const status = v || "INACTIVE";
+                return (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "0.25rem 0.5rem",
+                    borderRadius: "4px",
+                    fontSize: "0.75rem",
+                    fontWeight: "500",
+                    backgroundColor: status === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
+                    color: status === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
+                  }}>
+                    {status}
+                  </span>
+                );
+              },
             },
             {
               header: "Joined",
@@ -769,14 +862,14 @@ export default function UsersPage() {
                       flexShrink: 0,
                     }}
                   >
-                    {row.username.charAt(0).toUpperCase()}
+                    {row.username?.charAt(0).toUpperCase() || "U"}
                   </div>
                   <div style={{ minWidth: 0, flex: 1 }}>
                     <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "500", color: "#eee", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {row.profile?.full_name || row.username}
+                      {row.profile?.full_name || row.username || "Unknown User"}
                     </p>
                     <p style={{ margin: 0, fontSize: "0.75rem", color: "#888", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      @{row.username}
+                      @{row.username || "unknown"}
                     </p>
                   </div>
                 </div>
@@ -796,7 +889,7 @@ export default function UsersPage() {
                   color: row.social_provider === "GOOGLE" ? "#4285f4" : "rgb(156, 163, 175)",
                   textTransform: "capitalize",
                 }}>
-                  {row.social_provider.toLowerCase()}
+                  {(row.social_provider || "unknown").toLowerCase()}
                 </span>
                 <span style={{
                   padding: "0.25rem 0.5rem",
@@ -806,7 +899,7 @@ export default function UsersPage() {
                   backgroundColor: row.kyc_status === "APPROVED" ? "rgba(34, 197, 94, 0.1)" : "rgba(156, 163, 175, 0.1)",
                   color: row.kyc_status === "APPROVED" ? "rgb(34, 197, 94)" : "rgb(156, 163, 175)",
                 }}>
-                  {row.kyc_status.replace("_", " ")}
+                  {(row.kyc_status || "NOT_SUBMITTED").replace("_", " ")}
                 </span>
                 <span style={{
                   padding: "0.25rem 0.5rem",
@@ -816,7 +909,7 @@ export default function UsersPage() {
                   backgroundColor: row.status === "ACTIVE" ? "rgba(34, 197, 94, 0.1)" : "rgba(239, 68, 68, 0.1)",
                   color: row.status === "ACTIVE" ? "rgb(34, 197, 94)" : "rgb(239, 68, 68)",
                 }}>
-                  {row.status}
+                  {row.status || "INACTIVE"}
                 </span>
               </div>
               <p style={{ margin: 0, fontSize: "0.75rem", color: "#888" }}>
@@ -931,9 +1024,9 @@ export default function UsersPage() {
                 <p style={{ color: "#aaa", margin: "0 0 1rem 0" }}>
                   User:{" "}
                   <strong style={{ color: "#fff" }}>
-                    {selectedUser.username}
+                    {selectedUser?.username || "Unknown User"}
                   </strong>{" "}
-                  (ID: {selectedUser.id})
+                  (ID: {selectedUser?.id || "N/A"})
                 </p>
               </div>
 
@@ -1132,14 +1225,14 @@ export default function UsersPage() {
                 <p style={{ color: "#aaa", margin: "0 0 1rem 0" }}>
                   User:{" "}
                   <strong style={{ color: "#fff" }}>
-                    {statusUser.username}
+                    {statusUser?.username || "Unknown User"}
                   </strong>{" "}
-                  (ID: {statusUser.id})
+                  (ID: {statusUser?.id || "N/A"})
                 </p>
                 <p style={{ color: "#aaa", margin: 0 }}>
                   Current Status:{" "}
                   <strong style={{ color: "#82ea80" }}>
-                    {statusUser.status}
+                    {statusUser?.status || "UNKNOWN"}
                   </strong>
                 </p>
               </div>

@@ -180,8 +180,15 @@
 .filters {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.filterButtons {
+    display: flex;
+    gap: 1rem;
     flex-wrap: wrap;
 }
 
@@ -207,6 +214,61 @@
     background: #47b216;
     border-color: #47b216;
     color: white;
+}
+
+.searchBar {
+    display: flex;
+    align-items: center;
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    flex: 1;
+    max-width: 400px;
+    transition: all 0.3s ease;
+}
+
+.searchBar:focus-within {
+    border-color: #47b216;
+    box-shadow: 0 0 0 2px rgba(71, 178, 22, 0.1);
+}
+
+.searchIcon {
+    color: #666;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.searchInput::placeholder {
+    color: #666;
+}
+
+.clearButton {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.clearButton:hover {
+    background: #2a2a2a;
+    color: #ff4444;
 }
 
 /* Table Section */
@@ -799,6 +861,11 @@
     }
 
     .filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filterButtons {
         overflow-x: auto;
         flex-wrap: nowrap;
         padding-bottom: 0.5rem;
@@ -806,6 +873,10 @@
 
     .filterButton {
         white-space: nowrap;
+    }
+
+    .searchBar {
+        max-width: 100%;
     }
 
     .tableWrapper {

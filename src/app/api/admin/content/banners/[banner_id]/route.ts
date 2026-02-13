@@ -28,7 +28,6 @@ export async function GET(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin banner detail GET route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -71,7 +70,6 @@ export async function PUT(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin banner PUT route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -111,7 +109,6 @@ export async function DELETE(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin banner DELETE route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

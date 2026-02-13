@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./station-issues.module.css";
 import {
   FiAlertCircle,
@@ -67,13 +68,16 @@ export default function StationIssuesPage() {
         const response = await stationIssuesService.getStationIssues(filters);
 
         if (response.success) {
-          setIssues(response.data);
+          setIssues(response.data || []);
         } else {
-          setError("Failed to fetch station issues");
+          const errorMsg = "Failed to fetch station issues";
+          setError(errorMsg);
+          toast.error(errorMsg);
         }
       } catch (err: any) {
-        console.error("Error fetching station issues:", err);
-        setError("Unable to load station issues. Please try again.");
+        const errorMsg = err.response?.data?.message || "Unable to load station issues. Please try again.";
+        setError(errorMsg);
+        toast.error(errorMsg);
       } finally {
         setLoading(false);
       }
@@ -97,19 +101,30 @@ export default function StationIssuesPage() {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+    // Auto-search when cleared
+    if (!e.target.value.trim() && searchQuery) {
+      fetchIssues(activeTab === "ALL" ? undefined : activeTab, "");
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    fetchIssues(activeTab === "ALL" ? undefined : activeTab, "");
   };
 
   const handleRefresh = () => {
+    toast.info("Refreshing station issues...");
     fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
   };
 
   const handleExportCSV = () => {
     if (issues.length === 0) {
-      alert("No data to export");
+      toast.warning("No data to export");
       return;
     }
     const timestamp = new Date().toISOString().split("T")[0];
     stationIssuesService.downloadCSV(issues, `station_issues_${timestamp}.csv`);
+    toast.success("CSV exported successfully!");
   };
 
   const handleViewDetails = async (issueId: string) => {
@@ -120,14 +135,18 @@ export default function StationIssuesPage() {
         await stationIssuesService.getStationIssueDetail(issueId);
       if (response.success) {
         setSelectedIssue(response.data);
-        setNotes(response.data.notes || "");
-        setSelectedStatus(response.data.status);
-        setSelectedPriority(response.data.priority);
-        setAssignedToId(response.data.assigned_to?.id || "");
+        setNotes(response.data?.notes || "");
+        setSelectedStatus(response.data?.status || "REPORTED");
+        setSelectedPriority(response.data?.priority || "MEDIUM");
+        setAssignedToId(response.data?.assigned_to?.id || "");
+      } else {
+        const errorMsg = "Failed to load issue details";
+        toast.error(errorMsg);
+        setIsModalOpen(false);
       }
-    } catch (err) {
-      console.error("Error fetching issue details:", err);
-      alert("Failed to load issue details");
+    } catch (err: any) {
+      const errorMsg = err.response?.data?.message || "Failed to load issue details";
+      toast.error(errorMsg);
       setIsModalOpen(false);
     } finally {
       setModalLoading(false);
@@ -160,9 +179,7 @@ export default function StationIssuesPage() {
         const uuidRegex =
           /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (!uuidRegex.test(trimmedId)) {
-          alert(
-            "Invalid Admin ID format. Please enter a valid UUID (e.g., 550e8400-e29b-41d4-a716-446655440000)",
-          );
+          toast.error("Invalid Admin ID format. Please enter a valid UUID");
           setUpdateLoading(false);
           return;
         }
@@ -173,7 +190,7 @@ export default function StationIssuesPage() {
       }
 
       if (Object.keys(updateData).length === 0) {
-        alert("Please make at least one change to update");
+        toast.warning("Please make at least one change to update");
         setUpdateLoading(false);
         return;
       }
@@ -186,11 +203,13 @@ export default function StationIssuesPage() {
       if (response.success) {
         setSelectedIssue(response.data);
         fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
-        alert("Issue updated successfully");
+        toast.success("Issue updated successfully!");
+      } else {
+        toast.error("Failed to update issue");
       }
     } catch (err: any) {
-      console.error("Error updating issue:", err);
-      alert("Failed to update issue");
+      const errorMsg = err.response?.data?.message || "Failed to update issue";
+      toast.error(errorMsg);
     } finally {
       setUpdateLoading(false);
     }
@@ -208,11 +227,13 @@ export default function StationIssuesPage() {
       if (response.success) {
         handleCloseModal();
         fetchIssues(activeTab === "ALL" ? undefined : activeTab, searchQuery);
-        alert("Issue deleted successfully");
+        toast.success("Issue deleted successfully!");
+      } else {
+        toast.error("Failed to delete issue");
       }
     } catch (err: any) {
-      console.error("Error deleting issue:", err);
-      alert("Failed to delete issue");
+      const errorMsg = err.response?.data?.message || "Failed to delete issue";
+      toast.error(errorMsg);
     } finally {
       setUpdateLoading(false);
     }
@@ -302,12 +323,11 @@ export default function StationIssuesPage() {
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => {
-                  setSearchQuery("");
-                }}
+                onClick={handleClearSearch}
                 className={styles.clearSearch}
+                title="Clear search"
               >
-                ×
+                <FiX />
               </button>
             )}
           </div>

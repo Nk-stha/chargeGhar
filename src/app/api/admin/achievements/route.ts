@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin achievements GET route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -63,7 +62,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin achievements POST route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

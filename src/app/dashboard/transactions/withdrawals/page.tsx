@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./withdrawals.module.css";
 import {
   FiRefreshCw,
@@ -12,6 +13,7 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiAlertCircle,
+  FiSearch,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 
@@ -88,6 +90,7 @@ const WithdrawalsPage: React.FC = () => {
   const [processLoading, setProcessLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchWithdrawals();
@@ -104,8 +107,9 @@ const WithdrawalsPage: React.FC = () => {
         setPagination(response.data.data.pagination || null);
       }
     } catch (err: any) {
-      console.error("Error fetching withdrawals:", err);
-      setError(err.response?.data?.message || "Failed to fetch withdrawals");
+      const errorMessage = err.response?.data?.message || "Failed to fetch withdrawals";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -121,7 +125,8 @@ const WithdrawalsPage: React.FC = () => {
         setAnalytics(response.data.data.analytics);
       }
     } catch (err: any) {
-      console.error("Error fetching analytics:", err);
+      const errorMessage = err.response?.data?.message || "Failed to fetch analytics";
+      toast.error(errorMessage);
     } finally {
       setAnalyticsLoading(false);
     }
@@ -135,10 +140,10 @@ const WithdrawalsPage: React.FC = () => {
         setShowDetailModal(true);
       }
     } catch (err: any) {
-      console.error("Error fetching withdrawal detail:", err);
-      setError(
-        err.response?.data?.message || "Failed to fetch withdrawal details",
-      );
+      const errorMessage =
+        err.response?.data?.message || "Failed to fetch withdrawal details";
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -167,21 +172,20 @@ const WithdrawalsPage: React.FC = () => {
       );
 
       if (response.data.success) {
-        setSuccessMessage(
-          response.data.data.message || "Withdrawal processed successfully",
-        );
+        const successMsg =
+          response.data.data.message || "Withdrawal processed successfully";
+        toast.success(successMsg);
         setShowProcessModal(false);
         setShowDetailModal(false);
         setAdminNotes("");
         setProcessingAction(null);
         fetchWithdrawals();
         fetchAnalytics();
-
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error processing withdrawal:", err);
-      setError(err.response?.data?.message || "Failed to process withdrawal");
+      const errorMessage = err.response?.data?.message || "Failed to process withdrawal";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setProcessLoading(false);
     }
@@ -200,21 +204,19 @@ const WithdrawalsPage: React.FC = () => {
     setError(null);
   };
 
-  const filteredWithdrawals =
-    filter === "ALL"
-      ? withdrawals
-      : withdrawals.filter((w) => {
-        console.log("Filtering:", {
-          status: w.status,
-          filter: filter,
-          match: w.status === filter,
-        });
-        return w.status === filter;
-      });
-
-  console.log("Filter state:", filter);
-  console.log("Total withdrawals:", withdrawals.length);
-  console.log("Filtered withdrawals:", filteredWithdrawals.length);
+  const filteredWithdrawals = withdrawals.filter((w) => {
+    // Filter by status
+    const statusMatch = filter === "ALL" || w?.status === filter;
+    
+    // Filter by search term
+    const searchMatch = !searchTerm || 
+      (w?.internal_reference || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (w?.gateway_reference || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (w?.user_username || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (w?.payment_method_name || "").toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return statusMatch && searchMatch;
+  });
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
@@ -270,7 +272,7 @@ const WithdrawalsPage: React.FC = () => {
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Total Withdrawals</p>
-              <h3 className={styles.statValue}>{analytics.total_withdrawals}</h3>
+              <h3 className={styles.statValue}>{analytics?.total_withdrawals ?? 0}</h3>
               <p className={styles.statSubtext}>All withdrawal requests</p>
             </div>
           </div>
@@ -282,7 +284,7 @@ const WithdrawalsPage: React.FC = () => {
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Pending</p>
-              <h3 className={styles.statValue}>{analytics.pending_withdrawals}</h3>
+              <h3 className={styles.statValue}>{analytics?.pending_withdrawals ?? 0}</h3>
               <p className={styles.statSubtext}>Awaiting action</p>
             </div>
           </div>
@@ -295,7 +297,7 @@ const WithdrawalsPage: React.FC = () => {
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Completed</p>
               <h3 className={styles.statValue}>
-                {analytics.completed_withdrawals}
+                {analytics?.completed_withdrawals ?? 0}
               </h3>
               <p className={styles.statSubtext}>Successfully processed</p>
             </div>
@@ -308,7 +310,7 @@ const WithdrawalsPage: React.FC = () => {
             </div>
             <div className={styles.statContent}>
               <p className={styles.statLabel}>Rejected</p>
-              <h3 className={styles.statValue}>{analytics.rejected_withdrawals}</h3>
+              <h3 className={styles.statValue}>{analytics?.rejected_withdrawals ?? 0}</h3>
               <p className={styles.statSubtext}>Rejected requests</p>
             </div>
           </div>
@@ -316,17 +318,39 @@ const WithdrawalsPage: React.FC = () => {
       ) : null}
 
 
-      {/* Filters */}
-      <div className={styles.filters}>
-        {["ALL", "REQUESTED", "COMPLETED", "REJECTED"].map((f) => (
-          <button
-            key={f}
-            className={`${styles.filterButton} ${filter === f ? styles.active : ""}`}
-            onClick={() => setFilter(f)}
-          >
-            {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
-          </button>
-        ))}
+      {/* Filters and Search */}
+      <div className={styles.controlsWrapper}>
+        <div className={styles.filters}>
+          {["ALL", "REQUESTED", "COMPLETED", "REJECTED"].map((f) => (
+            <button
+              key={f}
+              className={`${styles.filterButton} ${filter === f ? styles.active : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+
+        <div className={styles.searchBox}>
+          <FiSearch className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search by reference, user, or payment method..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+          {searchTerm && (
+            <button
+              className={styles.clearButton}
+              onClick={() => setSearchTerm("")}
+              title="Clear search"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
@@ -367,46 +391,47 @@ const WithdrawalsPage: React.FC = () => {
               </thead>
               <tbody>
                 {filteredWithdrawals.map((withdrawal) => (
-                  <tr key={withdrawal.id}>
+                  <tr key={withdrawal?.id || Math.random()}>
                     <td className={styles.referenceCell}>
-                      {withdrawal.internal_reference ||
-                        withdrawal.gateway_reference}
+                      {withdrawal?.internal_reference ||
+                        withdrawal?.gateway_reference || "N/A"}
                     </td>
-                    <td>{withdrawal.user_username}</td>
+                    <td>{withdrawal?.user_username || "N/A"}</td>
                     <td className={styles.amountCell}>
-                      {withdrawal.formatted_amount}
+                      {withdrawal?.formatted_amount || "N/A"}
                     </td>
                     <td className={styles.feeCell}>
-                      {withdrawal.formatted_processing_fee}
+                      {withdrawal?.formatted_processing_fee || "N/A"}
                     </td>
                     <td className={styles.netAmountCell}>
-                      {withdrawal.formatted_net_amount}
+                      {withdrawal?.formatted_net_amount || "N/A"}
                     </td>
                     <td>
                       <span className={styles.paymentMethodBadge}>
-                        {withdrawal.payment_method_name}
+                        {withdrawal?.payment_method_name || "N/A"}
                       </span>
                     </td>
                     <td>
                       <span
                         className={styles.statusBadge}
                         style={{
-                          backgroundColor: `${statusColors[withdrawal.status]}22`,
-                          color: statusColors[withdrawal.status],
-                          borderColor: statusColors[withdrawal.status],
+                          backgroundColor: `${statusColors[withdrawal?.status || "REQUESTED"]}22`,
+                          color: statusColors[withdrawal?.status || "REQUESTED"],
+                          borderColor: statusColors[withdrawal?.status || "REQUESTED"],
                         }}
                       >
-                        {withdrawal.status_display}
+                        {withdrawal?.status_display || "N/A"}
                       </span>
                     </td>
                     <td className={styles.dateCell}>
-                      {formatDate(withdrawal.requested_at)}
+                      {formatDate(withdrawal?.requested_at)}
                     </td>
                     <td>
                       <button
                         className={styles.actionButton}
-                        onClick={() => fetchWithdrawalDetail(withdrawal.id)}
+                        onClick={() => fetchWithdrawalDetail(withdrawal?.id)}
                         title="View Details"
+                        disabled={!withdrawal?.id}
                       >
                         <FiEye />
                       </button>
@@ -440,23 +465,23 @@ const WithdrawalsPage: React.FC = () => {
                   <div className={styles.detailItem}>
                     <label>Internal Reference:</label>
                     <span>
-                      {selectedWithdrawal.internal_reference || "N/A"}
+                      {selectedWithdrawal?.internal_reference || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Gateway Reference:</label>
-                    <span>{selectedWithdrawal.gateway_reference}</span>
+                    <span>{selectedWithdrawal?.gateway_reference || "N/A"}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>User:</label>
                     <span className={styles.highlightText}>
-                      {selectedWithdrawal.user_username}
+                      {selectedWithdrawal?.user_username || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Payment Method:</label>
                     <span className={styles.paymentMethodBadge}>
-                      {selectedWithdrawal.payment_method_name}
+                      {selectedWithdrawal?.payment_method_name || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
@@ -464,12 +489,12 @@ const WithdrawalsPage: React.FC = () => {
                     <span
                       className={styles.statusBadge}
                       style={{
-                        backgroundColor: `${statusColors[selectedWithdrawal.status]}22`,
-                        color: statusColors[selectedWithdrawal.status],
-                        borderColor: statusColors[selectedWithdrawal.status],
+                        backgroundColor: `${statusColors[selectedWithdrawal?.status || "REQUESTED"]}22`,
+                        color: statusColors[selectedWithdrawal?.status || "REQUESTED"],
+                        borderColor: statusColors[selectedWithdrawal?.status || "REQUESTED"],
                       }}
                     >
-                      {selectedWithdrawal.status_display}
+                      {selectedWithdrawal?.status_display || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -481,19 +506,19 @@ const WithdrawalsPage: React.FC = () => {
                   <div className={styles.detailItem}>
                     <label>Amount:</label>
                     <span className={styles.amountText}>
-                      {selectedWithdrawal.formatted_amount}
+                      {selectedWithdrawal?.formatted_amount || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Processing Fee:</label>
                     <span className={styles.feeText}>
-                      {selectedWithdrawal.formatted_processing_fee}
+                      {selectedWithdrawal?.formatted_processing_fee || "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Net Amount:</label>
                     <span className={styles.netAmountText}>
-                      {selectedWithdrawal.formatted_net_amount}
+                      {selectedWithdrawal?.formatted_net_amount || "N/A"}
                     </span>
                   </div>
                 </div>
@@ -502,7 +527,7 @@ const WithdrawalsPage: React.FC = () => {
               <div className={styles.detailSection}>
                 <h3>Account Details</h3>
                 <div className={styles.accountDetails}>
-                  {Object.entries(selectedWithdrawal.account_details).map(
+                  {selectedWithdrawal?.account_details && Object.entries(selectedWithdrawal.account_details).map(
                     ([key, value]) => (
                       <div key={key} className={styles.detailItem}>
                         <label>
@@ -511,7 +536,7 @@ const WithdrawalsPage: React.FC = () => {
                             .replace(/\b\w/g, (l) => l.toUpperCase())}
                           :
                         </label>
-                        <span>{String(value)}</span>
+                        <span>{String(value ?? "N/A")}</span>
                       </div>
                     ),
                   )}
@@ -523,22 +548,22 @@ const WithdrawalsPage: React.FC = () => {
                 <div className={styles.detailGrid}>
                   <div className={styles.detailItem}>
                     <label>Requested At:</label>
-                    <span>{formatDate(selectedWithdrawal.requested_at)}</span>
+                    <span>{formatDate(selectedWithdrawal?.requested_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Processed At:</label>
-                    <span>{formatDate(selectedWithdrawal.processed_at)}</span>
+                    <span>{formatDate(selectedWithdrawal?.processed_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Processed By:</label>
                     <span>
-                      {selectedWithdrawal.processed_by_username || "N/A"}
+                      {selectedWithdrawal?.processed_by_username || "N/A"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {selectedWithdrawal.admin_notes && (
+              {selectedWithdrawal?.admin_notes && (
                 <div className={styles.detailSection}>
                   <h3>Admin Notes</h3>
                   <div className={styles.adminNotesDisplay}>
@@ -548,7 +573,7 @@ const WithdrawalsPage: React.FC = () => {
               )}
             </div>
 
-            {selectedWithdrawal.status === "REQUESTED" && (
+            {selectedWithdrawal?.status === "REQUESTED" && (
               <div className={styles.modalFooter}>
                 <button
                   className={`${styles.processButton} ${styles.rejectButton}`}
@@ -607,15 +632,15 @@ const WithdrawalsPage: React.FC = () => {
                 <div className={styles.processInfoDetails}>
                   <span>
                     <strong>Reference:</strong>{" "}
-                    {selectedWithdrawal.internal_reference ||
-                      selectedWithdrawal.gateway_reference}
+                    {selectedWithdrawal?.internal_reference ||
+                      selectedWithdrawal?.gateway_reference || "N/A"}
                   </span>
                   <span>
-                    <strong>User:</strong> {selectedWithdrawal.user_username}
+                    <strong>User:</strong> {selectedWithdrawal?.user_username || "N/A"}
                   </span>
                   <span>
                     <strong>Amount:</strong>{" "}
-                    {selectedWithdrawal.formatted_net_amount}
+                    {selectedWithdrawal?.formatted_net_amount || "N/A"}
                   </span>
                 </div>
               </div>

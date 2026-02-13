@@ -28,10 +28,6 @@ export async function GET(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error(
-      "Late fee config GET error:",
-      error.response?.data || error.message,
-    );
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -108,10 +104,6 @@ export async function PUT(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error(
-      "Late fee config PUT error:",
-      error.response?.data || error.message,
-    );
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -151,10 +143,6 @@ export async function DELETE(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error(
-      "Late fee config DELETE error:",
-      error.response?.data || error.message,
-    );
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

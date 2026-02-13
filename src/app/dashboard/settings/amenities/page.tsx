@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./amenities.module.css";
 import {
   FiGrid,
@@ -64,15 +65,18 @@ export default function AmenitiesPage() {
       const response = await amenitiesService.getAmenities(filters);
 
       if (response.success) {
-        setAmenities(response.data.results);
-        setTotalPages(response.data.pagination.total_pages);
-        setTotalCount(response.data.pagination.total_count);
+        setAmenities(response.data?.results ?? []);
+        setTotalPages(response.data?.pagination?.total_pages ?? 1);
+        setTotalCount(response.data?.pagination?.total_count ?? 0);
       } else {
-        setError("Failed to fetch amenities");
+        const errorMsg = "Failed to fetch amenities";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching amenities:", err);
-      setError(err.message || "Failed to fetch amenities");
+      const errorMsg = err?.message || "Failed to fetch amenities";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -99,14 +103,17 @@ export default function AmenitiesPage() {
       const response = await amenitiesService.deleteAmenity(id);
 
       if (response.success) {
-        setSuccessMessage(`Amenity "${name}" deleted successfully`);
+        toast.success(`Amenity "${name}" deleted successfully`);
         fetchAmenities();
       } else {
-        setError("Failed to delete amenity");
+        const errorMsg = "Failed to delete amenity";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting amenity:", err);
-      setError(err.message || "Failed to delete amenity");
+      const errorMsg = err?.message || "Failed to delete amenity";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
     }
@@ -123,7 +130,7 @@ export default function AmenitiesPage() {
   };
 
   const handleModalSuccess = () => {
-    setSuccessMessage(
+    toast.success(
       editingAmenity
         ? "Amenity updated successfully"
         : "Amenity created successfully"
@@ -157,8 +164,8 @@ export default function AmenitiesPage() {
     return iconMap[iconName.toLowerCase()] || "📍";
   };
 
-  const activeCount = amenities.filter((a) => a.is_active).length;
-  const inactiveCount = amenities.filter((a) => !a.is_active).length;
+  const activeCount = amenities.filter((a) => a?.is_active).length;
+  const inactiveCount = amenities.filter((a) => !a?.is_active).length;
 
   if (loading && amenities.length === 0) {
     return (
@@ -195,6 +202,9 @@ export default function AmenitiesPage() {
         <div className={styles.successBanner}>
           <FiCheckCircle />
           <span>{successMessage}</span>
+          <button onClick={() => setSuccessMessage(null)} className={styles.closeBanner}>
+            <FiX />
+          </button>
         </div>
       )}
 
@@ -315,41 +325,41 @@ export default function AmenitiesPage() {
                 </thead>
                 <tbody>
                   {amenities.map((amenity) => (
-                    <tr key={amenity.id}>
+                    <tr key={amenity?.id ?? Math.random()}>
                       <td>
                         <div className={styles.iconCell}>
-                          {getIconEmoji(amenity.icon)}
+                          {getIconEmoji(amenity?.icon ?? "")}
                         </div>
                       </td>
                       <td>
                         <div className={styles.nameCell}>
                           <div className={styles.amenityName}>
-                            {amenity.name}
+                            {amenity?.name ?? "N/A"}
                           </div>
                         </div>
                       </td>
                       <td>
                         <div className={styles.description}>
-                          {amenity.description}
+                          {amenity?.description ?? "-"}
                         </div>
                       </td>
                       <td>
-                        <span className={styles.iconKey}>{amenity.icon}</span>
+                        <span className={styles.iconKey}>{amenity?.icon ?? "N/A"}</span>
                       </td>
                       <td>
                         <span
                           className={
-                            amenity.is_active
+                            amenity?.is_active
                               ? styles.statusActive
                               : styles.statusInactive
                           }
                         >
-                          {amenity.is_active ? "Active" : "Inactive"}
+                          {amenity?.is_active ? "Active" : "Inactive"}
                         </span>
                       </td>
                       <td>
                         <span className={styles.stationsCount}>
-                          {amenity.stations_count || 0} stations
+                          {amenity?.stations_count ?? 0} stations
                         </span>
                       </td>
                       <td>
@@ -364,12 +374,12 @@ export default function AmenitiesPage() {
                           <button
                             className={styles.deleteBtn}
                             onClick={() =>
-                              handleDelete(amenity.id, amenity.name)
+                              handleDelete(amenity?.id, amenity?.name ?? "amenity")
                             }
-                            disabled={deleteLoading === amenity.id}
+                            disabled={deleteLoading === amenity?.id}
                             title="Delete amenity"
                           >
-                            {deleteLoading === amenity.id ? (
+                            {deleteLoading === amenity?.id ? (
                               <FiLoader className={styles.spinner} />
                             ) : (
                               <FiTrash2 />
@@ -384,29 +394,74 @@ export default function AmenitiesPage() {
             </div>
           </div>
 
-          {totalPages > 1 && (
-            <div className={styles.pagination}>
-              <button
-                className={styles.paginationButton}
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </button>
-              <span className={styles.paginationInfo}>
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className={styles.paginationButton}
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </button>
-            </div>
-          )}
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {amenities.map((amenity) => (
+              <div key={amenity?.id ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>
+                      <span className={styles.mobileIcon}>{getIconEmoji(amenity?.icon ?? "")}</span>
+                      {amenity?.name ?? "N/A"}
+                    </h3>
+                    <p className={styles.mobileIconKey}>{amenity?.icon ?? "N/A"}</p>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleEdit(amenity)}
+                      title="Edit"
+                    >
+                      <FiEdit2 />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(amenity?.id, amenity?.name ?? "amenity")}
+                      disabled={deleteLoading === amenity?.id}
+                      title="Delete"
+                    >
+                      {deleteLoading === amenity?.id ? (
+                        <FiLoader className={styles.spinner} />
+                      ) : (
+                        <FiTrash2 />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  {amenity?.description && (
+                    <div className={styles.mobileCardRow}>
+                      <span className={styles.mobileCardLabel}>Description</span>
+                      <span className={styles.mobileCardValue}>
+                        {amenity.description}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Status</span>
+                    <span
+                      className={
+                        amenity?.is_active
+                          ? styles.statusActive
+                          : styles.statusInactive
+                      }
+                    >
+                      {amenity?.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Stations</span>
+                    <span className={styles.mobileCardValue}>
+                      {amenity?.stations_count ?? 0} stations
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </>
       )}
 

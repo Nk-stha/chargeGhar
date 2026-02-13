@@ -117,7 +117,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
          throw new Error("Invalid response from server");
       }
     } catch (err: any) {
-      console.error("Upload error:", err);
       setError(err.message || "Failed to upload file. Please try again.");
     } finally {
       setIsUploading(false);

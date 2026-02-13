@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./refunds.module.css";
 import {
   FiRefreshCw,
@@ -12,6 +13,7 @@ import {
   FiCheckCircle,
   FiXCircle,
   FiAlertCircle,
+  FiSearch,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 
@@ -59,6 +61,7 @@ const RefundsPage: React.FC = () => {
   const [processLoading, setProcessLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchRefunds();
@@ -74,8 +77,9 @@ const RefundsPage: React.FC = () => {
         setPagination(response.data.data.pagination || null);
       }
     } catch (err: any) {
-      console.error("Error fetching refunds:", err);
-      setError(err.response?.data?.message || "Failed to fetch refunds");
+      const errorMessage = err.response?.data?.message || "Failed to fetch refunds";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -106,20 +110,19 @@ const RefundsPage: React.FC = () => {
       );
 
       if (response.data.success) {
-        setSuccessMessage(
-          response.data.message || "Refund processed successfully"
-        );
+        const successMsg =
+          response.data.message || "Refund processed successfully";
+        toast.success(successMsg);
         setShowProcessModal(false);
         setShowDetailModal(false);
         setAdminNotes("");
         setProcessingAction(null);
         fetchRefunds();
-
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error processing refund:", err);
-      setError(err.response?.data?.message || "Failed to process refund");
+      const errorMessage = err.response?.data?.message || "Failed to process refund";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setProcessLoading(false);
     }
@@ -143,27 +146,42 @@ const RefundsPage: React.FC = () => {
     setShowDetailModal(true);
   };
 
-  const filteredRefunds =
-    filter === "ALL"
-      ? refunds
-      : refunds.filter((r) => r.status === filter);
+  const filteredRefunds = (filter === "ALL" ? refunds : refunds.filter((r) => r?.status === filter))
+    .filter((refund) => {
+      if (!searchTerm.trim()) return true;
+      const search = searchTerm.toLowerCase();
+      return (
+        refund?.transaction_id?.toLowerCase().includes(search) ||
+        refund?.gateway_reference?.toLowerCase().includes(search) ||
+        refund?.reason?.toLowerCase().includes(search)
+      );
+    });
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleString();
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    } catch {
+      return "N/A";
+    }
   };
 
   const formatAmount = (amount: string) => {
-    return `NPR ${parseFloat(amount).toLocaleString()}`;
+    if (!amount) return "NPR 0";
+    try {
+      return `NPR ${parseFloat(amount).toLocaleString()}`;
+    } catch {
+      return "NPR 0";
+    }
   };
 
-  // Calculate statistics
+  // Calculate statistics with null checks
   const stats = {
-    total: refunds.length,
-    requested: refunds.filter((r) => r.status === "REQUESTED").length,
-    approved: refunds.filter((r) => r.status === "APPROVED").length,
-    rejected: refunds.filter((r) => r.status === "REJECTED").length,
+    total: refunds?.length ?? 0,
+    requested: refunds?.filter((r) => r?.status === "REQUESTED")?.length ?? 0,
+    approved: refunds?.filter((r) => r?.status === "APPROVED")?.length ?? 0,
+    rejected: refunds?.filter((r) => r?.status === "REJECTED")?.length ?? 0,
   };
 
   return (
@@ -244,17 +262,38 @@ const RefundsPage: React.FC = () => {
       </div>
 
 
-      {/* Filters */}
+      {/* Filters and Search */}
       <div className={styles.filters}>
-        {["ALL", "REQUESTED", "APPROVED", "REJECTED"].map((f) => (
-          <button
-            key={f}
-            className={`${styles.filterButton} ${filter === f ? styles.active : ""}`}
-            onClick={() => setFilter(f)}
-          >
-            {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
-          </button>
-        ))}
+        <div className={styles.filterButtons}>
+          {["ALL", "REQUESTED", "APPROVED", "REJECTED"].map((f) => (
+            <button
+              key={f}
+              className={`${styles.filterButton} ${filter === f ? styles.active : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === "ALL" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+        <div className={styles.searchBar}>
+          <FiSearch className={styles.searchIcon} />
+          <input
+            type="text"
+            placeholder="Search by transaction ID, gateway reference, or reason..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className={styles.searchInput}
+          />
+          {searchTerm && (
+            <button
+              className={styles.clearButton}
+              onClick={() => setSearchTerm("")}
+              title="Clear search"
+            >
+              <FiX />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Table */}
@@ -293,32 +332,33 @@ const RefundsPage: React.FC = () => {
               </thead>
               <tbody>
                 {filteredRefunds.map((refund) => (
-                  <tr key={refund.id}>
+                  <tr key={refund?.id ?? Math.random()}>
                     <td className={styles.referenceCell}>
-                      {refund.transaction_id}
+                      {refund?.transaction_id ?? "N/A"}
                     </td>
                     <td className={styles.gatewayCell}>
-                      {refund.gateway_reference}
+                      {refund?.gateway_reference ?? "N/A"}
                     </td>
                     <td className={styles.amountCell}>
-                      {formatAmount(refund.amount)}
+                      {formatAmount(refund?.amount)}
                     </td>
-                    <td className={styles.reasonCell}>{refund.reason}</td>
+                    <td className={styles.reasonCell}>{refund?.reason ?? "N/A"}</td>
                     <td>
                       <span
                         className={styles.statusBadge}
                         style={{
-                          backgroundColor: `${statusColors[refund.status]}22`,
-                          color: statusColors[refund.status],
-                          borderColor: statusColors[refund.status],
+                          backgroundColor: `${statusColors[refund?.status ?? "REQUESTED"]}22`,
+                          color: statusColors[refund?.status ?? "REQUESTED"],
+                          borderColor: statusColors[refund?.status ?? "REQUESTED"],
                         }}
                       >
-                        {refund.status.charAt(0) +
-                          refund.status.slice(1).toLowerCase()}
+                        {refund?.status
+                          ? refund.status.charAt(0) + refund.status.slice(1).toLowerCase()
+                          : "N/A"}
                       </span>
                     </td>
                     <td className={styles.dateCell}>
-                      {formatDate(refund.requested_at)}
+                      {formatDate(refund?.requested_at)}
                     </td>
                     <td>
                       <button
@@ -358,17 +398,17 @@ const RefundsPage: React.FC = () => {
                   <div className={styles.detailItem}>
                     <label>Transaction ID:</label>
                     <span className={styles.highlightText}>
-                      {selectedRefund.transaction_id}
+                      {selectedRefund?.transaction_id ?? "N/A"}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Gateway Reference:</label>
-                    <span>{selectedRefund.gateway_reference}</span>
+                    <span>{selectedRefund?.gateway_reference ?? "N/A"}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Amount:</label>
                     <span className={styles.amountText}>
-                      {formatAmount(selectedRefund.amount)}
+                      {formatAmount(selectedRefund?.amount)}
                     </span>
                   </div>
                   <div className={styles.detailItem}>
@@ -376,13 +416,14 @@ const RefundsPage: React.FC = () => {
                     <span
                       className={styles.statusBadge}
                       style={{
-                        backgroundColor: `${statusColors[selectedRefund.status]}22`,
-                        color: statusColors[selectedRefund.status],
-                        borderColor: statusColors[selectedRefund.status],
+                        backgroundColor: `${statusColors[selectedRefund?.status ?? "REQUESTED"]}22`,
+                        color: statusColors[selectedRefund?.status ?? "REQUESTED"],
+                        borderColor: statusColors[selectedRefund?.status ?? "REQUESTED"],
                       }}
                     >
-                      {selectedRefund.status.charAt(0) +
-                        selectedRefund.status.slice(1).toLowerCase()}
+                      {selectedRefund?.status
+                        ? selectedRefund.status.charAt(0) + selectedRefund.status.slice(1).toLowerCase()
+                        : "N/A"}
                     </span>
                   </div>
                 </div>
@@ -390,7 +431,7 @@ const RefundsPage: React.FC = () => {
 
               <div className={styles.detailSection}>
                 <h3>Refund Reason</h3>
-                <div className={styles.reasonDisplay}>{selectedRefund.reason}</div>
+                <div className={styles.reasonDisplay}>{selectedRefund?.reason ?? "N/A"}</div>
               </div>
 
               <div className={styles.detailSection}>
@@ -398,16 +439,16 @@ const RefundsPage: React.FC = () => {
                 <div className={styles.detailGrid}>
                   <div className={styles.detailItem}>
                     <label>Requested At:</label>
-                    <span>{formatDate(selectedRefund.requested_at)}</span>
+                    <span>{formatDate(selectedRefund?.requested_at)}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <label>Processed At:</label>
-                    <span>{formatDate(selectedRefund.processed_at)}</span>
+                    <span>{formatDate(selectedRefund?.processed_at)}</span>
                   </div>
                 </div>
               </div>
 
-              {selectedRefund.admin_notes && (
+              {selectedRefund?.admin_notes && (
                 <div className={styles.detailSection}>
                   <h3>Admin Notes</h3>
                   <div className={styles.adminNotesDisplay}>
@@ -417,7 +458,7 @@ const RefundsPage: React.FC = () => {
               )}
             </div>
 
-            {selectedRefund.status === "REQUESTED" && (
+            {selectedRefund?.status === "REQUESTED" && (
               <div className={styles.modalFooter}>
                 <button
                   className={`${styles.processButton} ${styles.rejectButton}`}
@@ -475,13 +516,13 @@ const RefundsPage: React.FC = () => {
                 <div className={styles.processInfoDetails}>
                   <span>
                     <strong>Transaction ID:</strong>{" "}
-                    {selectedRefund.transaction_id}
+                    {selectedRefund?.transaction_id ?? "N/A"}
                   </span>
                   <span>
-                    <strong>Amount:</strong> {formatAmount(selectedRefund.amount)}
+                    <strong>Amount:</strong> {formatAmount(selectedRefund?.amount)}
                   </span>
                   <span>
-                    <strong>Reason:</strong> {selectedRefund.reason}
+                    <strong>Reason:</strong> {selectedRefund?.reason ?? "N/A"}
                   </span>
                 </div>
               </div>

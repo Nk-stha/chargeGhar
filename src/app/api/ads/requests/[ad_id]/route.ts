@@ -26,7 +26,6 @@ export async function GET(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error fetching ad request detail:", error.response?.data || error.message);
     return NextResponse.json(
       { message: error.response?.data?.message || "Failed to fetch ad request detail" },
       { status: error.response?.status || 500 }

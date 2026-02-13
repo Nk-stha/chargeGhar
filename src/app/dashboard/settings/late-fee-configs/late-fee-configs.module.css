@@ -538,10 +538,88 @@
     font-size: 0.9rem;
 }
 
+/* Mobile Card View */
+.mobileCards {
+    display: none;
+}
+
+.mobileCard {
+    background-color: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+}
+
+.mobileCard:hover {
+    border-color: #47b216;
+    box-shadow: 0 4px 12px rgba(71, 178, 22, 0.1);
+}
+
+.mobileCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.mobileCardTitle {
+    flex: 1;
+}
+
+.mobileCardTitle h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.mobileCardActions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.mobileCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.mobileCardRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+}
+
+.mobileCardLabel {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 500;
+}
+
+.mobileCardValue {
+    font-size: 0.9rem;
+    color: #fff;
+    text-align: right;
+    max-width: 60%;
+    word-wrap: break-word;
+}
+
 /* Responsive */
 @media (max-width: 1400px) {
     .container {
         padding: 3rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobileCards {
+        display: none !important;
     }
 }
 
@@ -584,17 +662,12 @@
         grid-template-columns: 1fr;
     }
 
-    .table {
-        font-size: 0.8rem;
+    .card {
+        display: none;
     }
 
-    .table th,
-    .table td {
-        padding: 0.75rem 0.5rem;
-    }
-
-    .description {
-        max-width: 150px;
+    .mobileCards {
+        display: block;
     }
 
     .pagination {
@@ -616,10 +689,21 @@
         font-size: 0.85rem;
     }
 
-    .table th,
-    .table td {
-        padding: 0.6rem 0.4rem;
-        font-size: 0.75rem;
+    .mobileCard {
+        padding: 1rem;
+    }
+
+    .mobileCardTitle h3 {
+        font-size: 1rem;
+    }
+
+    .mobileCardActions {
+        gap: 0.5rem;
+    }
+
+    .editBtn,
+    .deleteBtn {
+        font-size: 1rem;
     }
 
     .feeTypeBadge {

@@ -9,6 +9,7 @@ import {
   FiAlertCircle,
   FiMapPin,
 } from "react-icons/fi";
+import { toast } from "sonner";
 import styles from "./add.module.css";
 import stationsService from "../../../../lib/api/stations.service";
 import ImageUpload from "../../../../components/StationManagement/ImageUpload";
@@ -196,19 +197,75 @@ const AddStationPage: React.FC = () => {
 
       if (response.success) {
         setSuccess(true);
+        toast.success("Station created successfully!");
         setTimeout(() => {
           router.push("/dashboard/stations");
         }, 2000);
       } else {
-        setError("Failed to create station");
+        const errorText = response.message || "Failed to create station";
+        setError(errorText);
+        toast.error(errorText);
       }
     } catch (err: any) {
-      console.error("Error creating station:", err);
-      setError(
-        err.response?.data?.message ||
-          err.message ||
-          "Failed to create station",
-      );
+      // Handle network/API errors
+      if (err.response?.data) {
+        const errorData = err.response.data;
+        
+        // Check for validation errors
+        if (errorData.error?.code === "validation_error" && errorData.error?.context?.validation_errors) {
+          const validationErrors = errorData.error.context.validation_errors;
+          const errorMessages: string[] = [];
+
+          Object.keys(validationErrors).forEach((field) => {
+            const fieldErrors = validationErrors[field];
+            
+            if (Array.isArray(fieldErrors)) {
+              fieldErrors.forEach((err: any) => {
+                if (typeof err === 'string') {
+                  errorMessages.push(`${field}: ${err}`);
+                } else if (err && typeof err === 'object') {
+                  const errMsg = err.string || err.message || JSON.stringify(err);
+                  errorMessages.push(`${field}: ${errMsg}`);
+                  toast.error(`${field}: ${errMsg}`);
+                }
+              });
+            } else if (typeof fieldErrors === 'object') {
+              Object.keys(fieldErrors).forEach((key) => {
+                const nestedErrors = fieldErrors[key];
+                if (Array.isArray(nestedErrors)) {
+                  nestedErrors.forEach((err: any) => {
+                    if (typeof err === 'string') {
+                      errorMessages.push(`${field}[${key}]: ${err}`);
+                      toast.error(`${field}[${key}]: ${err}`);
+                    } else if (err && typeof err === 'object') {
+                      const errMsg = err.string || err.message || JSON.stringify(err);
+                      errorMessages.push(`${field}[${key}]: ${errMsg}`);
+                      toast.error(`${field}[${key}]: ${errMsg}`);
+                    }
+                  });
+                }
+              });
+            }
+          });
+
+          if (errorMessages.length > 0) {
+            const errorText = errorMessages.join("; ");
+            setError(errorText);
+          } else {
+            const errorText = errorData.error?.message || "Validation failed";
+            setError(errorText);
+            toast.error(errorText);
+          }
+        } else {
+          const errorText = errorData.message || errorData.error?.message || "Failed to create station";
+          setError(errorText);
+          toast.error(errorText);
+        }
+      } else {
+        const errorText = err.message || "Failed to create station";
+        setError(errorText);
+        toast.error(errorText);
+      }
     } finally {
       setLoading(false);
     }
@@ -237,6 +294,7 @@ const AddStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("station_name", e.target.value)
                   }
+                  required
                 />
                 {validationErrors.station_name && (
                   <span className={styles.errorText}>
@@ -257,6 +315,7 @@ const AddStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("serial_number", e.target.value)
                   }
+                  required
                 />
                 {validationErrors.serial_number && (
                   <span className={styles.errorText}>
@@ -275,6 +334,7 @@ const AddStationPage: React.FC = () => {
                   placeholder="e.g., 123456789012345"
                   value={formData.imei || ""}
                   onChange={(e) => handleInputChange("imei", e.target.value)}
+                  required
                 />
                 {validationErrors.imei && (
                   <span className={styles.errorText}>
@@ -297,6 +357,7 @@ const AddStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("total_slots", parseInt(e.target.value))
                   }
+                  required
                 />
                 {validationErrors.total_slots && (
                   <span className={styles.errorText}>
@@ -318,6 +379,7 @@ const AddStationPage: React.FC = () => {
                   placeholder="e.g., Kathmandu Mall, New Baneshwor"
                   value={formData.address || ""}
                   onChange={(e) => handleInputChange("address", e.target.value)}
+                  required
                 />
                 {validationErrors.address && (
                   <span className={styles.errorText}>
@@ -468,6 +530,7 @@ const AddStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("latitude", parseFloat(e.target.value))
                   }
+                  required
                 />
                 {validationErrors.latitude && (
                   <span className={styles.errorText}>
@@ -489,6 +552,7 @@ const AddStationPage: React.FC = () => {
                   onChange={(e) =>
                     handleInputChange("longitude", parseFloat(e.target.value))
                   }
+                  required
                 />
                 {validationErrors.longitude && (
                   <span className={styles.errorText}>

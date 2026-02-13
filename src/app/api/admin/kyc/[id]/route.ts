@@ -50,7 +50,6 @@ export async function PATCH(
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Admin KYC update route error:', error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });

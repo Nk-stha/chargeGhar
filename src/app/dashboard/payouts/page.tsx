@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   FiDollarSign,
   FiSearch,
@@ -11,6 +12,7 @@ import {
   FiChevronRight,
   FiLoader,
   FiAlertCircle,
+  FiX,
 } from "react-icons/fi";
 import axiosInstance from "@/lib/axios";
 import { PayoutRequest, PayoutStatus, PayoutType } from "@/types/payout.types";
@@ -45,7 +47,9 @@ export default function PayoutsPage() {
 
       const token = localStorage.getItem("accessToken");
       if (!token) {
-        setError("Authentication required. Please login.");
+        const errorMsg = "Authentication required. Please login.";
+        setError(errorMsg);
+        toast.error(errorMsg);
         setLoading(false);
         return;
       }
@@ -68,24 +72,30 @@ export default function PayoutsPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.data.success) {
-        setPayouts(response.data.data.results || []);
-        setTotalCount(response.data.data.count || 0);
-        setTotalPages(response.data.data.total_pages || 1);
+      if (response?.data?.success) {
+        setPayouts(response.data?.data?.results ?? []);
+        setTotalCount(response.data?.data?.count ?? 0);
+        setTotalPages(response.data?.data?.total_pages ?? 1);
       } else {
-        setError(response.data.message || "Failed to fetch payout requests");
+        const errorMsg = response?.data?.message || "Failed to fetch payout requests";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      // Handle different error types
-      if (err.response?.status === 401) {
-        setError("Session expired. Please login again.");
-      } else if (err.response?.status === 403) {
-        setError("You don't have permission to view payouts.");
-      } else if (err.response?.status >= 500) {
-        setError("Server error. Please try again later.");
+      let errorMsg = "Failed to fetch payout requests";
+      
+      if (err?.response?.status === 401) {
+        errorMsg = "Session expired. Please login again.";
+      } else if (err?.response?.status === 403) {
+        errorMsg = "You don't have permission to view payouts.";
+      } else if (err?.response?.status >= 500) {
+        errorMsg = "Server error. Please try again later.";
       } else {
-        setError(err.response?.data?.message || err.message || "Failed to fetch payout requests. Please check your connection.");
+        errorMsg = err?.response?.data?.message || err?.message || "Failed to fetch payout requests";
       }
+      
+      setError(errorMsg);
+      toast.error(errorMsg);
       setPayouts([]);
       setTotalCount(0);
       setTotalPages(1);
@@ -115,13 +125,15 @@ export default function PayoutsPage() {
   };
 
   const formatAmount = (amount: string) => {
-    return `NPR ${parseFloat(amount).toLocaleString("en-US", {
+    const numAmount = parseFloat(amount ?? "0");
+    return `NPR ${numAmount.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return "N/A";
     return new Date(dateString).toLocaleString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -150,17 +162,17 @@ export default function PayoutsPage() {
     if (!searchQuery.trim()) return true;
     const query = searchQuery.toLowerCase();
     return (
-      payout.partner_name.toLowerCase().includes(query) ||
-      payout.partner_code.toLowerCase().includes(query) ||
-      payout.reference_id.toLowerCase().includes(query)
+      (payout?.partner_name ?? "").toLowerCase().includes(query) ||
+      (payout?.partner_code ?? "").toLowerCase().includes(query) ||
+      (payout?.reference_id ?? "").toLowerCase().includes(query)
     );
   });
 
   const stats = {
     total: totalCount,
-    pending: payouts.filter((p) => p.status === "PENDING").length,
-    processing: payouts.filter((p) => p.status === "PROCESSING").length,
-    completed: payouts.filter((p) => p.status === "COMPLETED").length,
+    pending: payouts.filter((p) => p?.status === "PENDING").length,
+    processing: payouts.filter((p) => p?.status === "PROCESSING").length,
+    completed: payouts.filter((p) => p?.status === "COMPLETED").length,
   };
 
   if (loading && payouts.length === 0) {
@@ -200,6 +212,9 @@ export default function PayoutsPage() {
         <div className={styles.errorBanner}>
           <FiAlertCircle />
           <span>{error}</span>
+          <button onClick={() => setError(null)} className={styles.closeBanner}>
+            <FiX />
+          </button>
         </div>
       )}
 
@@ -329,41 +344,41 @@ export default function PayoutsPage() {
             ) : (
               filteredPayouts.map((payout) => (
                 <tr 
-                  key={payout.id} 
+                  key={payout?.id ?? Math.random()} 
                   className={styles.tableRow}
-                  onClick={() => router.push(`/dashboard/payouts/${payout.id}`)}
+                  onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)}
                   style={{ cursor: 'pointer' }}
                 >
                   <td>
                     <div className={styles.partnerInfo}>
-                      <span className={styles.partnerName}>{payout.partner_name}</span>
-                      <span className={styles.partnerCode}>{payout.partner_code}</span>
+                      <span className={styles.partnerName}>{payout?.partner_name ?? "N/A"}</span>
+                      <span className={styles.partnerCode}>{payout?.partner_code ?? "N/A"}</span>
                     </div>
                   </td>
                   <td>
                     <span className={styles.typeBadge}>
-                      {getPayoutTypeLabel(payout.payout_type)}
+                      {getPayoutTypeLabel(payout?.payout_type ?? "CHARGEGHAR_TO_VENDOR")}
                     </span>
                   </td>
                   <td>
                     <div className={styles.amountInfo}>
-                      <span className={styles.amount}>{formatAmount(payout.amount)}</span>
-                      {payout.net_amount !== payout.amount && (
+                      <span className={styles.amount}>{formatAmount(payout?.amount ?? "0")}</span>
+                      {payout?.net_amount !== payout?.amount && (
                         <span className={styles.netAmount}>
-                          Net: {formatAmount(payout.net_amount)}
+                          Net: {formatAmount(payout?.net_amount ?? "0")}
                         </span>
                       )}
                     </div>
                   </td>
                   <td>
-                    {payout.bank_name ? (
+                    {payout?.bank_name ? (
                       <div className={styles.bankInfo}>
                         <span className={styles.bankName}>{payout.bank_name}</span>
                         <span className={styles.accountNumber}>
-                          {payout.account_number}
+                          {payout?.account_number ?? "N/A"}
                         </span>
                         <span className={styles.accountHolder}>
-                          {payout.account_holder_name}
+                          {payout?.account_holder_name ?? "N/A"}
                         </span>
                       </div>
                     ) : (
@@ -371,30 +386,30 @@ export default function PayoutsPage() {
                     )}
                   </td>
                   <td>
-                    <span className={styles.referenceId}>{payout.reference_id}</span>
+                    <span className={styles.referenceId}>{payout?.reference_id ?? "N/A"}</span>
                   </td>
                   <td>
                     <span
                       className={styles.statusBadge}
                       style={{
-                        backgroundColor: `${getStatusColor(payout.status)}22`,
-                        color: getStatusColor(payout.status),
-                        borderColor: getStatusColor(payout.status),
+                        backgroundColor: `${getStatusColor(payout?.status ?? "PENDING")}22`,
+                        color: getStatusColor(payout?.status ?? "PENDING"),
+                        borderColor: getStatusColor(payout?.status ?? "PENDING"),
                       }}
                     >
-                      {payout.status}
+                      {payout?.status ?? "PENDING"}
                     </span>
                   </td>
                   <td>
-                    <span className={styles.date}>{formatDate(payout.created_at)}</span>
+                    <span className={styles.date}>{formatDate(payout?.created_at ?? "")}</span>
                   </td>
                   <td>
-                    {payout.processed_by_name ? (
+                    {payout?.processed_by_name ? (
                       <div className={styles.processedInfo}>
                         <span className={styles.processedBy}>
                           {payout.processed_by_name}
                         </span>
-                        {payout.processed_at && (
+                        {payout?.processed_at && (
                           <span className={styles.processedDate}>
                             {formatDate(payout.processed_at)}
                           </span>
@@ -427,16 +442,16 @@ export default function PayoutsPage() {
         ) : (
           filteredPayouts.map((payout) => (
             <div
-              key={payout.id}
+              key={payout?.id ?? Math.random()}
               className={styles.cardLayoutItem}
-              onClick={() => router.push(`/dashboard/payouts/${payout.id}`)}
+              onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)}
             >
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Partner</span>
                 <div style={{ textAlign: 'right' }}>
-                  <div className={styles.cardValue}>{payout.partner_name}</div>
+                  <div className={styles.cardValue}>{payout?.partner_name ?? "N/A"}</div>
                   <div style={{ fontSize: '0.75rem', color: '#888' }}>
-                    {payout.partner_code}
+                    {payout?.partner_code ?? "N/A"}
                   </div>
                 </div>
               </div>
@@ -444,17 +459,17 @@ export default function PayoutsPage() {
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Type</span>
                 <span className={styles.cardBadge} style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3B82F6' }}>
-                  {getPayoutTypeLabel(payout.payout_type)}
+                  {getPayoutTypeLabel(payout?.payout_type ?? "CHARGEGHAR_TO_VENDOR")}
                 </span>
               </div>
 
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Amount</span>
                 <div style={{ textAlign: 'right' }}>
-                  <div className={styles.cardValue}>{formatAmount(payout.amount)}</div>
-                  {payout.net_amount !== payout.amount && (
+                  <div className={styles.cardValue}>{formatAmount(payout?.amount ?? "0")}</div>
+                  {payout?.net_amount !== payout?.amount && (
                     <div style={{ fontSize: '0.75rem', color: '#888' }}>
-                      Net: {formatAmount(payout.net_amount)}
+                      Net: {formatAmount(payout?.net_amount ?? "0")}
                     </div>
                   )}
                 </div>
@@ -463,11 +478,11 @@ export default function PayoutsPage() {
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Bank</span>
                 <div style={{ textAlign: 'right' }}>
-                  {payout.bank_name ? (
+                  {payout?.bank_name ? (
                     <>
                       <div className={styles.cardValue}>{payout.bank_name}</div>
                       <div style={{ fontSize: '0.75rem', color: '#888' }}>
-                        {payout.account_number}
+                        {payout?.account_number ?? "N/A"}
                       </div>
                     </>
                   ) : (
@@ -479,7 +494,7 @@ export default function PayoutsPage() {
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Reference</span>
                 <span style={{ fontFamily: 'monospace', color: '#aaa', fontSize: '0.8rem' }}>
-                  {payout.reference_id}
+                  {payout?.reference_id ?? "N/A"}
                 </span>
               </div>
 
@@ -488,30 +503,30 @@ export default function PayoutsPage() {
                 <span
                   className={styles.cardBadge}
                   style={{
-                    backgroundColor: `${getStatusColor(payout.status)}22`,
-                    color: getStatusColor(payout.status),
-                    border: `1px solid ${getStatusColor(payout.status)}`,
+                    backgroundColor: `${getStatusColor(payout?.status ?? "PENDING")}22`,
+                    color: getStatusColor(payout?.status ?? "PENDING"),
+                    border: `1px solid ${getStatusColor(payout?.status ?? "PENDING")}`,
                   }}
                 >
-                  {payout.status}
+                  {payout?.status ?? "PENDING"}
                 </span>
               </div>
 
               <div className={styles.cardRow}>
                 <span className={styles.cardLabel}>Created</span>
                 <span style={{ color: '#aaa', fontSize: '0.8rem' }}>
-                  {formatDate(payout.created_at)}
+                  {formatDate(payout?.created_at ?? "")}
                 </span>
               </div>
 
-              {payout.processed_by_name && (
+              {payout?.processed_by_name && (
                 <div className={styles.cardRow}>
                   <span className={styles.cardLabel}>Processed By</span>
                   <div style={{ textAlign: 'right' }}>
                     <div className={styles.cardValue} style={{ fontSize: '0.9rem' }}>
                       {payout.processed_by_name}
                     </div>
-                    {payout.processed_at && (
+                    {payout?.processed_at && (
                       <div style={{ fontSize: '0.75rem', color: '#888' }}>
                         {formatDate(payout.processed_at)}
                       </div>

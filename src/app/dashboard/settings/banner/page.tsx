@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./banner.module.css";
 import {
   FiImage,
@@ -9,13 +10,13 @@ import {
   FiTrash2,
   FiRefreshCw,
   FiAlertCircle,
-  FiDownload,
   FiX,
   FiCalendar,
   FiLink,
   FiEye,
   FiEyeOff,
   FiSettings,
+  FiSearch,
 } from "react-icons/fi";
 import { bannerService } from "../../../../lib/api/banner.service";
 import { mediaService } from "../../../../lib/api/media.service";
@@ -29,6 +30,7 @@ export default function ContentManagementPage() {
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [modalLoading, setModalLoading] = useState<boolean>(false);
   const [selectedBanner, setSelectedBanner] = useState<Banner | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Form state
   const [formData, setFormData] = useState({
@@ -53,13 +55,16 @@ export default function ContentManagementPage() {
       const response = await bannerService.getBanners();
 
       if (response.success) {
-        setBanners(response.data);
+        setBanners(response.data ?? []);
       } else {
-        setError("Failed to fetch banners");
+        const errorMsg = "Failed to fetch banners";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching banners:", err);
-      setError("Unable to load banners. Please try again.");
+      const errorMsg = err?.response?.data?.message || "Unable to load banners. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -73,28 +78,19 @@ export default function ContentManagementPage() {
     fetchBanners();
   };
 
-  const handleExportCSV = () => {
-    if (banners.length === 0) {
-      alert("No data to export");
-      return;
-    }
-    const timestamp = new Date().toISOString().split("T")[0];
-    bannerService.downloadCSV(banners, `banners_${timestamp}.csv`);
-  };
-
   const handleOpenModal = (banner?: Banner) => {
     if (banner) {
       setIsEditMode(true);
       setSelectedBanner(banner);
       setFormData({
-        title: banner.title,
-        description: banner.description || "",
-        image_url: banner.image_url,
-        redirect_url: banner.redirect_url || "",
-        display_order: banner.display_order,
-        is_active: banner.is_active,
-        valid_from: bannerService.formatDateForInput(banner.valid_from),
-        valid_until: bannerService.formatDateForInput(banner.valid_until),
+        title: banner?.title ?? "",
+        description: banner?.description ?? "",
+        image_url: banner?.image_url ?? "",
+        redirect_url: banner?.redirect_url ?? "",
+        display_order: banner?.display_order ?? 1,
+        is_active: banner?.is_active ?? true,
+        valid_from: bannerService.formatDateForInput(banner?.valid_from),
+        valid_until: bannerService.formatDateForInput(banner?.valid_until),
       });
     } else {
       setIsEditMode(false);
@@ -108,7 +104,7 @@ export default function ContentManagementPage() {
         description: "",
         image_url: "",
         redirect_url: "",
-        display_order: banners.length + 1,
+        display_order: (banners?.length ?? 0) + 1,
         is_active: true,
         valid_from: bannerService.formatDateForInput(tomorrow.toISOString()),
         valid_until: bannerService.formatDateForInput(nextWeek.toISOString()),
@@ -179,13 +175,13 @@ export default function ContentManagementPage() {
     // Validate file
     const validation = mediaService.validateFile(file, 5); // 5MB limit
     if (!validation.valid) {
-      alert(validation.error);
+      toast.error(validation.error || "Invalid file");
       return;
     }
 
     // Check if it's an image
     if (!file.type.startsWith("image/")) {
-      alert("Please select an image file");
+      toast.error("Please select an image file");
       return;
     }
 
@@ -207,11 +203,11 @@ export default function ContentManagementPage() {
       if (response.success && response.data) {
         setFormData({ ...formData, image_url: response.data.file_url });
         setSelectedFile(null);
-        alert("Image uploaded successfully");
+        toast.success("Image uploaded successfully");
       }
     } catch (err: any) {
-      console.error("Error uploading image:", err);
-      alert("Failed to upload image");
+      const errorMsg = err?.response?.data?.message || "Failed to upload image";
+      toast.error(errorMsg);
     } finally {
       setUploadingImage(false);
     }
@@ -244,21 +240,21 @@ export default function ContentManagementPage() {
           payload,
         );
         if (response.success) {
-          alert("Banner updated successfully");
+          toast.success("Banner updated successfully");
           handleCloseModal();
           fetchBanners();
         }
       } else {
         const response = await bannerService.createBanner(payload);
         if (response.success) {
-          alert("Banner created successfully");
+          toast.success("Banner created successfully");
           handleCloseModal();
           fetchBanners();
         }
       }
     } catch (err: any) {
-      console.error("Error saving banner:", err);
-      alert(err.response?.data?.message || "Failed to save banner");
+      const errorMsg = err?.response?.data?.message || "Failed to save banner";
+      toast.error(errorMsg);
     } finally {
       setModalLoading(false);
     }
@@ -272,18 +268,28 @@ export default function ContentManagementPage() {
     try {
       const response = await bannerService.deleteBanner(bannerId);
       if (response.success) {
-        alert("Banner deleted successfully");
+        toast.success("Banner deleted successfully");
         fetchBanners();
       }
     } catch (err: any) {
-      console.error("Error deleting banner:", err);
-      alert("Failed to delete banner");
+      const errorMsg = err?.response?.data?.message || "Failed to delete banner";
+      toast.error(errorMsg);
     }
   };
 
   const getStatusClass = (banner: Banner): string => {
     return styles[bannerService.getStatusClass(banner)];
   };
+
+  const filteredBanners = banners.filter((banner) => {
+    if (!searchTerm.trim()) return true;
+    const search = searchTerm.toLowerCase();
+    return (
+      banner?.title?.toLowerCase().includes(search) ||
+      banner?.description?.toLowerCase().includes(search) ||
+      banner?.redirect_url?.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <div className={styles.container}>
@@ -307,9 +313,6 @@ export default function ContentManagementPage() {
           >
             <FiRefreshCw className={loading ? styles.spinning : ""} />
           </button>
-          <button onClick={handleExportCSV} className={styles.exportBtn}>
-            <FiDownload /> Export CSV
-          </button>
           <button onClick={() => handleOpenModal()} className={styles.addBtn}>
             <FiPlus /> Add Banner
           </button>
@@ -321,6 +324,25 @@ export default function ContentManagementPage() {
           <h2 className={styles.cardTitle}>
             <FiImage className={styles.icon} /> Banner List
           </h2>
+          <div className={styles.searchBar}>
+            <FiSearch className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search by title, description, or URL..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={styles.searchInput}
+            />
+            {searchTerm && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchTerm("")}
+                title="Clear search"
+              >
+                <FiX />
+              </button>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -336,44 +358,48 @@ export default function ContentManagementPage() {
               <FiRefreshCw /> Retry
             </button>
           </div>
-        ) : banners.length === 0 ? (
+        ) : filteredBanners.length === 0 ? (
           <div className={styles.noData}>
             <FiImage className={styles.noDataIcon} />
-            <p>No banners found</p>
-            <button
-              onClick={() => handleOpenModal()}
-              className={styles.addFirstBtn}
-            >
-              <FiPlus /> Create Your First Banner
-            </button>
+            <p>{searchTerm ? "No banners match your search" : "No banners found"}</p>
+            {!searchTerm && (
+              <button
+                onClick={() => handleOpenModal()}
+                className={styles.addFirstBtn}
+              >
+                <FiPlus /> Create Your First Banner
+              </button>
+            )}
           </div>
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Order</th>
-                  <th>Banner</th>
-                  <th>Title</th>
-                  <th>Valid Period</th>
-                  <th>Status</th>
-                  <th>Days Left</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {banners.map((banner) => (
-                  <tr key={banner.id}>
+          <>
+            {/* Desktop Table View */}
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Order</th>
+                    <th>Banner</th>
+                    <th>Title</th>
+                    <th>Valid Period</th>
+                    <th>Status</th>
+                    <th>Days Left</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredBanners.map((banner) => (
+                  <tr key={banner?.id ?? Math.random()}>
                     <td>
                       <span className={styles.displayOrder}>
-                        #{banner.display_order}
+                        #{banner?.display_order ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <div className={styles.bannerPreview}>
                         <img
-                          src={banner.image_url}
-                          alt={banner.title}
+                          src={banner?.image_url ?? ""}
+                          alt={banner?.title ?? "Banner"}
                           className={styles.previewImage}
                         />
                       </div>
@@ -381,9 +407,9 @@ export default function ContentManagementPage() {
                     <td>
                       <div className={styles.bannerInfo}>
                         <span className={styles.bannerTitle}>
-                          {banner.title}
+                          {banner?.title ?? "N/A"}
                         </span>
-                        {banner.description && (
+                        {banner?.description && (
                           <span className={styles.bannerDescription}>
                             {banner.description.length > 50
                               ? `${banner.description.substring(0, 50)}...`
@@ -397,14 +423,14 @@ export default function ContentManagementPage() {
                         <span className={styles.dateLabel}>
                           <FiCalendar size={12} />
                           {bannerService.formatDateTime(
-                            banner.valid_from,
+                            banner?.valid_from,
                             false,
                           )}
                         </span>
                         <span className={styles.dateLabel}>
                           to{" "}
                           {bannerService.formatDateTime(
-                            banner.valid_until,
+                            banner?.valid_until,
                             false,
                           )}
                         </span>
@@ -414,7 +440,7 @@ export default function ContentManagementPage() {
                       <span
                         className={`${styles.status} ${getStatusClass(banner)}`}
                       >
-                        {banner.is_active ? (
+                        {banner?.is_active ? (
                           <FiEye size={12} />
                         ) : (
                           <FiEyeOff size={12} />
@@ -425,13 +451,13 @@ export default function ContentManagementPage() {
                     <td>
                       <span
                         className={
-                          banner.days_remaining < 3
+                          (banner?.days_remaining ?? 0) < 3
                             ? styles.urgentDays
                             : styles.normalDays
                         }
                       >
                         {bannerService.getRemainingTimeText(
-                          banner.days_remaining,
+                          banner?.days_remaining ?? 0,
                         )}
                       </span>
                     </td>
@@ -458,6 +484,101 @@ export default function ContentManagementPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {filteredBanners.map((banner) => (
+              <div key={banner?.id ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>{banner?.title ?? "N/A"}</h3>
+                    <p>Order #{banner?.display_order ?? "N/A"}</p>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      onClick={() => handleOpenModal(banner)}
+                      className={styles.editBtn}
+                      title="Edit"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(banner?.id)}
+                      className={styles.deleteBtn}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                </div>
+
+                {banner?.image_url && (
+                  <img
+                    src={banner.image_url}
+                    alt={banner?.title ?? "Banner"}
+                    className={styles.mobileCardImage}
+                  />
+                )}
+
+                <div className={styles.mobileCardBody}>
+                  {banner?.description && (
+                    <div className={styles.mobileCardRow}>
+                      <span className={styles.mobileCardLabel}>Description</span>
+                      <span className={styles.mobileCardValue}>
+                        {banner.description.length > 50
+                          ? `${banner.description.substring(0, 50)}...`
+                          : banner.description}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Valid From</span>
+                    <span className={styles.mobileCardValue}>
+                      {bannerService.formatDateTime(banner?.valid_from, false)}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Valid Until</span>
+                    <span className={styles.mobileCardValue}>
+                      {bannerService.formatDateTime(banner?.valid_until, false)}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Status</span>
+                    <span
+                      className={`${styles.status} ${getStatusClass(banner)}`}
+                    >
+                      {banner?.is_active ? (
+                        <FiEye size={12} />
+                      ) : (
+                        <FiEyeOff size={12} />
+                      )}
+                      {bannerService.getStatusLabel(banner)}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Days Left</span>
+                    <span
+                      className={
+                        (banner?.days_remaining ?? 0) < 3
+                          ? styles.urgentDays
+                          : styles.normalDays
+                      }
+                    >
+                      {bannerService.getRemainingTimeText(
+                        banner?.days_remaining ?? 0,
+                      )}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </section>
 

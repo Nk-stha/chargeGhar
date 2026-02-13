@@ -91,13 +91,11 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         axiosInstance.get("/api/admin/stations?page_size=100", {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => {
-          console.error("Error fetching stations:", err);
           return { data: { success: false, data: { results: [] } } };
         }),
         axiosInstance.get("/api/rental-packages?page_size=100", {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(err => {
-          console.error("Error fetching packages:", err);
           return { data: { success: false, data: { rental_packages: [] } } };
         }),
       ]);
@@ -127,7 +125,6 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         }
       }
     } catch (err: any) {
-      console.error("Error fetching data:", err);
       setError("Failed to load stations and packages");
     } finally {
       setLoadingData(false);
@@ -233,11 +230,8 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         onSuccess("Discount created successfully");
       }
     } catch (err: any) {
-      console.error("Error saving discount:", err);
-      setError(
-        err.response?.data?.message ||
-          `Failed to ${isEdit ? "update" : "create"} discount`
-      );
+      const errorMsg = err.response?.data?.message || `Failed to ${isEdit ? "update" : "create"} discount`;
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

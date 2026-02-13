@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import styles from "./achievements.module.css";
 import Navbar from "../../../components/Navbar/Navbar";
 import {
@@ -97,11 +98,11 @@ const AchievementsPage: React.FC = () => {
         setAnalytics(analyticsResponse.data);
       }
     } catch (err: any) {
-      console.error("Error fetching achievements data:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load achievements. Please try again.";
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -112,7 +113,8 @@ const AchievementsPage: React.FC = () => {
 
     const validation = rewardsService.validateAchievement(createForm);
     if (!validation.valid) {
-      setError(validation.error || "Invalid input");
+      const errorMessage = validation.error || "Invalid input";
+      toast.error(errorMessage);
       return;
     }
 
@@ -123,9 +125,8 @@ const AchievementsPage: React.FC = () => {
       const response = await rewardsService.createAchievement(createForm);
 
       if (response.success) {
-        setSuccessMessage(
-          `Achievement "${response.data.name}" created successfully!`,
-        );
+        const successMsg = `Achievement "${response.data?.name || "New achievement"}" created successfully!`;
+        toast.success(successMsg);
         setShowCreateModal(false);
         setCreateForm({
           name: "",
@@ -137,14 +138,12 @@ const AchievementsPage: React.FC = () => {
           is_active: true,
         });
         fetchData();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error creating achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to create achievement. Please try again.";
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -157,7 +156,8 @@ const AchievementsPage: React.FC = () => {
 
     const validation = rewardsService.validateAchievement(editForm);
     if (!validation.valid) {
-      setError(validation.error || "Invalid input");
+      const errorMessage = validation.error || "Invalid input";
+      toast.error(errorMessage);
       return;
     }
 
@@ -171,21 +171,18 @@ const AchievementsPage: React.FC = () => {
       );
 
       if (response.success) {
-        setSuccessMessage(
-          `Achievement "${response.data.name}" updated successfully!`,
-        );
+        const successMsg = `Achievement "${response.data?.name || "Achievement"}" updated successfully!`;
+        toast.success(successMsg);
         setShowEditModal(false);
         setSelectedAchievement(null);
         setEditForm({});
         fetchData();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error updating achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to update achievement. Please try again.";
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -203,20 +200,17 @@ const AchievementsPage: React.FC = () => {
       );
 
       if (response.success) {
-        setSuccessMessage(
-          `Achievement "${selectedAchievement.name}" deleted successfully!`,
-        );
+        const successMsg = `Achievement "${selectedAchievement?.name || "Achievement"}" deleted successfully!`;
+        toast.success(successMsg);
         setShowDeleteModal(false);
         setSelectedAchievement(null);
         fetchData();
-        setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error deleting achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to delete achievement. Please try again.";
-      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -323,10 +317,10 @@ const AchievementsPage: React.FC = () => {
                   <div className={styles.statContent}>
                     <p className={styles.statLabel}>Total Achievements</p>
                     <h3 className={styles.statValue}>
-                      {analytics.total_achievements}
+                      {analytics?.total_achievements ?? 0}
                     </h3>
                     <p className={styles.statSubtext}>
-                      {analytics.active_achievements} active
+                      {analytics?.active_achievements ?? 0} active
                     </p>
                   </div>
                 </div>
@@ -338,10 +332,10 @@ const AchievementsPage: React.FC = () => {
                   <div className={styles.statContent}>
                     <p className={styles.statLabel}>Total Unlocked</p>
                     <h3 className={styles.statValue}>
-                      {analytics.user_achievements.total_unlocked.toLocaleString()}
+                      {(analytics?.user_achievements?.total_unlocked ?? 0).toLocaleString()}
                     </h3>
                     <p className={styles.statSubtext}>
-                      {analytics.user_achievements.pending_claims} pending
+                      {analytics?.user_achievements?.pending_claims ?? 0} pending
                     </p>
                   </div>
                 </div>
@@ -353,10 +347,10 @@ const AchievementsPage: React.FC = () => {
                   <div className={styles.statContent}>
                     <p className={styles.statLabel}>Claimed</p>
                     <h3 className={styles.statValue}>
-                      {analytics.user_achievements.total_claimed.toLocaleString()}
+                      {(analytics?.user_achievements?.total_claimed ?? 0).toLocaleString()}
                     </h3>
                     <p className={styles.statSubtext}>
-                      {analytics.user_achievements.claim_rate.toFixed(1)}% claim
+                      {(analytics?.user_achievements?.claim_rate ?? 0).toFixed(1)}% claim
                       rate
                     </p>
                   </div>
@@ -369,7 +363,7 @@ const AchievementsPage: React.FC = () => {
                   <div className={styles.statContent}>
                     <p className={styles.statLabel}>User Achievements</p>
                     <h3 className={styles.statValue}>
-                      {analytics.total_points_awarded.toLocaleString()} pts
+                      {(analytics?.total_points_awarded ?? 0).toLocaleString()} pts
                     </h3>
                     <p className={styles.statSubtext}>Total points awarded</p>
                   </div>
@@ -390,6 +384,15 @@ const AchievementsPage: React.FC = () => {
                   }}
                   className={styles.searchInput}
                 />
+                {searchTerm && (
+                  <button
+                    className={styles.clearButton}
+                    onClick={() => setSearchTerm("")}
+                    title="Clear search"
+                  >
+                    <FiX />
+                  </button>
+                )}
               </div>
               <select
                 className={styles.filterSelect}
@@ -439,66 +442,63 @@ const AchievementsPage: React.FC = () => {
               <div className={styles.achievementsGrid}>
                 {achievements.map((achievement) => (
                   <div
-                    key={achievement.id}
+                    key={achievement?.id || Math.random()}
                     className={styles.achievementCard}
                     onClick={() =>
-                      router.push(`/dashboard/achievements/${achievement.id}`)
+                      router.push(`/dashboard/achievements/${achievement?.id}`)
                     }
                     style={{ cursor: "pointer" }}
                   >
                     <div className={styles.achievementHeader}>
-                      <div className={styles.achievementIcon}>
-                        {getCriteriaIcon(achievement.criteria_type)}
-                      </div>
                       <span
                         className={
-                          achievement.is_active
+                          achievement?.is_active
                             ? styles.statusActive
                             : styles.statusInactive
                         }
                       >
-                        {achievement.is_active ? "Active" : "Inactive"}
+                        {achievement?.is_active ? "Active" : "Inactive"}
                       </span>
                     </div>
 
                     <h3 className={styles.achievementName}>
-                      {achievement.name}
+                      {achievement?.name || "N/A"}
                     </h3>
                     <p className={styles.achievementDescription}>
-                      {achievement.description}
+                      {achievement?.description || "No description"}
                     </p>
 
                     <div className={styles.achievementCriteria}>
                       <FiTarget className={styles.criteriaIcon} />
                       <span>
                         {rewardsService.getCriteriaTypeLabel(
-                          achievement.criteria_type,
+                          achievement?.criteria_type || "rental_count",
                         )}
-                        : {achievement.criteria_value}
+                        : {achievement?.criteria_value ?? 0}
                       </span>
                     </div>
 
                     <div className={styles.achievementReward}>
                       <FiStar className={styles.rewardIcon} />
-                      <span>{achievement.reward_value} points</span>
+                      <span>{achievement?.reward_value ?? 0} points</span>
                     </div>
 
                     <div className={styles.achievementStats}>
                       <div className={styles.statItem}>
                         <span className={styles.statValue}>
-                          {achievement.total_unlocked}
+                          {achievement?.total_unlocked ?? 0}
                         </span>
                         <span className={styles.statLabel}>Unlocked</span>
                       </div>
                       <div className={styles.statItem}>
                         <span className={styles.statValue}>
-                          {achievement.total_claimed}
+                          {achievement?.total_claimed ?? 0}
                         </span>
                         <span className={styles.statLabel}>Claimed</span>
                       </div>
                       <div className={styles.statItem}>
                         <span className={styles.statValue}>
-                          {achievement.total_users_progress}
+                          {achievement?.total_users_progress ?? 0}
                         </span>
                         <span className={styles.statLabel}>In Progress</span>
                       </div>
@@ -531,7 +531,7 @@ const AchievementsPage: React.FC = () => {
 
 
             {/* Top Achievements Section */}
-            {analytics && analytics.most_unlocked_achievements.length > 0 && (
+            {analytics && (analytics?.most_unlocked_achievements || []).length > 0 && (
               <DataTable
                 title="Most Unlocked Achievements"
                 subtitle="Achievements with the highest unlock count"
@@ -540,7 +540,7 @@ const AchievementsPage: React.FC = () => {
                     header: "Achievement",
                     accessor: "name",
                     render: (value: string) => (
-                      <span className={styles.achievementNameTable}>{value}</span>
+                      <span className={styles.achievementNameTable}>{value || "N/A"}</span>
                     ),
                   },
                   {
@@ -548,7 +548,7 @@ const AchievementsPage: React.FC = () => {
                     accessor: "unlock_count",
                     render: (value: number) => (
                       <span className={styles.unlockCount}>
-                        {value.toLocaleString()} unlocks
+                        {(value ?? 0).toLocaleString()} unlocks
                       </span>
                     ),
                   },
@@ -556,22 +556,22 @@ const AchievementsPage: React.FC = () => {
                     header: "Reward",
                     accessor: "reward_value",
                     render: (value: number) => (
-                      <span className={styles.rewardValue}>{value} pts</span>
+                      <span className={styles.rewardValue}>{value ?? 0} pts</span>
                     ),
                   },
                 ]}
-                data={analytics.most_unlocked_achievements}
+                data={analytics?.most_unlocked_achievements || []}
                 loading={false}
                 emptyMessage="No achievements found"
                 mobileCardRender={(row: any) => (
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <div>
-                      <p style={{ margin: 0, fontWeight: 600 }}>{row.name}</p>
+                      <p style={{ margin: 0, fontWeight: 600 }}>{row?.name || "N/A"}</p>
                       <p style={{ margin: 0, fontSize: "0.85rem", color: "#aaa" }}>
-                        {row.unlock_count.toLocaleString()} unlocks
+                        {(row?.unlock_count ?? 0).toLocaleString()} unlocks
                       </p>
                     </div>
-                    <span className={styles.rewardValue}>{row.reward_value} pts</span>
+                    <span className={styles.rewardValue}>{row?.reward_value ?? 0} pts</span>
                   </div>
                 )}
               />

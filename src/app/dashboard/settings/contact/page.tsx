@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import styles from "./contact.module.css";
 import {
   FiPhone,
@@ -12,7 +13,6 @@ import {
   FiTrash2,
   FiRefreshCw,
   FiAlertCircle,
-  FiDownload,
   FiX,
   FiEye,
   FiEyeOff,
@@ -61,13 +61,16 @@ export default function ContactManagementPage() {
       const response = await contactService.getContacts();
 
       if (response.success) {
-        setContacts(response.data);
+        setContacts(response.data ?? []);
       } else {
-        setError("Failed to fetch contacts");
+        const errorMsg = "Failed to fetch contacts";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching contacts:", err);
-      setError("Unable to load contacts. Please try again.");
+      const errorMsg = err?.response?.data?.message || "Unable to load contacts. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -79,15 +82,6 @@ export default function ContactManagementPage() {
 
   const handleRefresh = () => {
     fetchContacts();
-  };
-
-  const handleExportCSV = () => {
-    if (contacts.length === 0) {
-      alert("No data to export");
-      return;
-    }
-    const timestamp = new Date().toISOString().split("T")[0];
-    contactService.downloadCSV(contacts, `contacts_${timestamp}.csv`);
   };
 
   const handleOpenModal = (contact?: ContactInfo) => {
@@ -183,18 +177,16 @@ export default function ContactManagementPage() {
       });
 
       if (response.success) {
+        toast.success("Contact information saved successfully");
         await fetchContacts();
         handleCloseModal();
       } else {
-        setError("Failed to save contact information");
+        const errorMsg = "Failed to save contact information";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error saving contact:", err);
-      console.log("Full error response:", err.response);
-      console.log("Error response data:", err.response?.data);
-      console.log("Error response status:", err.response?.status);
-
-      const errorData = err.response?.data;
+      const errorData = err?.response?.data;
       let errorMessage = "Failed to save contact information";
 
       if (errorData?.error?.message) {
@@ -203,8 +195,8 @@ export default function ContactManagementPage() {
         errorMessage = errorData.message;
       }
 
-      console.log("Displaying error message:", errorMessage);
       setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setModalLoading(false);
     }
@@ -218,14 +210,18 @@ export default function ContactManagementPage() {
       const response = await contactService.deleteContact(contactToDelete.id);
 
       if (response.success) {
+        toast.success("Contact deleted successfully");
         await fetchContacts();
         handleCloseDeleteModal();
       } else {
-        setError("Failed to delete contact");
+        const errorMsg = "Failed to delete contact";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting contact:", err);
-      setError("Failed to delete contact information");
+      const errorMsg = err?.response?.data?.message || "Failed to delete contact information";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(false);
     }
@@ -274,9 +270,9 @@ export default function ContactManagementPage() {
 
   const filteredContacts = contacts.filter(
     (contact) =>
-      contact.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.value.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      contact.info_type.toLowerCase().includes(searchTerm.toLowerCase()),
+      contact?.label?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact?.value?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact?.info_type?.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   return (
@@ -298,9 +294,6 @@ export default function ContactManagementPage() {
             title="Refresh"
           >
             <FiRefreshCw className={loading ? styles.spinning : ""} />
-          </button>
-          <button onClick={handleExportCSV} className={styles.exportBtn}>
-            <FiDownload /> Export CSV
           </button>
           <button className={styles.addBtn} onClick={() => handleOpenModal()}>
             <FiPlus /> Add Contact
@@ -334,6 +327,15 @@ export default function ContactManagementPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+            {searchTerm && (
+              <button
+                className={styles.clearButton}
+                onClick={() => setSearchTerm("")}
+                title="Clear search"
+              >
+                <FiX />
+              </button>
+            )}
           </div>
         </div>
 
@@ -360,56 +362,58 @@ export default function ContactManagementPage() {
             )}
           </div>
         ) : (
-          <div className={styles.tableWrapper}>
-            <table className={styles.table}>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Label</th>
-                  <th>Value</th>
-                  <th>Description</th>
-                  <th>Status</th>
-                  <th>Updated By</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredContacts.map((contact) => (
-                  <tr key={contact.id}>
+          <>
+            {/* Desktop Table View */}
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Label</th>
+                    <th>Value</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Updated By</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredContacts.map((contact) => (
+                  <tr key={contact?.id ?? Math.random()}>
                     <td>
                       <div className={styles.typeCell}>
                         <span className={styles.typeIcon}>
-                          {getIconForType(contact.info_type)}
+                          {getIconForType(contact?.info_type ?? "phone")}
                         </span>
                         <span className={styles.typeLabel}>
-                          {getTypeLabel(contact.info_type)}
+                          {getTypeLabel(contact?.info_type ?? "phone")}
                         </span>
                       </div>
                     </td>
                     <td>
                       <span className={styles.contactLabel}>
-                        {contact.label}
+                        {contact?.label ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.contactValue}>
-                        {contact.value}
+                        {contact?.value ?? "N/A"}
                       </span>
                     </td>
                     <td>
                       <span className={styles.contactDescription}>
-                        {contact.description || "-"}
+                        {contact?.description || "-"}
                       </span>
                     </td>
                     <td>
                       <span
                         className={`${styles.status} ${
-                          contact.is_active
+                          contact?.is_active
                             ? styles.statusActive
                             : styles.statusInactive
                         }`}
                       >
-                        {contact.is_active ? (
+                        {contact?.is_active ? (
                           <>
                             <FiEye size={12} /> Active
                           </>
@@ -422,7 +426,7 @@ export default function ContactManagementPage() {
                     </td>
                     <td>
                       <span className={styles.updatedBy}>
-                        {contact.updated_by_username}
+                        {contact?.updated_by_username ?? "N/A"}
                       </span>
                     </td>
                     <td>
@@ -448,6 +452,86 @@ export default function ContactManagementPage() {
               </tbody>
             </table>
           </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {filteredContacts.map((contact) => (
+              <div key={contact?.id ?? Math.random()} className={styles.mobileCard}>
+                <div className={styles.mobileCardHeader}>
+                  <div className={styles.mobileCardTitle}>
+                    <h3>
+                      {getIconForType(contact?.info_type ?? "phone")}
+                      {contact?.label ?? "N/A"}
+                    </h3>
+                    <p>{getTypeLabel(contact?.info_type ?? "phone")}</p>
+                  </div>
+                  <div className={styles.mobileCardActions}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleOpenModal(contact)}
+                      title="Edit"
+                    >
+                      <FiEdit />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleOpenDeleteModal(contact)}
+                      title="Delete"
+                    >
+                      <FiTrash2 />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Value</span>
+                    <span className={styles.mobileCardValue}>
+                      {contact?.value ?? "N/A"}
+                    </span>
+                  </div>
+
+                  {contact?.description && (
+                    <div className={styles.mobileCardRow}>
+                      <span className={styles.mobileCardLabel}>Description</span>
+                      <span className={styles.mobileCardValue}>
+                        {contact.description}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Status</span>
+                    <span
+                      className={`${styles.status} ${
+                        contact?.is_active
+                          ? styles.statusActive
+                          : styles.statusInactive
+                      }`}
+                    >
+                      {contact?.is_active ? (
+                        <>
+                          <FiEye size={12} /> Active
+                        </>
+                      ) : (
+                        <>
+                          <FiEyeOff size={12} /> Inactive
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileCardLabel}>Updated By</span>
+                    <span className={styles.mobileCardValue}>
+                      {contact?.updated_by_username ?? "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          </>
         )}
       </section>
 

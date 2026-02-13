@@ -153,11 +153,8 @@ const PackageModal: React.FC<PackageModalProps> = ({
         onSuccess("Package created successfully");
       }
     } catch (err: any) {
-      console.error("Error saving package:", err);
-      setError(
-        err.response?.data?.message ||
-          `Failed to ${isEdit ? "update" : "create"} package`
-      );
+      const errorMsg = err.response?.data?.message || `Failed to ${isEdit ? "update" : "create"} package`;
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

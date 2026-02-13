@@ -29,7 +29,6 @@ export async function PATCH(
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Error reviewing ad request:", error.response?.data || error.message);
     return NextResponse.json(
       { message: error.response?.data?.message || "Failed to review ad request" },
       { status: error.response?.status || 500 }

@@ -24,6 +24,7 @@ import {
   Pagination,
   AnalyticsData,
 } from "../../../types/powerbank.types";
+import PowerBankRentalAnalytics from "../../../components/PowerBankRentalAnalytics/PowerBankRentalAnalytics";
 
 export default function PowerBanksPage() {
   const router = useRouter();
@@ -459,137 +460,184 @@ export default function PowerBanksPage() {
       )}
 
       {/* Analytics View */}
-      {activeTab === "analytics" && analytics && (
+      {activeTab === "analytics" && (
         <div className={styles.analyticsContainer}>
-          {/* Overview Stats */}
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon} style={{ backgroundColor: "rgba(130, 234, 128, 0.1)", color: "#82ea80" }}>
-                <FiBattery />
-              </div>
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>Total PowerBanks</span>
-                <span className={styles.statValue}>{analytics.overview.total_powerbanks}</span>
-              </div>
+          {/* Category 1: Rental Analytics */}
+          <div className={styles.analyticsCategory}>
+            <div className={styles.categoryHeader}>
+              <h2 className={styles.categoryTitle}>
+                <FiActivity /> Rental Analytics
+              </h2>
+              <p className={styles.categorySubtitle}>
+                Detailed insights into powerbank rental patterns and performance
+              </p>
             </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon} style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
-                <FiActivity />
-              </div>
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>Available</span>
-                <span className={styles.statValue}>{analytics.overview.status_breakdown.available}</span>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon} style={{ backgroundColor: "rgba(59, 130, 246, 0.1)", color: "#3b82f6" }}>
-                <FiClock />
-              </div>
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>Rented</span>
-                <span className={styles.statValue}>{analytics.overview.status_breakdown.rented}</span>
-              </div>
-            </div>
-            <div className={styles.statCard}>
-              <div className={styles.statIcon} style={{ backgroundColor: "rgba(234, 179, 8, 0.1)", color: "#eab308" }}>
-                <FiAlertCircle />
-              </div>
-              <div className={styles.statInfo}>
-                <span className={styles.statLabel}>Needs Attention</span>
-                <span className={styles.statValue}>{analytics.overview.needs_attention}</span>
-              </div>
-            </div>
+            <PowerBankRentalAnalytics />
           </div>
 
-          {/* Utilization Stats */}
-          <div className={styles.analyticsRow}>
-            <div className={styles.analyticsCard}>
-              <h3 className={styles.cardTitle}>
-                <FiTrendingUp /> Utilization
-              </h3>
-              <div className={styles.utilizationStats}>
-                <div className={styles.utilizationItem}>
-                  <span className={styles.utilizationLabel}>Total Rentals</span>
-                  <span className={styles.utilizationValue}>{analytics.utilization.total_rentals}</span>
+          {/* Category 2: Fleet Overview */}
+          {analytics && (
+            <>
+              <div className={styles.analyticsCategory}>
+                <div className={styles.categoryHeader}>
+                  <h2 className={styles.categoryTitle}>
+                    <FiBattery /> Fleet Overview
+                  </h2>
+                  <p className={styles.categorySubtitle}>
+                    Current status and availability of your powerbank fleet
+                  </p>
                 </div>
-                <div className={styles.utilizationItem}>
-                  <span className={styles.utilizationLabel}>Active Rentals</span>
-                  <span className={styles.utilizationValue}>{analytics.utilization.active_rentals}</span>
-                </div>
-                <div className={styles.utilizationItem}>
-                  <span className={styles.utilizationLabel}>Completed</span>
-                  <span className={styles.utilizationValue}>{analytics.utilization.completed_rentals}</span>
-                </div>
-                <div className={styles.utilizationItem}>
-                  <span className={styles.utilizationLabel}>Utilization Rate</span>
-                  <span
-                    className={styles.utilizationValue}
-                    style={{ color: powerBankService.getUtilizationColor(analytics.utilization.utilization_rate) }}
-                  >
-                    {analytics.utilization.utilization_rate}%
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles.analyticsCard}>
-              <h3 className={styles.cardTitle}>
-                <FiDollarSign /> Revenue
-              </h3>
-              <div className={styles.revenueDisplay}>
-                <span className={styles.revenueAmount}>
-                  {powerBankService.formatCurrency(analytics.utilization.total_revenue)}
-                </span>
-                <span className={styles.revenueLabel}>Total Revenue</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Top Performers & Station Distribution */}
-          <div className={styles.analyticsRow}>
-            <div className={styles.analyticsCard}>
-              <h3 className={styles.cardTitle}>
-                <FiTrendingUp /> Top Performers
-              </h3>
-              <div className={styles.topPerformers}>
-                {analytics.top_performers.slice(0, 5).map((performer, index) => (
-                  <div key={performer.serial_number} className={styles.performerItem}>
-                    <span className={styles.performerRank}>#{index + 1}</span>
-                    <div className={styles.performerInfo}>
-                      <span className={styles.performerSerial}>{performer.serial_number}</span>
-                      <span className={styles.performerModel}>{performer.model}</span>
+                <div className={styles.statsGrid}>
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ backgroundColor: "rgba(130, 234, 128, 0.1)", color: "#82ea80" }}>
+                      <FiBattery />
                     </div>
-                    <div className={styles.performerStats}>
-                      <span>{performer.rental_count} rentals</span>
-                      <span>{powerBankService.formatCurrency(performer.revenue)}</span>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Total PowerBanks</span>
+                      <span className={styles.statValue}>{analytics.overview.total_powerbanks}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            <div className={styles.analyticsCard}>
-              <h3 className={styles.cardTitle}>
-                <FiMapPin /> Station Distribution
-              </h3>
-              <div className={styles.distributionList}>
-                {analytics.station_distribution.slice(0, 6).map((dist) => (
-                  <div key={dist.station} className={styles.distributionItem}>
-                    <span className={styles.distributionStation}>{dist.station}</span>
-                    <div className={styles.distributionBar}>
-                      <div
-                        className={styles.distributionFill}
-                        style={{
-                          width: `${(dist.count / analytics.overview.total_powerbanks) * 100}%`,
-                        }}
-                      />
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
+                      <FiActivity />
                     </div>
-                    <span className={styles.distributionCount}>{dist.count}</span>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Available</span>
+                      <span className={styles.statValue}>{analytics.overview.status_breakdown.available}</span>
+                    </div>
                   </div>
-                ))}
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ backgroundColor: "rgba(59, 130, 246, 0.1)", color: "#3b82f6" }}>
+                      <FiClock />
+                    </div>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Rented</span>
+                      <span className={styles.statValue}>{analytics.overview.status_breakdown.rented}</span>
+                    </div>
+                  </div>
+                  <div className={styles.statCard}>
+                    <div className={styles.statIcon} style={{ backgroundColor: "rgba(234, 179, 8, 0.1)", color: "#eab308" }}>
+                      <FiAlertCircle />
+                    </div>
+                    <div className={styles.statInfo}>
+                      <span className={styles.statLabel}>Needs Attention</span>
+                      <span className={styles.statValue}>{analytics.overview.needs_attention}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+
+              {/* Category 3: Performance Metrics */}
+              <div className={styles.analyticsCategory}>
+                <div className={styles.categoryHeader}>
+                  <h2 className={styles.categoryTitle}>
+                    <FiTrendingUp /> Performance Metrics
+                  </h2>
+                  <p className={styles.categorySubtitle}>
+                    Utilization rates and revenue generation insights
+                  </p>
+                </div>
+                <div className={styles.analyticsRow}>
+                  <div className={styles.analyticsCard}>
+                    <h3 className={styles.cardTitle}>
+                      <FiTrendingUp /> Utilization
+                    </h3>
+                    <div className={styles.utilizationStats}>
+                      <div className={styles.utilizationItem}>
+                        <span className={styles.utilizationLabel}>Total Rentals</span>
+                        <span className={styles.utilizationValue}>{analytics.utilization.total_rentals}</span>
+                      </div>
+                      <div className={styles.utilizationItem}>
+                        <span className={styles.utilizationLabel}>Active Rentals</span>
+                        <span className={styles.utilizationValue}>{analytics.utilization.active_rentals}</span>
+                      </div>
+                      <div className={styles.utilizationItem}>
+                        <span className={styles.utilizationLabel}>Completed</span>
+                        <span className={styles.utilizationValue}>{analytics.utilization.completed_rentals}</span>
+                      </div>
+                      <div className={styles.utilizationItem}>
+                        <span className={styles.utilizationLabel}>Utilization Rate</span>
+                        <span
+                          className={styles.utilizationValue}
+                          style={{ color: powerBankService.getUtilizationColor(analytics.utilization.utilization_rate) }}
+                        >
+                          {analytics.utilization.utilization_rate}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.analyticsCard}>
+                    <h3 className={styles.cardTitle}>
+                      <FiDollarSign /> Revenue
+                    </h3>
+                    <div className={styles.revenueDisplay}>
+                      <span className={styles.revenueAmount}>
+                        {powerBankService.formatCurrency(analytics.utilization.total_revenue)}
+                      </span>
+                      <span className={styles.revenueLabel}>Total Revenue</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Category 4: Distribution & Top Performers */}
+              <div className={styles.analyticsCategory}>
+                <div className={styles.categoryHeader}>
+                  <h2 className={styles.categoryTitle}>
+                    <FiMapPin /> Distribution & Top Performers
+                  </h2>
+                  <p className={styles.categorySubtitle}>
+                    Station distribution and best performing powerbanks
+                  </p>
+                </div>
+                <div className={styles.analyticsRow}>
+                  <div className={styles.analyticsCard}>
+                    <h3 className={styles.cardTitle}>
+                      <FiTrendingUp /> Top Performers
+                    </h3>
+                    <div className={styles.topPerformers}>
+                      {analytics.top_performers.slice(0, 5).map((performer, index) => (
+                        <div key={performer.serial_number} className={styles.performerItem}>
+                          <span className={styles.performerRank}>#{index + 1}</span>
+                          <div className={styles.performerInfo}>
+                            <span className={styles.performerSerial}>{performer.serial_number}</span>
+                            <span className={styles.performerModel}>{performer.model}</span>
+                          </div>
+                          <div className={styles.performerStats}>
+                            <span>{performer.rental_count} rentals</span>
+                            <span>{powerBankService.formatCurrency(performer.revenue)}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.analyticsCard}>
+                    <h3 className={styles.cardTitle}>
+                      <FiMapPin /> Station Distribution
+                    </h3>
+                    <div className={styles.distributionList}>
+                      {analytics.station_distribution.slice(0, 6).map((dist) => (
+                        <div key={dist.station} className={styles.distributionItem}>
+                          <span className={styles.distributionStation}>{dist.station}</span>
+                          <div className={styles.distributionBar}>
+                            <div
+                              className={styles.distributionFill}
+                              style={{
+                                width: `${(dist.count / analytics.overview.total_powerbanks) * 100}%`,
+                              }}
+                            />
+                          </div>
+                          <span className={styles.distributionCount}>{dist.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       )}
     </main>

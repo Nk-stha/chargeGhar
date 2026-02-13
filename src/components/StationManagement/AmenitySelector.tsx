@@ -51,7 +51,6 @@ export const AmenitySelector: React.FC<AmenitySelectorProps> = ({
         setError("Failed to load amenities");
       }
     } catch (err: any) {
-      console.error("Error fetching amenities:", err);
       setError(err.response?.data?.message || "Failed to load amenities");
     } finally {
       setLoading(false);

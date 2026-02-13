@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin points history route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

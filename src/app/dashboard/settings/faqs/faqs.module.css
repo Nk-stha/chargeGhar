@@ -1698,6 +1698,7 @@
     .container {
         padding: 2rem 1rem;
         margin-top: 1rem;
+        margin-left: 0;
     }
 
     .title {
@@ -1707,43 +1708,118 @@
     .headerSection {
         flex-direction: column;
         align-items: flex-start;
+        gap: 1rem;
     }
 
-    .searchForm {
+    .headerActions {
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .refreshBtn,
+    .addBtn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .cardHeader {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
     }
 
-    .tabs {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 0.5rem;
+    .searchContainer {
+        width: 100%;
     }
 
-    .tabs::-webkit-scrollbar {
-        height: 4px;
-    }
-
-    .tabs::-webkit-scrollbar-track {
-        background: #0b0b0b;
-    }
-
-    .tabs::-webkit-scrollbar-thumb {
-        background: #2a2a2a;
-        border-radius: 2px;
-    }
-
+    /* Hide table, show cards on mobile */
     .tableWrapper {
-        margin: 0 -1rem;
-        padding: 0 1rem;
+        display: none;
     }
 
-    .table {
-        font-size: 0.8rem;
+    /* Mobile Card Layout */
+    .mobileCards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
-    .table th,
-    .table td {
-        padding: 6px 8px;
+    .mobileCard {
+        background: #121212;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        padding: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .mobileCard:active {
+        transform: scale(0.98);
+        background: #1a1a1a;
+    }
+
+    .mobileCardHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        gap: 1rem;
+    }
+
+    .mobileCardTitle {
+        flex: 1;
+    }
+
+    .mobileCardTitle h3 {
+        color: #82ea80;
+        font-size: 1rem;
+        margin: 0 0 0.25rem 0;
+        font-weight: 600;
+    }
+
+    .mobileCardTitle p {
+        color: #aaa;
+        font-size: 0.85rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .mobileCardActions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .mobileCardBody {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .mobileCardRow {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #1a1a1a;
+    }
+
+    .mobileCardRow:last-child {
+        border-bottom: none;
+    }
+
+    .mobileCardLabel {
+        color: #888;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .mobileCardValue {
+        color: #fff;
+        font-size: 0.9rem;
+        word-break: break-word;
+        line-height: 1.5;
     }
 
     .detailGrid {
@@ -1754,8 +1830,14 @@
         flex-direction: column;
     }
 
-    .modalContent {
+    .modalActions button {
+        width: 100%;
+    }
+
+    .modalContent,
+    .deleteModalContent {
         max-height: 95vh;
+        margin: 0.5rem;
     }
 }
 
@@ -1772,14 +1854,17 @@
         padding: 0.75rem;
     }
 
-    .rentalCode {
-        font-size: 0.85rem;
+    .mobileCard {
+        padding: 0.875rem;
     }
 
-    .issueType,
-    .status {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
+    .mobileCardTitle h3 {
+        font-size: 0.95rem;
+    }
+
+    .mobileCardLabel,
+    .mobileCardValue {
+        font-size: 0.8rem;
     }
 
     .modalHeader {
@@ -1793,4 +1878,41 @@
     .modalHeader h2 {
         font-size: 1.2rem;
     }
+}
+
+/* Show table on desktop, hide mobile cards */
+@media (min-width: 769px) {
+    .mobileCards {
+        display: none;
+    }
+
+    .tableWrapper {
+        display: block;
+    }
+}
+
+.clearButton {
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+    position: absolute;
+    right: 1rem;
+}
+
+.clearButton:hover {
+    background: #2a2a2a;
+    color: #ff4444;
+}
+
+.searchContainer {
+    position: relative;
+    display: flex;
+    align-items: center;
 }

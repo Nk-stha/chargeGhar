@@ -29,8 +29,6 @@ export async function GET(req: NextRequest) {
     const queryString = params.toString();
     const url = `${process.env.BASE_URL}/admin/users${queryString ? `?${queryString}` : ''}`;
 
-    console.log('Fetching users from:', url);
-
     const response = await axios.get(url, {
       headers: {
         'Authorization': authorization,
@@ -38,12 +36,9 @@ export async function GET(req: NextRequest) {
     });
 
     const data = response.data;
-    console.log('Users API response:', data);
 
     return NextResponse.json(data);
   } catch (error: any) {
-    console.error('Admin users route error:', error);
-    console.error('Error response:', error.response?.data);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, { status: axiosError.response.status });

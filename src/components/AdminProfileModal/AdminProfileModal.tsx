@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./AdminProfileModal.module.css";
 import {
   FiX,
@@ -74,11 +75,14 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
         setProfile(response.data);
         setMode("view");
       } else {
-        setError("Failed to fetch admin profile");
+        const errorMsg = "Failed to fetch admin profile";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching admin profile:", err);
-      setError("Unable to load admin profile. Please try again.");
+      const errorMsg = err.response?.data?.message || "Unable to load admin profile. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -101,7 +105,9 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
         // Validate password
         const validation = adminProfilesService.validatePassword(editPassword);
         if (!validation.valid) {
-          setError(validation.errors.join(", "));
+          const errorMsg = validation.errors.join(", ");
+          setError(errorMsg);
+          toast.error(errorMsg);
           setSaving(false);
           return;
         }
@@ -118,7 +124,9 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
       // Validate payload
       const validation = adminProfilesService.validateUpdatePayload(payload);
       if (!validation.valid) {
-        setError(validation.errors.join(", "));
+        const errorMsg = validation.errors.join(", ");
+        setError(errorMsg);
+        toast.error(errorMsg);
         setSaving(false);
         return;
       }
@@ -130,13 +138,17 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
         setMode("view");
         setEditPassword("");
         setEditReason("");
+        toast.success("Admin profile updated successfully!");
         if (onUpdate) onUpdate();
       } else {
-        setError("Failed to update admin profile");
+        const errorMsg = "Failed to update admin profile";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error updating admin profile:", err);
-      setError(err.response?.data?.message || "Unable to update admin profile. Please try again.");
+      const errorMsg = err.response?.data?.message || "Unable to update admin profile. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -144,7 +156,9 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
 
   const handleDelete = async () => {
     if (!profile || !deleteReason.trim()) {
-      setError("Please provide a reason for deletion");
+      const errorMsg = "Please provide a reason for deletion";
+      setError(errorMsg);
+      toast.error(errorMsg);
       return;
     }
 
@@ -155,14 +169,18 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
       const response = await adminProfilesService.deleteAdminProfile(profileId);
 
       if (response.success) {
+        toast.success("Admin profile deleted successfully!");
         if (onDelete) onDelete();
         onClose();
       } else {
-        setError("Failed to delete admin profile");
+        const errorMsg = "Failed to delete admin profile";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting admin profile:", err);
-      setError(err.response?.data?.message || "Unable to delete admin profile. Please try again.");
+      const errorMsg = err.response?.data?.message || "Unable to delete admin profile. Please try again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -232,8 +250,8 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                       <FiUser />
                     </div>
                     <div className={styles.profileInfo}>
-                      <h3 className={styles.username}>{profile.username}</h3>
-                      <p className={styles.email}>{profile.email}</p>
+                      <h3 className={styles.username}>{profile.username || "Unknown"}</h3>
+                      <p className={styles.email}>{profile.email || "No email"}</p>
                     </div>
                     <span
                       className={`${styles.statusBadge} ${profile.is_active ? styles.statusActive : styles.statusInactive}`}
@@ -252,9 +270,9 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                         </div>
                         <div
                           className={styles.infoValue}
-                          style={{ color: adminProfilesService.getRoleColor(profile.role, profile.is_super_admin) }}
+                          style={{ color: adminProfilesService.getRoleColor(profile.role || "admin", profile.is_super_admin) }}
                         >
-                          {adminProfilesService.getRoleLabel(profile.role)}
+                          {adminProfilesService.getRoleLabel(profile.role || "admin")}
                         </div>
                       </div>
 
@@ -263,7 +281,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                           <FiUser className={styles.infoIcon} />
                           Created By
                         </div>
-                        <div className={styles.infoValue}>{profile.created_by_username}</div>
+                        <div className={styles.infoValue}>{profile.created_by_username || "Unknown"}</div>
                       </div>
 
                       <div className={styles.infoItem}>
@@ -272,7 +290,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                           Created At
                         </div>
                         <div className={styles.infoValue}>
-                          {adminProfilesService.formatDateTime(profile.created_at)}
+                          {profile.created_at ? adminProfilesService.formatDateTime(profile.created_at) : "N/A"}
                         </div>
                       </div>
 
@@ -282,7 +300,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                           Updated At
                         </div>
                         <div className={styles.infoValue}>
-                          {adminProfilesService.formatDateTime(profile.updated_at)}
+                          {profile.updated_at ? adminProfilesService.formatDateTime(profile.updated_at) : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -386,7 +404,7 @@ const AdminProfileModal: React.FC<AdminProfileModalProps> = ({
                     <FiAlertCircle className={styles.warningIcon} />
                     <h3>Are you sure you want to delete this admin?</h3>
                     <p>
-                      This action will deactivate the admin account for <strong>{profile.username}</strong>. This action
+                      This action will deactivate the admin account for <strong>{profile.username || "Unknown"}</strong>. This action
                       cannot be undone.
                     </p>
                   </div>
