@@ -1,0 +1,524 @@
+.container {
+    color: #fff;
+    background-color: #0b0b0b;
+    min-height: 100vh;
+    padding: 2rem;
+    margin-left: 1rem;
+}
+
+.loadingState,
+.errorState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    gap: 1rem;
+}
+
+.spinner {
+    font-size: 2rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.errorIcon {
+    font-size: 3rem;
+    color: #ff4444;
+}
+
+.errorState p {
+    color: #aaa;
+    font-size: 1.1rem;
+}
+
+.backBtn {
+    background-color: #32cd32;
+    color: #000;
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.backBtn:hover {
+    background-color: #47b216;
+    transform: translateY(-2px);
+}
+
+/* Header */
+.header {
+    margin-bottom: 2rem;
+}
+
+.backButton {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #aaa;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.backButton:hover {
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+.headerContent {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.headerIcon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 8px;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #82ea80;
+    margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #aaa;
+    font-size: 0.95rem;
+}
+
+.gateway {
+    background-color: #1a1a1a;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    color: #82ea80;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.separator {
+    color: #555;
+}
+
+.statusActive {
+    color: #00ff99;
+    font-weight: 500;
+}
+
+.statusInactive {
+    color: #ff4444;
+    font-weight: 500;
+}
+
+.editButton {
+    background-color: #32cd32;
+    color: #000;
+    font-weight: 500;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.editButton:hover {
+    background-color: #47b216;
+    transform: translateY(-2px);
+}
+
+/* Stats Grid */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.statCard {
+    background-color: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.3s ease;
+}
+
+.statCard:hover {
+    border-color: #47b216;
+    box-shadow: 0 4px 12px rgba(71, 178, 22, 0.1);
+}
+
+.statIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.statIcon.green {
+    background-color: rgba(50, 205, 50, 0.1);
+    color: #32cd32;
+}
+
+.statIcon.blue {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.statIcon.purple {
+    background-color: rgba(168, 85, 247, 0.1);
+    color: #a855f7;
+}
+
+.statIcon.orange {
+    background-color: rgba(249, 115, 22, 0.1);
+    color: #f97316;
+}
+
+.statContent {
+    flex: 1;
+}
+
+.statLabel {
+    color: #aaa;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+.statValue {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Info Grid */
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: #121212;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.cardHeader {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.cardHeader h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    margin: 0;
+}
+
+.cardIcon {
+    font-size: 1.25rem;
+    color: #82ea80;
+}
+
+.cardBody {
+    padding: 1.5rem;
+}
+
+.infoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.infoRow:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.value {
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.gatewayBadge {
+    background-color: #1a1a1a;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    color: #82ea80;
+    text-transform: uppercase;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.activeStatus {
+    color: #00ff99;
+    font-weight: 600;
+}
+
+.inactiveStatus {
+    color: #ff4444;
+    font-weight: 600;
+}
+
+.link {
+    color: #82ea80;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.link:hover {
+    color: #47b216;
+    text-decoration: underline;
+}
+
+/* Currency Grid */
+.currencyGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 1rem;
+}
+
+.currencyCard {
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.currencyCard:hover {
+    border-color: #47b216;
+    background-color: #1f1f1f;
+}
+
+.currencyIcon {
+    font-size: 1.5rem;
+    color: #82ea80;
+}
+
+.currencyCode {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.emptyText {
+    color: #666;
+    font-size: 0.9rem;
+    text-align: center;
+    padding: 1rem 0;
+}
+
+/* Amount Limits */
+.amountRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.amountItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.amountLabel {
+    color: #aaa;
+    font-size: 0.85rem;
+}
+
+.amountValue {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.amountDivider {
+    width: 1px;
+    height: 40px;
+    background-color: #2a2a2a;
+}
+
+.rangeBar {
+    width: 100%;
+    height: 8px;
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.rangeIndicator {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #32cd32 0%, #47b216 100%);
+    border-radius: 4px;
+}
+
+/* Configuration */
+.configList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.configRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #1a1a1a;
+    border-radius: 6px;
+}
+
+.configKey {
+    color: #82ea80;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.configValue {
+    color: #aaa;
+    font-family: 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1.5rem 1rem;
+        margin-left: 0;
+    }
+
+    .headerContent {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .headerLeft {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .headerIcon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .editButton {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .amountRow {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .amountDivider {
+        width: 100%;
+        height: 1px;
+    }
+
+    .currencyGrid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem 0.75rem;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .statValue {
+        font-size: 1.25rem;
+    }
+
+    .amountValue {
+        font-size: 1rem;
+    }
+}

@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import styles from "./payment-methods.module.css";
 import {
   FiCreditCard,
@@ -11,6 +13,8 @@ import {
   FiLoader,
   FiAlertCircle,
   FiCheckCircle,
+  FiX,
+  FiEye,
 } from "react-icons/fi";
 import PaymentMethodModal from "./PaymentMethodModal";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
@@ -19,6 +23,7 @@ interface PaymentMethod {
   id: string;
   name: string;
   gateway: string;
+  icon?: string;
   is_active: boolean;
   configuration: Record<string, string>;
   min_amount: string;
@@ -45,6 +50,7 @@ interface ApiResponse {
 }
 
 export default function PaymentMethodsPage() {
+  const router = useRouter();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,12 +72,17 @@ export default function PaymentMethodsPage() {
         },
       });
 
-      if (response.data.success) {
-        setPaymentMethods(response.data.data.payment_methods);
+      if (response?.data?.success) {
+        setPaymentMethods(response.data?.data?.payment_methods ?? []);
+      } else {
+        const errorMsg = response?.data?.message || "Failed to fetch payment methods";
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error fetching payment methods:", err);
-      setError(err.response?.data?.message || "Failed to fetch payment methods");
+      const errorMsg = err?.response?.data?.message || "Failed to fetch payment methods";
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -105,13 +116,16 @@ export default function PaymentMethodsPage() {
         },
       });
 
-      if (response.data.success) {
-        setSuccessMessage("Payment method deleted successfully");
+      if (response?.data?.success) {
+        toast.success("Payment method deleted successfully");
         fetchPaymentMethods();
+      } else {
+        const errorMsg = response?.data?.message || "Failed to delete payment method";
+        toast.error(errorMsg);
       }
     } catch (err: any) {
-      console.error("Error deleting payment method:", err);
-      alert(err.response?.data?.message || "Failed to delete payment method");
+      const errorMsg = err?.response?.data?.message || "Failed to delete payment method";
+      toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
     }
@@ -122,13 +136,17 @@ export default function PaymentMethodsPage() {
     setShowModal(true);
   };
 
+  const handleViewDetail = (methodId: string) => {
+    router.push(`/dashboard/payment-methods/${methodId}`);
+  };
+
   const handleModalClose = () => {
     setShowModal(false);
     setEditingMethod(null);
   };
 
   const handleModalSuccess = (message: string) => {
-    setSuccessMessage(message);
+    toast.success(message);
     fetchPaymentMethods();
     handleModalClose();
   };
@@ -139,15 +157,16 @@ export default function PaymentMethodsPage() {
     const query = search.toLowerCase();
     return paymentMethods.filter(
       (method) =>
-        method.name.toLowerCase().includes(query) ||
-        method.gateway.toLowerCase().includes(query) ||
-        method.supported_currencies.some((curr) =>
+        (method?.name ?? "").toLowerCase().includes(query) ||
+        (method?.gateway ?? "").toLowerCase().includes(query) ||
+        (method?.supported_currencies ?? []).some((curr) =>
           curr.toLowerCase().includes(query)
         )
     );
   }, [search, paymentMethods]);
 
   const maskConfigValue = (value: string): string => {
+    if (!value) return "N/A";
     if (value.length <= 8) {
       return "•".repeat(value.length);
     }
@@ -164,7 +183,7 @@ export default function PaymentMethodsPage() {
       </main>
     );
   }
-  console.log(editingMethod)
+
   return (
     <main className={styles.container}>
       <header className={styles.header}>
@@ -189,6 +208,9 @@ export default function PaymentMethodsPage() {
         <div className={styles.successBanner}>
           <FiCheckCircle />
           <span>{successMessage}</span>
+          <button onClick={() => setSuccessMessage(null)} className={styles.closeBanner}>
+            <FiX />
+          </button>
         </div>
       )}
 
@@ -196,6 +218,9 @@ export default function PaymentMethodsPage() {
         <div className={styles.errorBanner}>
           <FiAlertCircle />
           <span>{error}</span>
+          <button onClick={() => setError(null)} className={styles.closeBanner}>
+            <FiX />
+          </button>
         </div>
       )}
 
@@ -279,40 +304,50 @@ export default function PaymentMethodsPage() {
               </thead>
               <tbody>
                 {filteredMethods.map((method) => (
-                  <tr key={method.id}>
+                  <tr key={method?.id ?? Math.random()}>
                     <td>
                       <div className={styles.nameCell}>
-                        <span className={styles.methodName}>{method.name}</span>
+                        {method?.icon && (
+                          <img src={method.icon} alt={method?.name ?? ""} className={styles.methodIcon} />
+                        )}
+                        <span 
+                          className={styles.methodName}
+                          onClick={() => handleViewDetail(method?.id)}
+                          style={{ cursor: 'pointer' }}
+                          title="View details"
+                        >
+                          {method?.name ?? "N/A"}
+                        </span>
                       </div>
                     </td>
                     <td>
-                      <span className={styles.gateway}>{method.gateway}</span>
+                      <span className={styles.gateway}>{method?.gateway ?? "N/A"}</span>
                     </td>
                     <td>
                       <span
                         className={
-                          method.is_active
+                          method?.is_active
                             ? styles.statusActive
                             : styles.statusInactive
                         }
                       >
-                        {method.is_active ? "Active" : "Inactive"}
+                        {method?.is_active ? "Active" : "Inactive"}
                       </span>
                     </td>
                     <td>
                       <div className={styles.currencyList}>
-                        {method.supported_currencies.map((curr, idx) => (
+                        {(method?.supported_currencies ?? []).map((curr, idx) => (
                           <span key={idx} className={styles.currencyTag}>
                             {curr}
                           </span>
                         ))}
                       </div>
                     </td>
-                    <td className={styles.amount}>{method.min_amount}</td>
-                    <td className={styles.amount}>{method.max_amount}</td>
+                    <td className={styles.amount}>{method?.min_amount ?? "0"}</td>
+                    <td className={styles.amount}>{method?.max_amount ?? "0"}</td>
                     <td>
                       <div className={styles.configCell}>
-                        {Object.entries(method.configuration).map(
+                        {Object.entries(method?.configuration ?? {}).map(
                           ([key, value], idx) => (
                             <div key={idx} className={styles.configItem}>
                               <span className={styles.configKey}>{key}:</span>
@@ -325,10 +360,17 @@ export default function PaymentMethodsPage() {
                       </div>
                     </td>
                     <td className={styles.date}>
-                      {new Date(method.created_at).toLocaleDateString()}
+                      {method?.created_at ? new Date(method.created_at).toLocaleDateString() : "N/A"}
                     </td>
                     <td>
                       <div className={styles.actions}>
+                        <button
+                          className={styles.viewBtn}
+                          onClick={() => handleViewDetail(method?.id)}
+                          title="View details"
+                        >
+                          <FiEye />
+                        </button>
                         <button
                           className={styles.editBtn}
                           onClick={() => handleEdit(method)}
@@ -338,11 +380,11 @@ export default function PaymentMethodsPage() {
                         </button>
                         <button
                           className={styles.deleteBtn}
-                          onClick={() => handleDelete(method.id, method.name)}
-                          disabled={deleteLoading === method.id}
+                          onClick={() => handleDelete(method?.id, method?.name ?? "payment method")}
+                          disabled={deleteLoading === method?.id}
                           title="Delete payment method"
                         >
-                          {deleteLoading === method.id ? (
+                          {deleteLoading === method?.id ? (
                             <FiLoader className={styles.spinner} />
                           ) : (
                             <FiTrash2 />
@@ -354,6 +396,114 @@ export default function PaymentMethodsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Mobile Card View */}
+        {filteredMethods.length > 0 && (
+          <div className={styles.mobileCards}>
+            {filteredMethods.map((method) => (
+              <div key={method?.id ?? Math.random()} className={styles.mobileCard}>
+                <div 
+                  className={styles.mobileCardHeader}
+                  onClick={() => handleViewDetail(method?.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={styles.mobileCardTitle}>
+                    {method?.icon && (
+                      <img src={method.icon} alt={method?.name ?? ""} className={styles.methodIconMobile} />
+                    )}
+                    <div>
+                      <h3>{method?.name ?? "N/A"}</h3>
+                      <span className={styles.gateway}>{method?.gateway ?? "N/A"}</span>
+                    </div>
+                  </div>
+                  <span
+                    className={
+                      method?.is_active
+                        ? styles.statusActive
+                        : styles.statusInactive
+                    }
+                  >
+                    {method?.is_active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                <div className={styles.mobileCardBody}>
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileLabel}>Currencies:</span>
+                    <div className={styles.currencyList}>
+                      {(method?.supported_currencies ?? []).map((curr, idx) => (
+                        <span key={idx} className={styles.currencyTag}>
+                          {curr}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileLabel}>Min Amount:</span>
+                    <span>{method?.min_amount ?? "0"}</span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileLabel}>Max Amount:</span>
+                    <span>{method?.max_amount ?? "0"}</span>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileLabel}>Configuration:</span>
+                    <div className={styles.configCell}>
+                      {Object.entries(method?.configuration ?? {}).map(
+                        ([key, value], idx) => (
+                          <div key={idx} className={styles.configItem}>
+                            <span className={styles.configKey}>{key}:</span>
+                            <span className={styles.configValue}>
+                              {maskConfigValue(value)}
+                            </span>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className={styles.mobileCardRow}>
+                    <span className={styles.mobileLabel}>Created:</span>
+                    <span>{method?.created_at ? new Date(method.created_at).toLocaleDateString() : "N/A"}</span>
+                  </div>
+                </div>
+
+                <div className={styles.mobileCardFooter}>
+                  <button
+                    className={styles.viewBtn}
+                    onClick={() => handleViewDetail(method?.id)}
+                  >
+                    <FiEye /> View
+                  </button>
+                  <button
+                    className={styles.editBtn}
+                    onClick={() => handleEdit(method)}
+                  >
+                    <FiEdit2 /> Edit
+                  </button>
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(method?.id, method?.name ?? "payment method")}
+                    disabled={deleteLoading === method?.id}
+                  >
+                    {deleteLoading === method?.id ? (
+                      <>
+                        <FiLoader className={styles.spinner} /> Deleting...
+                      </>
+                    ) : (
+                      <>
+                        <FiTrash2 /> Delete
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>

@@ -34,6 +34,7 @@ import {
   FiMonitor,
   FiBriefcase,
   FiPercent,
+  FiCreditCard,
 } from "react-icons/fi";
 import styles from "./DashboardSidebar.module.css";
 
@@ -177,6 +178,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             { icon: <FiRotateCcw />, label: "Refunds", href: "/dashboard/transactions/refunds" },
           ],
         },
+        { icon: <FiCreditCard />, label: "Payment Methods", href: "/dashboard/payment-methods" },
       ],
     },
     {

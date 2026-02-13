@@ -34,7 +34,6 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Get payment methods error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -61,25 +60,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    // Get FormData from request
+    const formDataFromClient = await req.formData();
 
+    // Create new FormData for backend
     const formData = new FormData();
-    formData.append("name", String(body.name));
-    formData.append("gateway", String(body.gateway));
-    formData.append("is_active", String(body.is_active));
-    formData.append("configuration", JSON.stringify(body.configuration));
-    formData.append("min_amount", String(body.min_amount));
-
-    if (body.max_amount) {
-      formData.append("max_amount", String(body.max_amount));
-    }
-
-
-    if (body.supported_currencies && Array.isArray(body.supported_currencies)) {
-      body.supported_currencies.forEach((currency: string) => {
-        formData.append("supported_currencies", currency);
-      });
-    }
+    
+    // Append all fields from client FormData
+    formDataFromClient.forEach((value, key) => {
+      formData.append(key, String(value));
+    });
 
     const response = await axios.post(
       `${process.env.BASE_URL}/admin/payment-methods`,
@@ -95,7 +85,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Create payment method error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {

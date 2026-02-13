@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
 import styles from "./PaymentMethodModal.module.css";
-import { FiX, FiLoader, FiAlertCircle } from "react-icons/fi";
+import { FiX, FiLoader, FiAlertCircle, FiUpload, FiLink, FiImage } from "react-icons/fi";
 import axiosInstance, { getCsrfToken } from "@/lib/axios";
 
 interface PaymentMethod {
   id: string;
   name: string;
   gateway: string;
+  icon?: string;
   is_active: boolean;
   configuration: Record<string, string>;
   min_amount: string;
@@ -31,7 +33,6 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
 }) => {
   const isEdit = !!method;
 
-  
   const [formData, setFormData] = useState({
     name: method?.name || "",
     gateway: method?.gateway || "",
@@ -43,6 +44,12 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     max_amount: method?.max_amount || "",
     supported_currencies: method?.supported_currencies?.join(", ") || "",
   });
+
+  const [iconMode, setIconMode] = useState<"url" | "upload">("url");
+  const [iconUrl, setIconUrl] = useState(method?.icon || "");
+  const [iconFile, setIconFile] = useState<File | null>(null);
+  const [iconPreview, setIconPreview] = useState<string | null>(method?.icon || null);
+  const [uploadingIcon, setUploadingIcon] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,6 +94,67 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
     }));
   };
 
+  const handleIconFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file");
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      setIconFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setIconPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleIconUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const url = e.target.value;
+    setIconUrl(url);
+    if (url) {
+      setIconPreview(url);
+    }
+  };
+
+  const uploadIconToCloudinary = async (file: File): Promise<string> => {
+    try {
+      setUploadingIcon(true);
+      const token = localStorage.getItem("accessToken");
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("file_type", "IMAGE");
+
+      const response = await axiosInstance.post(
+        "/api/admin/media/uploads",
+        uploadFormData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response?.data?.success && response?.data?.data?.file_url) {
+        return response.data.data.file_url;
+      } else {
+        throw new Error(response?.data?.message || "Failed to upload icon");
+      }
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.response?.data?.error?.message || "Failed to upload icon";
+      toast.error(errorMsg);
+      throw err;
+    } finally {
+      setUploadingIcon(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -115,44 +183,81 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
       const token = localStorage.getItem("accessToken");
       const csrfToken = getCsrfToken();
 
+      // Upload icon if file is selected
+      let finalIconUrl = iconUrl;
+      if (iconMode === "upload" && iconFile) {
+        finalIconUrl = await uploadIconToCloudinary(iconFile);
+      }
+
       const currencies = formData.supported_currencies
         .split(",")
         .map((c) => c.trim())
         .filter(Boolean);
 
-      const payload = {
-        name: formData.name.trim(),
-        gateway: formData.gateway.trim(),
-        is_active: formData.is_active,
-        configuration: JSON.parse(formData.configuration),
-        min_amount: formData.min_amount,
-        max_amount: formData.max_amount || undefined,
-        supported_currencies: currencies.length > 0 ? currencies : undefined,
-      };
-      // console.log(method)
+      // Create FormData for multipart/form-data
+      const submitFormData = new FormData();
+      submitFormData.append("name", formData.name.trim());
+      submitFormData.append("gateway", formData.gateway.trim());
+      submitFormData.append("is_active", String(formData.is_active));
+      submitFormData.append("configuration", formData.configuration);
+      submitFormData.append("min_amount", formData.min_amount);
+      
+      if (formData.max_amount) {
+        submitFormData.append("max_amount", formData.max_amount);
+      }
+      
+      if (finalIconUrl) {
+        submitFormData.append("icon", finalIconUrl);
+      }
+      
+      if (currencies.length > 0) {
+        currencies.forEach((currency) => {
+          submitFormData.append("supported_currencies", currency);
+        });
+      }
+
       if (isEdit) {
-        await axiosInstance.patch(`/api/payment-methods/${method?.id}`, payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "X-CSRFTOKEN": csrfToken || "",
-          },
-        });
-        onSuccess("Payment method updated successfully");
+        const response = await axiosInstance.patch(
+          `/api/payment-methods/${method?.id}`,
+          submitFormData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "X-CSRFTOKEN": csrfToken || "",
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        
+        if (response?.data?.success) {
+          onSuccess(response?.data?.message || "Payment method updated successfully");
+        } else {
+          throw new Error(response?.data?.message || "Failed to update payment method");
+        }
       } else {
-        await axiosInstance.post("/api/payment-methods", payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "X-CSRFTOKEN": csrfToken || "",
-          },
-        });
-        onSuccess("Payment method created successfully");
+        const response = await axiosInstance.post(
+          "/api/payment-methods",
+          submitFormData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "X-CSRFTOKEN": csrfToken || "",
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        
+        if (response?.data?.success) {
+          onSuccess(response?.data?.message || "Payment method created successfully");
+        } else {
+          throw new Error(response?.data?.message || "Failed to create payment method");
+        }
       }
     } catch (err: any) {
-      console.error("Error saving payment method:", err);
-      setError(
-        err.response?.data?.message ||
-          `Failed to ${isEdit ? "update" : "create"} payment method`
-      );
+      const errorMsg = err?.response?.data?.message || err?.message ||
+        `Failed to ${isEdit ? "update" : "create"} payment method`;
+      setError(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -216,6 +321,84 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
                 required
               />
             </div>
+          </div>
+
+          {/* Icon Section */}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>
+              Payment Gateway Icon (Optional)
+            </label>
+            
+            <div className={styles.iconModeToggle}>
+              <button
+                type="button"
+                className={`${styles.modeBtn} ${iconMode === "url" ? styles.active : ""}`}
+                onClick={() => setIconMode("url")}
+                disabled={loading}
+              >
+                <FiLink /> URL
+              </button>
+              <button
+                type="button"
+                className={`${styles.modeBtn} ${iconMode === "upload" ? styles.active : ""}`}
+                onClick={() => setIconMode("upload")}
+                disabled={loading}
+              >
+                <FiUpload /> Upload
+              </button>
+            </div>
+
+            {iconMode === "url" ? (
+              <input
+                type="url"
+                value={iconUrl}
+                onChange={handleIconUrlChange}
+                className={styles.input}
+                placeholder="https://example.com/icon.png"
+                disabled={loading}
+              />
+            ) : (
+              <div className={styles.fileUploadWrapper}>
+                <input
+                  type="file"
+                  id="iconFile"
+                  accept="image/*"
+                  onChange={handleIconFileChange}
+                  className={styles.fileInput}
+                  disabled={loading || uploadingIcon}
+                />
+                <label htmlFor="iconFile" className={styles.fileLabel}>
+                  <FiImage />
+                  <span>
+                    {iconFile ? iconFile.name : "Choose an image file"}
+                  </span>
+                </label>
+              </div>
+            )}
+
+            {iconPreview && (
+              <div className={styles.iconPreview}>
+                <img src={iconPreview} alt="Icon preview" />
+                <button
+                  type="button"
+                  className={styles.removePreview}
+                  onClick={() => {
+                    setIconPreview(null);
+                    setIconFile(null);
+                    setIconUrl("");
+                  }}
+                  disabled={loading}
+                >
+                  <FiX />
+                </button>
+              </div>
+            )}
+            
+            <p className={styles.hint}>
+              {iconMode === "url" 
+                ? "Enter a direct URL to the payment gateway icon" 
+                : "Upload an image (max 5MB). Will be uploaded to Cloudinary"}
+            </p>
           </div>
 
           <div className={styles.formRow}>
@@ -328,12 +511,12 @@ const PaymentMethodModal: React.FC<PaymentMethodModalProps> = ({
             <button
               type="submit"
               className={styles.submitBtn}
-              disabled={loading || !!configError}
+              disabled={loading || uploadingIcon || !!configError}
             >
-              {loading ? (
+              {loading || uploadingIcon ? (
                 <>
                   <FiLoader className={styles.spinner} />
-                  {isEdit ? "Updating..." : "Creating..."}
+                  {uploadingIcon ? "Uploading..." : isEdit ? "Updating..." : "Creating..."}
                 </>
               ) : (
                 <>{isEdit ? "Update" : "Create"}</>
