@@ -1,0 +1,307 @@
+.container {
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.headerIcon {
+  font-size: 1.5rem;
+  color: #82ea80;
+}
+
+.title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+}
+
+.viewAllBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid #47b216;
+  color: #82ea80;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.viewAllBtn:hover {
+  background: #47b216;
+  color: #000;
+}
+
+.loadingState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  gap: 1rem;
+}
+
+.spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+  color: #82ea80;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.errorIcon {
+  font-size: 3rem;
+  color: #ff4444;
+}
+
+.errorState p {
+  color: #aaa;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead {
+  background: #1a1a1a;
+}
+
+.table th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #82ea80;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #1a1a1a;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background: #1a1a1a;
+}
+
+.table td {
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: #ddd;
+}
+
+.tableRow {
+  cursor: pointer;
+}
+
+.partnerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.partnerName {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.partnerCode {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(59, 130, 246, 0.15);
+  color: #3B82F6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.amount {
+  font-weight: 700;
+  color: #82ea80;
+  font-size: 0.95rem;
+}
+
+.statusBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.date {
+  color: #aaa;
+  font-size: 0.85rem;
+}
+
+.processedBy {
+  color: #ddd;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Card Layout for Mobile */
+.cardLayout {
+  display: none;
+}
+
+.card {
+  background: #1a1a1a;
+  border: 1px solid #252525;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(130, 234, 128, 0.15);
+  border-color: #47b216;
+}
+
+.cardRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cardRow:last-child {
+  border-bottom: none;
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.cardValue {
+  text-align: right;
+  font-size: 0.9rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+.cardSubtext {
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .header {
+    margin-bottom: 1rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .viewAllBtn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+  }
+
+  .tableWrapper {
+    display: none;
+  }
+
+  .cardLayout {
+    display: block;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0.75rem;
+  }
+
+  .headerIcon {
+    font-size: 1.25rem;
+  }
+
+  .title {
+    font-size: 0.95rem;
+  }
+
+  .viewAllBtn {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .card {
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cardRow {
+    padding: 0.4rem 0;
+  }
+
+  .cardLabel {
+    font-size: 0.7rem;
+  }
+
+  .cardValue {
+    font-size: 0.85rem;
+  }
+}

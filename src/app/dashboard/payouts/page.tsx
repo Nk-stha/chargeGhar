@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   FiDollarSign,
@@ -29,6 +29,7 @@ const statusTabs: (PayoutStatus | "ALL")[] = [
 
 export default function PayoutsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [payouts, setPayouts] = useState<PayoutRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +40,14 @@ export default function PayoutsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [payoutTypeFilter, setPayoutTypeFilter] = useState<PayoutType | "ALL">("ALL");
+
+  // Set active tab from URL query parameter
+  useEffect(() => {
+    const statusParam = searchParams?.get('status');
+    if (statusParam && statusTabs.includes(statusParam as PayoutStatus | "ALL")) {
+      setActiveTab(statusParam as PayoutStatus | "ALL");
+    }
+  }, [searchParams]);
 
   const fetchPayouts = useCallback(async () => {
     try {
@@ -323,19 +332,20 @@ export default function PayoutsPage() {
               <th>Status</th>
               <th>Created</th>
               <th>Processed By</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className={styles.loadingState}>
+                <td colSpan={9} className={styles.loadingState}>
                   <FiLoader className={styles.spinner} />
                   Loading...
                 </td>
               </tr>
             ) : filteredPayouts.length === 0 ? (
               <tr>
-                <td colSpan={8} className={styles.emptyState}>
+                <td colSpan={9} className={styles.emptyState}>
                   {searchQuery
                     ? "No payout requests match your search"
                     : "No payout requests found"}
@@ -346,21 +356,19 @@ export default function PayoutsPage() {
                 <tr 
                   key={payout?.id ?? Math.random()} 
                   className={styles.tableRow}
-                  onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)}
-                  style={{ cursor: 'pointer' }}
                 >
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <div className={styles.partnerInfo}>
                       <span className={styles.partnerName}>{payout?.partner_name ?? "N/A"}</span>
                       <span className={styles.partnerCode}>{payout?.partner_code ?? "N/A"}</span>
                     </div>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <span className={styles.typeBadge}>
                       {getPayoutTypeLabel(payout?.payout_type ?? "CHARGEGHAR_TO_VENDOR")}
                     </span>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <div className={styles.amountInfo}>
                       <span className={styles.amount}>{formatAmount(payout?.amount ?? "0")}</span>
                       {payout?.net_amount !== payout?.amount && (
@@ -370,7 +378,7 @@ export default function PayoutsPage() {
                       )}
                     </div>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     {payout?.bank_name ? (
                       <div className={styles.bankInfo}>
                         <span className={styles.bankName}>{payout.bank_name}</span>
@@ -382,13 +390,13 @@ export default function PayoutsPage() {
                         </span>
                       </div>
                     ) : (
-                      <span className={styles.noData}>Not provided</span>
+                      <span className={styles.noData}>⚠️ Not provided</span>
                     )}
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <span className={styles.referenceId}>{payout?.reference_id ?? "N/A"}</span>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <span
                       className={styles.statusBadge}
                       style={{
@@ -400,10 +408,10 @@ export default function PayoutsPage() {
                       {payout?.status ?? "PENDING"}
                     </span>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     <span className={styles.date}>{formatDate(payout?.created_at ?? "")}</span>
                   </td>
-                  <td>
+                  <td onClick={() => router.push(`/dashboard/payouts/${payout?.id}`)} style={{ cursor: 'pointer' }}>
                     {payout?.processed_by_name ? (
                       <div className={styles.processedInfo}>
                         <span className={styles.processedBy}>
@@ -418,6 +426,58 @@ export default function PayoutsPage() {
                     ) : (
                       <span className={styles.noData}>-</span>
                     )}
+                  </td>
+                  <td>
+                    <div className={styles.actionButtons}>
+                      {payout?.status === "PENDING" && (
+                        <>
+                          <button
+                            className={`${styles.actionBtn} ${styles.approveBtn}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/dashboard/payouts/${payout?.id}?action=approve`);
+                            }}
+                            title="Approve Payout"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            className={`${styles.actionBtn} ${styles.rejectBtn}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(`/dashboard/payouts/${payout?.id}?action=reject`);
+                            }}
+                            title="Reject Payout"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      )}
+                      {(payout?.status === "APPROVED" || payout?.status === "COMPLETED") && (
+                        <button
+                          className={`${styles.actionBtn} ${styles.viewBtn}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/dashboard/payouts/${payout?.id}`);
+                          }}
+                          title="View Details"
+                        >
+                          View Details
+                        </button>
+                      )}
+                      {payout?.status === "REJECTED" && (
+                        <button
+                          className={`${styles.actionBtn} ${styles.reasonBtn}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/dashboard/payouts/${payout?.id}`);
+                          }}
+                          title="View Rejection Reason"
+                        >
+                          View Reason
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

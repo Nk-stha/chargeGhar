@@ -1,0 +1,283 @@
+.container {
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  margin-bottom: 1.5rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #82ea80;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+/* Loading & Error States */
+.loadingState,
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  color: #888;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Metrics Grid */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.metricCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #252525;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.metricCard:hover {
+  border-color: #82ea80;
+  transform: translateY(-2px);
+}
+
+.fraudIndicator {
+  border: 1px solid #ef4444;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.fraudIndicator:hover {
+  border-color: #ef4444;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+}
+
+.metricIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.metricInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.metricValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.metricSubtext {
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #e0e0e0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Payout List */
+.payoutList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.payoutItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #252525;
+  border-radius: 8px;
+  padding: 0.875rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.payoutItem:hover {
+  border-color: #82ea80;
+  background-color: #1e1e1e;
+}
+
+.payoutInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.payoutPartner {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.payoutDate {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.payoutDetails {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.payoutAmount {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #82ea80;
+}
+
+.payoutStatus {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 1.25rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .metricCard {
+    padding: 0.875rem;
+  }
+
+  .metricIcon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.25rem;
+  }
+
+  .metricValue {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .title {
+    font-size: 1rem;
+  }
+
+  .content {
+    gap: 1.25rem;
+  }
+
+  .metricCard {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.75rem;
+  }
+
+  .metricIcon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .metricLabel {
+    font-size: 0.7rem;
+  }
+
+  .metricValue {
+    font-size: 1rem;
+  }
+}
