@@ -64,6 +64,7 @@ export interface PartnerParams {
     partner_type?: string;
     vendor_type?: string;
     parent_id?: string;
+    created_at?: string;
 }
 
 export interface CreateFranchiseRequest {

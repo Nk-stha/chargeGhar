@@ -18,8 +18,8 @@ import {
   RentalStatus,
   PaymentStatus,
 } from "../../../types/rentals.types";
-import RentalDetailModal from "../../../components/RentalDetailModal/RentalDetailModal";
 import DataTable from "../../../components/DataTable/dataTable";
+import { useRouter } from "next/navigation";
 
 const statusTabs: (RentalStatus | "ALL")[] = [
   "ALL",
@@ -31,6 +31,7 @@ const statusTabs: (RentalStatus | "ALL")[] = [
 ];
 
 export default function RentalsPage() {
+  const router = useRouter();
   const [rentals, setRentals] = useState<RentalListItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -40,14 +41,16 @@ export default function RentalsPage() {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [pageSize] = useState<number>(20);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedRentalId, setSelectedRentalId] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   const fetchRentals = useCallback(
     async (
       status?: RentalStatus | "ALL",
       page: number = 1,
       search?: string,
+      dateStart?: string,
+      dateEnd?: string,
     ) => {
       try {
         setLoading(true);
@@ -66,6 +69,24 @@ export default function RentalsPage() {
           filters.search = search.trim();
         }
 
+        if (dateStart) {
+          // Convert date to ISO format with start of day (00:00:00)
+          const startDateTime = new Date(dateStart + 'T00:00:00');
+          filters.start_date = startDateTime.toISOString();
+          
+          // If only start date is provided (no end date), set end date to end of same day
+          if (!dateEnd) {
+            const endDateTime = new Date(dateStart + 'T23:59:59');
+            filters.end_date = endDateTime.toISOString();
+          }
+        }
+
+        if (dateEnd) {
+          // Convert date to ISO format with end of day (23:59:59)
+          const endDateTime = new Date(dateEnd + 'T23:59:59');
+          filters.end_date = endDateTime.toISOString();
+        }
+
         const response = await rentalsService.getRentals(filters);
 
         if (response.success) {
@@ -77,7 +98,6 @@ export default function RentalsPage() {
           setError("Failed to fetch rentals");
         }
       } catch (err: any) {
-        console.error("Error fetching rentals:", err);
         setError("Unable to load rentals. Please try again.");
       } finally {
         setLoading(false);
@@ -91,8 +111,10 @@ export default function RentalsPage() {
       activeTab === "ALL" ? undefined : activeTab,
       currentPage,
       searchQuery,
+      startDate,
+      endDate,
     );
-  }, [activeTab, currentPage, searchQuery, fetchRentals]);
+  }, [activeTab, currentPage, searchQuery, startDate, endDate, fetchRentals]);
 
   const handleTabClick = (tab: RentalStatus | "ALL") => {
     setActiveTab(tab);
@@ -103,11 +125,27 @@ export default function RentalsPage() {
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setCurrentPage(1);
-    fetchRentals(activeTab === "ALL" ? undefined : activeTab, 1, searchQuery);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStartDate(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setStartDate("");
+    setEndDate("");
+    setSearchQuery("");
+    setCurrentPage(1);
   };
 
   const handleRefresh = () => {
@@ -115,6 +153,8 @@ export default function RentalsPage() {
       activeTab === "ALL" ? undefined : activeTab,
       currentPage,
       searchQuery,
+      startDate,
+      endDate,
     );
   };
 
@@ -172,13 +212,7 @@ export default function RentalsPage() {
   };
 
   const handleRowClick = (rentalId: string) => {
-    setSelectedRentalId(rentalId);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedRentalId("");
+    router.push(`/dashboard/rentals/${rentalId}`);
   };
 
   return (
@@ -226,6 +260,40 @@ export default function RentalsPage() {
               </button>
             )}
           </div>
+          
+          {/* Date Filters */}
+          <div className={styles.dateFilters}>
+            <div className={styles.dateInputGroup}>
+              <label htmlFor="startDate" className={styles.dateLabel}>Start Date:</label>
+              <input
+                type="date"
+                id="startDate"
+                value={startDate}
+                onChange={handleStartDateChange}
+                className={styles.dateInput}
+              />
+            </div>
+            <div className={styles.dateInputGroup}>
+              <label htmlFor="endDate" className={styles.dateLabel}>End Date:</label>
+              <input
+                type="date"
+                id="endDate"
+                value={endDate}
+                onChange={handleEndDateChange}
+                className={styles.dateInput}
+              />
+            </div>
+            {(startDate || endDate) && (
+              <button
+                type="button"
+                onClick={handleClearFilters}
+                className={styles.clearFiltersBtn}
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+          
           <button type="submit" className={styles.searchBtn} disabled={loading}>
             Search
           </button>
@@ -246,6 +314,25 @@ export default function RentalsPage() {
           ))}
         </div>
 
+        {/* Active Filters Indicator */}
+        {(startDate || endDate || searchQuery) && (
+          <div className={styles.activeFilters}>
+            <FiFilter size={16} />
+            <span>Active filters:</span>
+            {searchQuery && <span className={styles.filterTag}>Search: "{searchQuery}"</span>}
+            {startDate && !endDate && <span className={styles.filterTag}>Date: {new Date(startDate).toLocaleDateString()}</span>}
+            {startDate && endDate && startDate !== endDate && (
+              <>
+                <span className={styles.filterTag}>From: {new Date(startDate).toLocaleDateString()}</span>
+                <span className={styles.filterTag}>To: {new Date(endDate).toLocaleDateString()}</span>
+              </>
+            )}
+            {startDate && endDate && startDate === endDate && (
+              <span className={styles.filterTag}>Date: {new Date(startDate).toLocaleDateString()}</span>
+            )}
+          </div>
+        )}
+
         {/* Table Card */}
         <DataTable
           title="Rentals"
@@ -254,8 +341,13 @@ export default function RentalsPage() {
             {
               header: "Rental Code",
               accessor: "rental_code",
-              render: (value: string) => (
-                <span className={styles.rentalCode}>{value}</span>
+              render: (value: string, row: RentalListItem) => (
+                <div className={styles.rentalCodeCell}>
+                  <span className={styles.rentalCode}>{value}</span>
+                  <span className={styles.createdDate}>
+                    {rentalsService.formatDateTime(row.created_at)}
+                  </span>
+                </div>
               ),
             },
             {
@@ -263,7 +355,7 @@ export default function RentalsPage() {
               accessor: "username",
               render: (_: any, row: RentalListItem) => (
                 <div className={styles.userInfo}>
-                  <span className={styles.username}>{row.username}</span>
+                  <span className={styles.username}>{row.username || "N/A"}</span>
                   {row.user_phone && (
                     <span className={styles.phone}>{row.user_phone}</span>
                   )}
@@ -285,10 +377,17 @@ export default function RentalsPage() {
             {
               header: "Return Station",
               accessor: "return_station_name",
-              render: (value: string) => (
+              render: (value: string | null) => (
                 <div className={styles.stationInfo}>
-                  <span>{value}</span>
+                  <span>{value || "Not returned"}</span>
                 </div>
+              ),
+            },
+            {
+              header: "PowerBank",
+              accessor: "powerbank_serial",
+              render: (value: string | null) => (
+                <span className={styles.powerbankSerial}>{value || "N/A"}</span>
               ),
             },
             {
@@ -304,21 +403,51 @@ export default function RentalsPage() {
               ),
             },
             {
+              header: "Started / Ended",
+              accessor: "started_at",
+              render: (_: any, row: RentalListItem) => (
+                <div className={styles.timeInfo}>
+                  <span className={styles.startTime}>
+                    {rentalsService.formatDateTime(row.started_at)}
+                  </span>
+                  {row.ended_at && (
+                    <span className={styles.endTime}>
+                      {rentalsService.formatDateTime(row.ended_at)}
+                    </span>
+                  )}
+                </div>
+              ),
+            },
+            {
               header: "Due Date",
               accessor: "due_at",
-              render: (value: string) => (
-                <span className={styles.date}>
-                  {rentalsService.formatDateTime(value)}
-                </span>
+              render: (_: any, row: RentalListItem) => (
+                <div className={styles.dueInfo}>
+                  <span className={styles.date}>
+                    {rentalsService.formatDateTime(row.due_at)}
+                  </span>
+                  {row.is_returned_on_time !== null && (
+                    <span className={row.is_returned_on_time ? styles.onTime : styles.late}>
+                      {row.is_returned_on_time ? "On Time" : "Late"}
+                    </span>
+                  )}
+                </div>
               ),
             },
             {
               header: "Amount",
               accessor: "amount_paid",
               render: (_: any, row: RentalListItem) => (
-                <span className={styles.amount}>
-                  {rentalsService.formatAmount(row.amount_paid)}
-                </span>
+                <div className={styles.amountInfo}>
+                  <span className={styles.amount}>
+                    {rentalsService.formatAmount(row.amount_paid)}
+                  </span>
+                  {parseFloat(row.overdue_amount) > 0 && (
+                    <span className={styles.overdueAmount}>
+                      +{rentalsService.formatAmount(row.overdue_amount)} overdue
+                    </span>
+                  )}
+                </div>
               ),
             },
             {
@@ -347,10 +476,13 @@ export default function RentalsPage() {
           emptyMessage={
             error
               ? error
-              : searchQuery
-                ? "No rentals found matching your search"
-                : "No rentals found"
+              : (startDate || endDate)
+                ? `No rentals found for the selected date range${searchQuery ? ' and search criteria' : ''}`
+                : searchQuery
+                  ? "No rentals found matching your search"
+                  : "No rentals found"
           }
+          onRowClick={(row: RentalListItem) => handleRowClick(row.id)}
           mobileCardRender={(row: RentalListItem) => (
             <div onClick={() => handleRowClick(row.id)} style={{ cursor: "pointer" }}>
               <div style={{ marginBottom: "0.75rem", display: "flex", justifyContent: "space-between", alignItems: "start" }}>
@@ -402,13 +534,6 @@ export default function RentalsPage() {
           </div>
         )}
       </main>
-
-      {/* Rental Detail Modal */}
-      <RentalDetailModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        rentalId={selectedRentalId}
-      />
     </>
   );
 }

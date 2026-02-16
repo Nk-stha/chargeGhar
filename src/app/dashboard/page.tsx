@@ -25,6 +25,7 @@ import PartnerRevenueAnalytics from "../../components/PartnerRevenueAnalytics/Pa
 import StationDistributionStats from "../../components/StationDistributionStats/StationDistributionStats";
 import PayoutStats from "../../components/PayoutStats/PayoutStats";
 import AdsStats from "../../components/AdsStats/AdsStats";
+import RentalStats from "../../components/RentalStats/RentalStats";
 
 type AnalyticsFilter = 
   | "all"
@@ -45,6 +46,7 @@ type StatisticsFilter =
   | "station-distribution"
   | "payout-stats"
   | "ads-stats"
+  | "rental-stats"
   | "powerbank-performance"
   | "monitor-rentals"
   | "recent-transactions"
@@ -78,6 +80,7 @@ const Dashboard: React.FC = () => {
         { value: "station-distribution", label: "Station Distribution Stats" },
         { value: "payout-stats", label: "Payout Statistics" },
         { value: "ads-stats", label: "Ads Statistics" },
+        { value: "rental-stats", label: "Rental Statistics" },
         { value: "powerbank-performance", label: "PowerBank Performance" },
         { value: "monitor-rentals", label: "Monitor Rentals" },
         { value: "recent-transactions", label: "Recent Transactions" },
@@ -190,6 +193,12 @@ const Dashboard: React.FC = () => {
                         {shouldShowStats("ads-stats") && (
                             <div className={`${styles.col12} ${styles.hFull}`}>
                                 <AdsStats />
+                            </div>
+                        )}
+
+                        {shouldShowStats("rental-stats") && (
+                            <div className={`${styles.col12} ${styles.hFull}`}>
+                                <RentalStats />
                             </div>
                         )}
 

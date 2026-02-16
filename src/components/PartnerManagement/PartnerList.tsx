@@ -18,6 +18,7 @@ const PartnerList: React.FC = () => {
   const [pageSize, setPageSize] = useState(10); // Changed to 10 for better UI on smaller screens
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [createdDate, setCreatedDate] = useState<string>("");
   
   // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -33,30 +34,49 @@ const PartnerList: React.FC = () => {
     setPage(1); // Reset to page 1 on new search
   }, [debouncedSearch]);
 
+  useEffect(() => {
+    setPage(1); // Reset to page 1 on date change
+  }, [createdDate]);
+
   const fetchPartners = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await getPartners({
+      
+      const params: any = {
         page,
         page_size: pageSize,
-        search: debouncedSearch,
-      });
+      };
+      
+      if (debouncedSearch) {
+        params.search = debouncedSearch;
+      }
+      
+      const response = await getPartners(params);
 
       if (response.success) {
-        setPartners(response.data.results);
-        setTotalCount(response.data.count);
+        let filteredPartners = response.data.results;
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          filteredPartners = filteredPartners.filter((partner: Partner) => {
+            const partnerDate = new Date(partner.created_at).toISOString().split('T')[0];
+            return partnerDate === createdDate;
+          });
+        }
+        
+        setPartners(filteredPartners);
+        setTotalCount(createdDate ? filteredPartners.length : response.data.count);
       } else {
         toast.error(response.message || "Failed to fetch partners");
       }
     } catch (err: unknown) {
-      console.error("Error fetching partners:", err);
       const apiError = extractApiError(err, "An error occurred while fetching partners");
       toast.error(apiError.message);
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, debouncedSearch]);
+  }, [page, pageSize, debouncedSearch, createdDate]);
 
   useEffect(() => {
     fetchPartners();
@@ -100,6 +120,26 @@ const PartnerList: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+          </div>
+          <div className={styles.dateFilterWrapper}>
+            <label htmlFor="partnerCreatedDate" className={styles.dateLabel}>Created Date:</label>
+            <input
+              type="date"
+              id="partnerCreatedDate"
+              value={createdDate}
+              onChange={(e) => setCreatedDate(e.target.value)}
+              className={styles.dateInput}
+            />
+            {createdDate && (
+              <button
+                type="button"
+                onClick={() => setCreatedDate("")}
+                className={styles.clearDateBtn}
+                title="Clear date filter"
+              >
+                ×
+              </button>
+            )}
           </div>
           <div className="flex gap-3">
             <button 

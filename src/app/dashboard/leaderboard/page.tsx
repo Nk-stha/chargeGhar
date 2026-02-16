@@ -52,7 +52,6 @@ const LeaderboardPage: React.FC = () => {
         setError("Failed to load leaderboard");
       }
     } catch (err: any) {
-      console.error("Error fetching leaderboard:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load leaderboard. Please try again.";

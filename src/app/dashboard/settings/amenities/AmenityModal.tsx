@@ -87,7 +87,6 @@ const AmenityModal: React.FC<AmenityModalProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error("Error saving amenity:", err);
       setError(err.message || "Failed to save amenity");
     } finally {
       setLoading(false);

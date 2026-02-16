@@ -41,10 +41,11 @@ const PayoutStats: React.FC = () => {
   const [payouts, setPayouts] = useState<Payout[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createdDate, setCreatedDate] = useState<string>("");
 
   useEffect(() => {
     fetchPayouts();
-  }, []);
+  }, [createdDate]);
 
   const fetchPayouts = async () => {
     try {
@@ -58,7 +59,17 @@ const PayoutStats: React.FC = () => {
       const data: PayoutResponse = await response.json();
 
       if (data.success) {
-        setPayouts(data.data.results);
+        let filteredPayouts = data.data.results;
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          filteredPayouts = filteredPayouts.filter((payout: Payout) => {
+            const payoutDate = new Date(payout.created_at).toISOString().split('T')[0];
+            return payoutDate === createdDate;
+          });
+        }
+        
+        setPayouts(filteredPayouts);
       } else {
         setError("Failed to load payout statistics");
         toast.error("Failed to load payout statistics");
@@ -132,6 +143,26 @@ const PayoutStats: React.FC = () => {
         <h2 className={styles.title}>
           <FiDollarSign /> Payout Statistics
         </h2>
+        <div className={styles.dateFilter}>
+          <label htmlFor="payoutCreatedDate" className={styles.dateLabel}>Date:</label>
+          <input
+            type="date"
+            id="payoutCreatedDate"
+            value={createdDate}
+            onChange={(e) => setCreatedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {createdDate && (
+            <button
+              type="button"
+              onClick={() => setCreatedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.content}>

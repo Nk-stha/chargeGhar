@@ -3,14 +3,34 @@
   border: 1px solid #1e1e1e;
   border-radius: 12px;
   padding: 1.5rem;
-  height: 100%;
+  max-height: 600px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.container::-webkit-scrollbar-track {
+  background: #0b0b0b;
+  border-radius: 4px;
+}
+
+.container::-webkit-scrollbar-thumb {
+  background: #47b216;
+  border-radius: 4px;
+}
+
+.container::-webkit-scrollbar-thumb:hover {
+  background: #54BC28;
 }
 
 .header {
   margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .title {

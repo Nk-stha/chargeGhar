@@ -93,7 +93,6 @@ export default function MediaLibraryPage() {
           setError("Failed to fetch media files");
         }
       } catch (err: any) {
-        console.error("Error fetching media:", err);
         setError("Unable to load media files. Please try again.");
       } finally {
         setLoading(false);
@@ -126,10 +125,8 @@ export default function MediaLibraryPage() {
       if (fetchedUsers && fetchedUsers.size > 0) {
         setUsersMap(fetchedUsers);
       } else {
-        console.warn("No users were successfully fetched");
       }
     } catch (err) {
-      console.error("Error fetching users for media:", err);
       // Continue without user names - will show User #ID fallback
     } finally {
       setLoadingUsers(false);
@@ -294,7 +291,6 @@ export default function MediaLibraryPage() {
         setDeleteError("Failed to delete media file");
       }
     } catch (err: any) {
-      console.error("Error deleting media:", err);
       setDeleteError(
         err.response?.data?.message || "Failed to delete media file",
       );

@@ -87,10 +87,9 @@
 /* === Search Section === */
 .searchSection {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 1rem;
-  align-items: stretch;
-  justify-content: space-between;
+  align-items: center;
   background: rgba(18, 18, 18, 0.4);
   backdrop-filter: blur(12px);
   padding: 1.5rem;
@@ -100,18 +99,66 @@
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 }
 
-@media (min-width: 768px) {
-  .searchSection {
-    flex-direction: row;
-    align-items: center;
-    gap: 1.5rem;
-  }
-}
-
 .searchWrapper {
   position: relative;
   flex: 1;
-  max-width: 32rem;
+  min-width: 250px;
+}
+
+.dateFilterWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dateLabel {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dateInput {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  color: #ffffff;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  width: 150px;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: rgba(84, 188, 40, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 3px rgba(84, 188, 40, 0.1);
+}
+
+.clearDateBtn {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.clearDateBtn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.clearDateBtn:active {
+  transform: scale(0.95);
 }
 
 .searchIcon {

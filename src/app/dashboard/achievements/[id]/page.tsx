@@ -62,7 +62,6 @@ const AchievementDetailPage: React.FC = () => {
         setError("Failed to load achievement");
       }
     } catch (err: any) {
-      console.error("Error fetching achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load achievement. Please try again.";
@@ -117,7 +116,6 @@ const AchievementDetailPage: React.FC = () => {
         setTimeout(() => setSuccessMessage(null), 5000);
       }
     } catch (err: any) {
-      console.error("Error updating achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to update achievement. Please try again.";
@@ -145,7 +143,6 @@ const AchievementDetailPage: React.FC = () => {
         }, 2000);
       }
     } catch (err: any) {
-      console.error("Error deleting achievement:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to delete achievement. Please try again.";

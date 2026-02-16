@@ -69,7 +69,6 @@ export default function PowerBankDetailPage({
         setError("Failed to fetch powerbank details");
       }
     } catch (err: unknown) {
-      console.error("Error fetching powerbank:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to load powerbank details";
       setError(errorMessage);
     } finally {
@@ -87,7 +86,6 @@ export default function PowerBankDetailPage({
         setHistoryPagination(response.data.pagination);
       }
     } catch (err) {
-      console.error("Error fetching history:", err);
     }
   };
 
@@ -147,7 +145,6 @@ export default function PowerBankDetailPage({
         setStatusError("Failed to update status");
       }
     } catch (err: unknown) {
-      console.error("Error updating status:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to update status";
       setStatusError(errorMessage);
     } finally {

@@ -41,10 +41,11 @@ const AdsStats: React.FC = () => {
   const [ads, setAds] = useState<AdRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submittedDate, setSubmittedDate] = useState<string>("");
 
   useEffect(() => {
     fetchAds();
-  }, []);
+  }, [submittedDate]);
 
   const fetchAds = async () => {
     try {
@@ -58,7 +59,17 @@ const AdsStats: React.FC = () => {
       const data: AdsResponse = await response.json();
 
       if (data.success) {
-        setAds(data.data);
+        let filteredAds = data.data;
+        
+        // Filter by submitted_at on frontend if date is selected
+        if (submittedDate) {
+          filteredAds = filteredAds.filter((ad: AdRequest) => {
+            const adDate = new Date(ad.submitted_at).toISOString().split('T')[0];
+            return adDate === submittedDate;
+          });
+        }
+        
+        setAds(filteredAds);
       } else {
         setError("Failed to load ads statistics");
         toast.error("Failed to load ads statistics");
@@ -139,6 +150,26 @@ const AdsStats: React.FC = () => {
         <h2 className={styles.title}>
           <FiActivity /> Ads Statistics
         </h2>
+        <div className={styles.dateFilter}>
+          <label htmlFor="adsSubmittedDate" className={styles.dateLabel}>Submitted:</label>
+          <input
+            type="date"
+            id="adsSubmittedDate"
+            value={submittedDate}
+            onChange={(e) => setSubmittedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {submittedDate && (
+            <button
+              type="button"
+              onClick={() => setSubmittedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.content}>

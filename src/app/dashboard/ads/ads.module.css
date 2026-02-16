@@ -190,6 +190,66 @@
   cursor: not-allowed;
 }
 
+/* Date Filters */
+.dateFilters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-end;
+}
+
+.dateInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dateLabel {
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dateInput {
+  padding: 0.875rem 1rem;
+  background: #161616;
+  border: 1px solid #262626;
+  border-radius: 0.75rem;
+  color: #fff;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  min-width: 150px;
+}
+
+.dateInput:focus {
+  outline: none;
+  border-color: #54BC28;
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.clearFiltersBtn {
+  padding: 0.875rem 1rem;
+  background: #161616;
+  border: 1px solid #262626;
+  border-radius: 0.75rem;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.clearFiltersBtn:hover {
+  background: #1c1c1c;
+  border-color: #ef4444;
+}
+
 .tabs {
   display: flex;
   align-items: center;
@@ -359,6 +419,62 @@
   color: #fff;
 }
 
+.dateEmpty {
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: #9CA3AF;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.descriptionEmpty {
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.dateRange {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.dateRangeStart,
+.dateRangeEnd {
+  font-size: 0.75rem;
+  color: #fff;
+}
+
+.dateRangeSeparator {
+  font-size: 0.75rem;
+  color: #6B7280;
+  margin: 0 0.25rem;
+}
+
+.dateRangeEmpty {
+  font-size: 0.875rem;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.adminName {
+  font-size: 0.875rem;
+  color: #54BC28;
+  font-weight: 500;
+}
+
+.adminNameEmpty {
+  font-size: 0.875rem;
+  color: #6B7280;
+}
+
 .statusCell {
   text-align: center;
 }
@@ -455,9 +571,23 @@
   color: #6B7280;
 }
 
+/* Mobile Card Layout - Hidden by default */
+.mobileCards {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .statusSummary {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .table {
+    font-size: 0.8125rem;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.875rem 1rem;
   }
 }
 
@@ -491,6 +621,25 @@
     flex-direction: column;
   }
 
+  .dateFilters {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  .dateInputGroup {
+    width: 100%;
+  }
+
+  .dateInput {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .clearFiltersBtn {
+    width: 100%;
+  }
+
   .searchBtn {
     width: 100%;
   }
@@ -503,9 +652,112 @@
     padding: 0.5rem 1rem;
   }
 
-  .table th,
-  .table td {
-    padding: 0.75rem 1rem;
+  /* Hide table, show cards on mobile */
+  .tableWrapper {
+    display: none;
+  }
+
+  .mobileCards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .tableContainer {
+    background: transparent;
+    border: none;
+  }
+
+  .tableHeader {
+    background: #161616;
+    border-radius: 0.75rem;
+    border: 1px solid #262626;
+  }
+
+  .adCard {
+    background: #161616;
+    border: 1px solid #262626;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .adCard:hover {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: #54BC28;
+  }
+
+  .adCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .adCardTitle {
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.9375rem;
+    flex: 1;
+  }
+
+  .adCardTitleEmpty {
+    font-weight: 600;
+    color: #6B7280;
+    font-style: italic;
+    font-size: 0.9375rem;
+    flex: 1;
+  }
+
+  .adCardBody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+  }
+
+  .adCardRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8125rem;
+  }
+
+  .adCardLabel {
+    color: #6B7280;
+    font-size: 0.75rem;
+  }
+
+  .adCardValue {
+    color: #fff;
+    font-weight: 500;
+    text-align: right;
+  }
+
+  .adCardDescription {
+    color: #9CA3AF;
+    font-size: 0.8125rem;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #262626;
+  }
+
+  .adCardFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #262626;
+  }
+
+  .loadingState,
+  .emptyState {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #6B7280;
   }
 }
 

@@ -40,6 +40,7 @@ export default function PayoutsPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [payoutTypeFilter, setPayoutTypeFilter] = useState<PayoutType | "ALL">("ALL");
+  const [createdDate, setCreatedDate] = useState<string>("");
 
   // Set active tab from URL query parameter
   useEffect(() => {
@@ -82,9 +83,19 @@ export default function PayoutsPage() {
       });
 
       if (response?.data?.success) {
-        setPayouts(response.data?.data?.results ?? []);
-        setTotalCount(response.data?.data?.count ?? 0);
-        setTotalPages(response.data?.data?.total_pages ?? 1);
+        let filteredPayouts = response.data?.data?.results ?? [];
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          filteredPayouts = filteredPayouts.filter((payout: PayoutRequest) => {
+            const payoutDate = new Date(payout.created_at).toISOString().split('T')[0];
+            return payoutDate === createdDate;
+          });
+        }
+        
+        setPayouts(filteredPayouts);
+        setTotalCount(createdDate ? filteredPayouts.length : (response.data?.data?.count ?? 0));
+        setTotalPages(createdDate ? Math.ceil(filteredPayouts.length / pageSize) : (response.data?.data?.total_pages ?? 1));
       } else {
         const errorMsg = response?.data?.message || "Failed to fetch payout requests";
         setError(errorMsg);
@@ -111,11 +122,15 @@ export default function PayoutsPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, activeTab, payoutTypeFilter]);
+  }, [page, pageSize, activeTab, payoutTypeFilter, createdDate]);
 
   useEffect(() => {
     fetchPayouts();
   }, [fetchPayouts]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [createdDate]);
 
   const handleTabClick = (tab: PayoutStatus | "ALL") => {
     setActiveTab(tab);
@@ -285,6 +300,27 @@ export default function PayoutsPage() {
               className={styles.clearSearch}
               onClick={() => setSearchQuery("")}
               title="Clear search"
+            >
+              ×
+            </button>
+          )}
+        </div>
+
+        <div className={styles.dateFilterWrapper}>
+          <label htmlFor="payoutCreatedDate" className={styles.dateLabel}>Date:</label>
+          <input
+            type="date"
+            id="payoutCreatedDate"
+            value={createdDate}
+            onChange={(e) => setCreatedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {createdDate && (
+            <button
+              type="button"
+              onClick={() => setCreatedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
             >
               ×
             </button>

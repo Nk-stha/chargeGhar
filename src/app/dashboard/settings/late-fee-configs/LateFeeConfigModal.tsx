@@ -132,7 +132,6 @@ const LateFeeConfigModal: React.FC<LateFeeConfigModalProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error("Error saving late fee config:", err);
       setError(err.message || "Failed to save configuration");
     } finally {
       setLoading(false);

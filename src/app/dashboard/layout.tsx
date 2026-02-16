@@ -50,7 +50,6 @@ export default function DashboardLayout({
                 setIsAuthenticated(true);
             }
         } catch (error) {
-            console.error('Invalid token:', error);
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             router.push('/login');

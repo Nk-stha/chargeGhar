@@ -645,3 +645,112 @@
 .clickableRow:hover {
     background-color: #1a1a1a;
 }
+
+/* New Column Styles */
+.stationNameCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.stationName {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.serialNumber {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.locationCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.address {
+    color: #e0e0e0;
+}
+
+.landmark {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.statusCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.maintenanceBadge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #ffc107;
+}
+
+.slotsCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.totalSlots {
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.slotBreakdown {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.powerbanksCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.totalPowerbanks {
+    font-weight: 600;
+    color: #e0e0e0;
+}
+
+.availablePowerbanks {
+    font-size: 0.75rem;
+    color: #47b216;
+}
+
+.utilizationCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.amenitiesCell {
+    display: flex;
+    align-items: center;
+}
+
+.amenitiesCount {
+    font-size: 0.85rem;
+    color: #47b216;
+}
+
+.noAmenities {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.heartbeat {
+    font-size: 0.85rem;
+    color: #888;
+}

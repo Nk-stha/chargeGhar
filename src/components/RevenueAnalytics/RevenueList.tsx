@@ -30,6 +30,7 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [selectedTransaction, setSelectedTransaction] = useState<RevenueTransaction | null>(null);
+  const [createdDate, setCreatedDate] = useState<string>("");
 
   const [debouncedSearch, setDebouncedSearch] = useState("");
 
@@ -44,6 +45,10 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
     setPage(1);
   }, [debouncedSearch]);
 
+  useEffect(() => {
+    setPage(1);
+  }, [createdDate]);
+
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
@@ -55,18 +60,46 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
       });
 
       if (response.success) {
-        setTransactions(response.data.results);
-        setTotalCount(response.data.pagination.total_count);
-        setTotalPages(response.data.pagination.total_pages);
-        if (onSummaryUpdate) {
-          onSummaryUpdate(response.data.summary);
+        let filteredTransactions = response.data.results;
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          filteredTransactions = filteredTransactions.filter((transaction: RevenueTransaction) => {
+            const transactionDate = new Date(transaction.created_at).toISOString().split('T')[0];
+            return transactionDate === createdDate;
+          });
+          
+          // Recalculate summary for filtered data
+          const filteredSummary = {
+            total_transactions: filteredTransactions.length,
+            total_gross: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.gross_amount || "0"), 0),
+            total_vat: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.vat_amount || "0"), 0),
+            total_service_charge: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.service_charge || "0"), 0),
+            total_net: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.net_amount || "0"), 0),
+            total_chargeghar_share: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.chargeghar_share || "0"), 0),
+            total_franchise_share: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.franchise_share || "0"), 0),
+            total_vendor_share: filteredTransactions.reduce((sum, t) => sum + parseFloat(t.vendor_share || "0"), 0),
+          };
+          
+          setTransactions(filteredTransactions);
+          setTotalCount(filteredTransactions.length);
+          setTotalPages(Math.ceil(filteredTransactions.length / pageSize));
+          if (onSummaryUpdate) {
+            onSummaryUpdate(filteredSummary);
+          }
+        } else {
+          setTransactions(response.data.results);
+          setTotalCount(response.data.pagination.total_count);
+          setTotalPages(response.data.pagination.total_pages);
+          if (onSummaryUpdate) {
+            onSummaryUpdate(response.data.summary);
+          }
         }
       } else {
         setError(response.message || "Failed to fetch revenue data");
         setTransactions([]);
       }
     } catch (err: unknown) {
-      console.error("Error fetching revenue analytics:", err);
       const apiError = extractApiError(err, "An error occurred while fetching revenue data");
       if (apiError.statusCode === 404) {
         toast.error("Revenue analytics feature is not yet available. Please contact your administrator.");
@@ -77,7 +110,7 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, debouncedSearch, onSummaryUpdate]);
+  }, [page, pageSize, debouncedSearch, createdDate, onSummaryUpdate]);
 
   useEffect(() => {
     fetchData();
@@ -147,6 +180,26 @@ const RevenueList: React.FC<RevenueListProps> = ({ onSummaryUpdate }) => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+        <div className={styles.dateFilterWrapper}>
+          <label htmlFor="revenueCreatedDate" className={styles.dateLabel}>Date:</label>
+          <input
+            type="date"
+            id="revenueCreatedDate"
+            value={createdDate}
+            onChange={(e) => setCreatedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {createdDate && (
+            <button
+              type="button"
+              onClick={() => setCreatedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
+            >
+              ×
+            </button>
+          )}
         </div>
       </div>
 

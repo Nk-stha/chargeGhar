@@ -59,7 +59,6 @@ const UserPointsHistoryPage: React.FC = () => {
         setError("Failed to load points history");
       }
     } catch (err: any) {
-      console.error("Error fetching points history:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load points history. Please try again.";

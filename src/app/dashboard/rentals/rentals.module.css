@@ -231,6 +231,96 @@
     cursor: not-allowed;
 }
 
+/* Date Filters */
+.dateFilters {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.dateInputGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.dateLabel {
+    font-size: 0.75rem;
+    color: #999;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dateInput {
+    padding: 0.75rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    min-width: 150px;
+}
+
+.dateInput:focus {
+    outline: none;
+    border-color: #82ea80;
+    box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
+}
+
+.dateInput::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.clearFiltersBtn {
+    padding: 0.75rem 1rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.clearFiltersBtn:hover {
+    background: #222;
+    border-color: #ef4444;
+}
+
+/* Active Filters Indicator */
+.activeFilters {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(71, 178, 22, 0.1);
+    border: 1px solid rgba(71, 178, 22, 0.3);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+    color: #82ea80;
+}
+
+.activeFilters span:first-of-type {
+    font-weight: 600;
+}
+
+.filterTag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    background: rgba(71, 178, 22, 0.2);
+    border: 1px solid rgba(71, 178, 22, 0.4);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #fff;
+    font-weight: 500;
+}
 
 
 /* Table Cell Content */
@@ -396,26 +486,6 @@
     border-color: #82ea80;
 }
 
-
-
-.clearFiltersBtn {
-    margin-top: 1rem;
-    padding: 0.6rem 1.2rem;
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #82ea80;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.clearFiltersBtn:hover {
-    background: #222;
-    border-color: #82ea80;
-}
-
 /* Responsive Design */
 @media (max-width: 1024px) {
     .container {
@@ -450,6 +520,34 @@
 
     .searchForm {
         flex-direction: column;
+    }
+
+    .dateFilters {
+        flex-direction: column;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .dateInputGroup {
+        width: 100%;
+    }
+
+    .dateInput {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .clearFiltersBtn {
+        width: 100%;
+    }
+
+    .activeFilters {
+        flex-wrap: wrap;
+        font-size: 0.8rem;
+    }
+
+    .filterTag {
+        font-size: 0.75rem;
     }
 
     .tabs {
@@ -513,4 +611,76 @@
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
     }
+}
+
+/* New Column Styles */
+.rentalCodeCell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.createdDate {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.powerbankSerial {
+    font-size: 0.85rem;
+    color: #e0e0e0;
+    font-family: monospace;
+}
+
+.timeInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.startTime {
+    font-size: 0.85rem;
+    color: #e0e0e0;
+}
+
+.endTime {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.dueInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.onTime {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    background-color: rgba(71, 178, 22, 0.2);
+    color: #47b216;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.late {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 8px;
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.amountInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.overdueAmount {
+    font-size: 0.75rem;
+    color: #ef4444;
+    font-weight: 600;
 }

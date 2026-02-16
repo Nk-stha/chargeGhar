@@ -38,10 +38,11 @@ const PartnerRevenueAnalytics: React.FC = () => {
   const [data, setData] = useState<PartnerRevenueData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createdDate, setCreatedDate] = useState<string>("");
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [createdDate]);
 
   const fetchAnalytics = async () => {
     try {
@@ -53,7 +54,32 @@ const PartnerRevenueAnalytics: React.FC = () => {
       });
 
       if (response?.data?.success) {
-        setData(response.data.data);
+        let transactions = response.data.data.results;
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          transactions = transactions.filter((transaction: RevenueTransaction) => {
+            const transactionDate = new Date(transaction.created_at).toISOString().split('T')[0];
+            return transactionDate === createdDate;
+          });
+          
+          // Recalculate summary for filtered data
+          const filteredSummary = {
+            total_transactions: transactions.length,
+            total_gross: transactions.reduce((sum: number, t: RevenueTransaction) => sum + parseFloat(t.gross_amount || "0"), 0),
+            total_net: transactions.reduce((sum: number, t: RevenueTransaction) => sum + parseFloat(t.net_amount || "0"), 0),
+            total_chargeghar_share: transactions.reduce((sum: number, t: RevenueTransaction) => sum + parseFloat(t.chargeghar_share || "0"), 0),
+            total_franchise_share: transactions.reduce((sum: number, t: RevenueTransaction) => sum + parseFloat(t.franchise_share || "0"), 0),
+            total_vendor_share: transactions.reduce((sum: number, t: RevenueTransaction) => sum + parseFloat(t.vendor_share || "0"), 0),
+          };
+          
+          setData({
+            results: transactions,
+            summary: filteredSummary,
+          });
+        } else {
+          setData(response.data.data);
+        }
       } else {
         setError("Failed to load analytics");
       }
@@ -140,17 +166,31 @@ const PartnerRevenueAnalytics: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <h2 style={{ 
-        fontSize: '1rem', 
-        fontWeight: 600, 
-        color: '#e0e0e0', 
-        margin: '0 0 0.5rem 0',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem'
-      }}>
-        <FiBriefcase /> Partner Revenue Analytics
-      </h2>
+      <div className={styles.header}>
+        <h2 className={styles.title}>
+          <FiBriefcase /> Partner Revenue Analytics
+        </h2>
+        <div className={styles.dateFilter}>
+          <label htmlFor="revenueCreatedDate" className={styles.dateLabel}>Date:</label>
+          <input
+            type="date"
+            id="revenueCreatedDate"
+            value={createdDate}
+            onChange={(e) => setCreatedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {createdDate && (
+            <button
+              type="button"
+              onClick={() => setCreatedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
+            >
+              ×
+            </button>
+          )}
+        </div>
+      </div>
       <div className={styles.statsRow}>
         <div className={`${styles.statCard} ${styles.borderTotal}`}>
           <p className={styles.statLabel}>Total Partners</p>

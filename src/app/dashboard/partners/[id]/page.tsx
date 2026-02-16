@@ -35,7 +35,6 @@ export default function PartnerDetailPage() {
           setError(response.message || "Failed to load partner details");
         }
       } catch (err: any) {
-        console.error("Error fetching partner:", err);
         setError(err.message || "Failed to load partner details");
       } finally {
         setLoading(false);
@@ -71,7 +70,6 @@ export default function PartnerDetailPage() {
         setPartner(response.data);
       }
     } catch (err: any) {
-      console.error("Error refreshing partner data:", err);
       throw err;
     }
   };

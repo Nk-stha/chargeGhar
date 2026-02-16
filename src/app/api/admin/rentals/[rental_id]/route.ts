@@ -3,40 +3,30 @@ import axios from "axios";
 import { AxiosError } from "axios";
 
 export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ rental_id: string }> },
+  request: NextRequest,
+  context: { params: Promise<{ rental_id: string }> }
 ) {
   try {
-    const authorization = req.headers.get("Authorization");
+    const { rental_id } = await context.params;
+    const authorization = request.headers.get("Authorization");
 
     if (!authorization) {
       return NextResponse.json(
-        { message: "Authorization header is required" },
-        { status: 401 },
+        { success: false, message: "Authorization header missing" },
+        { status: 401 }
       );
     }
 
-    const { rental_id } = await params;
+    const url = `${process.env.BASE_URL}/admin/rentals/${rental_id}`;
 
-    if (!rental_id) {
-      return NextResponse.json(
-        { message: "Rental ID is required" },
-        { status: 400 },
-      );
-    }
-
-    const response = await axios.get(
-      `${process.env.BASE_URL}/admin/rentals/${rental_id}`,
-      {
-        headers: {
-          Authorization: authorization,
-        },
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: authorization,
       },
-    );
+    });
 
     return NextResponse.json(response.data);
   } catch (error: any) {
-    console.error("Admin rental detail GET route error:", error);
     const axiosError = error as AxiosError;
     if (axiosError.response) {
       return NextResponse.json(axiosError.response.data, {
@@ -44,8 +34,8 @@ export async function GET(
       });
     }
     return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 },
+      { success: false, message: "Internal server error" },
+      { status: 500 }
     );
   }
 }

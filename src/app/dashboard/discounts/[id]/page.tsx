@@ -52,18 +52,14 @@ export default function DiscountDetailPage() {
     const fetchDiscountDetail = async () => {
       try {
         setLoading(true);
-        console.log("Fetching discount with ID:", discountId);
         const token = localStorage.getItem("accessToken");
         
         const url = `/api/discounts/${discountId}`;
-        console.log("API URL:", url);
-        console.log("Token exists:", !!token);
         
         const response = await axiosInstance.get(url, {
           headers: { Authorization: `Bearer ${token}` },
         });
         
-        console.log("Discount detail response:", response.data);
         
         if (response.data.success) {
           setDiscount(response.data.data);
@@ -71,11 +67,6 @@ export default function DiscountDetailPage() {
           setError(response.data.message || "Failed to load discount details");
         }
       } catch (err: any) {
-        console.error("Error fetching discount:", err);
-        console.error("Error status:", err.response?.status);
-        console.error("Error response:", err.response?.data);
-        console.error("Error message:", err.message);
-        console.error("Full error:", err);
         
         if (err.response?.status === 404) {
           setError("Discount not found. It may have been deleted.");
@@ -88,10 +79,8 @@ export default function DiscountDetailPage() {
     };
 
     if (discountId) {
-      console.log("discountId from params:", discountId);
       fetchDiscountDetail();
     } else {
-      console.error("No discountId found in params");
     }
   }, [discountId]);
 
@@ -147,7 +136,6 @@ export default function DiscountDetailPage() {
         router.push("/dashboard/discounts");
       }
     } catch (err: any) {
-      console.error("Error deleting discount:", err);
       alert(err.response?.data?.message || "Failed to delete discount");
     } finally {
       setDeleteLoading(false);

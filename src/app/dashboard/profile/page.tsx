@@ -45,7 +45,6 @@ export default function ProfilePage() {
         setError("Failed to fetch profile data");
       }
     } catch (err: any) {
-      console.error("Error fetching profile:", err);
       setError(
         err.response?.data?.message ||
           "Unable to load profile. Please try again.",

@@ -61,7 +61,6 @@ export default function StationDetailsPage() {
           setError("Failed to load station details");
         }
       } catch (err: any) {
-        console.error("Error fetching station:", err);
         setError(
           err.response?.data?.message || "Failed to load station details",
         );
@@ -127,7 +126,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || `Failed to execute ${action}`);
       }
     } catch (err: any) {
-      console.error(`Error executing ${action}:`, err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -169,7 +167,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || "Failed to eject powerbank");
       }
     } catch (err: any) {
-      console.error("Error ejecting powerbank:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -264,7 +261,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || "Failed to reboot station");
       }
     } catch (err: any) {
-      console.error("Error rebooting station:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -307,7 +303,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || "Failed to scan WiFi networks");
       }
     } catch (err: any) {
-      console.error("Error scanning WiFi networks:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -359,7 +354,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || "Failed to connect to WiFi");
       }
     } catch (err: any) {
-      console.error("Error connecting to WiFi:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -401,7 +395,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || "Failed to set volume");
       }
     } catch (err: any) {
-      console.error("Error setting volume:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {
@@ -446,7 +439,6 @@ export default function StationDetailsPage() {
         toast.error(response.message || `Failed to set ${modeLabel}`);
       }
     } catch (err: any) {
-      console.error("Error setting network mode:", err);
       
       // Handle different error types
       if (err.response?.status === 401) {

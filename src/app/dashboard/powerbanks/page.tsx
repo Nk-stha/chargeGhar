@@ -58,7 +58,6 @@ export default function PowerBanksPage() {
         setError("Failed to fetch powerbanks");
       }
     } catch (err: unknown) {
-      console.error("Error fetching powerbanks:", err);
       const errorMessage = err instanceof Error ? err.message : "Failed to load powerbanks";
       setError(errorMessage);
     } finally {
@@ -74,7 +73,6 @@ export default function PowerBanksPage() {
         setAnalytics(response.data);
       }
     } catch (err) {
-      console.error("Error fetching analytics:", err);
     }
   };
 

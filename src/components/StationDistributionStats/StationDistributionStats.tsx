@@ -38,10 +38,11 @@ const StationDistributionStats: React.FC = () => {
   const [distributions, setDistributions] = useState<StationDistribution[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [createdDate, setCreatedDate] = useState<string>("");
 
   useEffect(() => {
     fetchDistributions();
-  }, []);
+  }, [createdDate]);
 
   const fetchDistributions = async () => {
     try {
@@ -55,7 +56,17 @@ const StationDistributionStats: React.FC = () => {
       const data: StationDistributionResponse = await response.json();
 
       if (data.success) {
-        setDistributions(data.data.results);
+        let filteredDistributions = data.data.results;
+        
+        // Filter by created_at on frontend if date is selected
+        if (createdDate) {
+          filteredDistributions = filteredDistributions.filter((distribution: StationDistribution) => {
+            const distributionDate = new Date(distribution.created_at).toISOString().split('T')[0];
+            return distributionDate === createdDate;
+          });
+        }
+        
+        setDistributions(filteredDistributions);
       } else {
         setError("Failed to load station distributions");
         toast.error("Failed to load station distributions");
@@ -154,6 +165,26 @@ const StationDistributionStats: React.FC = () => {
         <h2 className={styles.title}>
           <FiLayers /> Station Distribution Statistics
         </h2>
+        <div className={styles.dateFilter}>
+          <label htmlFor="distributionCreatedDate" className={styles.dateLabel}>Date:</label>
+          <input
+            type="date"
+            id="distributionCreatedDate"
+            value={createdDate}
+            onChange={(e) => setCreatedDate(e.target.value)}
+            className={styles.dateInput}
+          />
+          {createdDate && (
+            <button
+              type="button"
+              onClick={() => setCreatedDate("")}
+              className={styles.clearDateBtn}
+              title="Clear date filter"
+            >
+              ×
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.content}>
@@ -196,7 +227,23 @@ const StationDistributionStats: React.FC = () => {
               <span className={styles.metricValue}>
                 {xfCount} / {yvCount} / {zfvCount}
               </span>
-              <span className={styles.metricSubtext}>XF / YV / ZFV</span>
+              <span className={styles.metricSubtext}>
+                ChargeGhar→Franchise / ChargeGhar→Vendor / Franchise→Vendor
+              </span>
+              <div className={styles.metricBreakdown}>
+                <div className={styles.breakdownTag} style={{ backgroundColor: "rgba(59, 130, 246, 0.15)", color: "#3b82f6" }}>
+                  <span className={styles.breakdownTagLabel}>C→F:</span>
+                  <span className={styles.breakdownTagValue}>{xfCount} ({distributions.length > 0 ? ((xfCount / distributions.length) * 100).toFixed(1) : 0}%)</span>
+                </div>
+                <div className={styles.breakdownTag} style={{ backgroundColor: "rgba(139, 92, 246, 0.15)", color: "#8b5cf6" }}>
+                  <span className={styles.breakdownTagLabel}>C→V:</span>
+                  <span className={styles.breakdownTagValue}>{yvCount} ({distributions.length > 0 ? ((yvCount / distributions.length) * 100).toFixed(1) : 0}%)</span>
+                </div>
+                <div className={styles.breakdownTag} style={{ backgroundColor: "rgba(245, 158, 11, 0.15)", color: "#f59e0b" }}>
+                  <span className={styles.breakdownTagLabel}>F→V:</span>
+                  <span className={styles.breakdownTagValue}>{zfvCount} ({distributions.length > 0 ? ((zfvCount / distributions.length) * 100).toFixed(1) : 0}%)</span>
+                </div>
+              </div>
             </div>
           </div>
 

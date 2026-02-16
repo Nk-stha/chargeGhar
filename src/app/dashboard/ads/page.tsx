@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { FiRefreshCw, FiSearch, FiX } from "react-icons/fi";
@@ -30,9 +30,10 @@ function AdsPage() {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [pageSize] = useState<number>(20);
   const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
+  const [submittedDate, setSubmittedDate] = useState<string>("");
 
   const fetchAds = useCallback(
-    async (status?: AdStatus | "ALL", page: number = 1, search?: string) => {
+    async (status?: AdStatus | "ALL", page: number = 1, search?: string, dateSubmitted?: string) => {
       try {
         setLoading(true);
         setError(null);
@@ -53,11 +54,22 @@ function AdsPage() {
         const response = await adsService.getAdRequests(filters);
 
         if (response.success) {
-          setAds(response.data || []);
-          setTotalCount((response.data || []).length);
+          let filteredAds = response.data || [];
+          
+          // Filter by submitted_at on frontend if date is selected
+          if (dateSubmitted) {
+            filteredAds = filteredAds.filter((ad) => {
+              if (!ad?.submitted_at) return false;
+              const adDate = new Date(ad.submitted_at).toISOString().split('T')[0];
+              return adDate === dateSubmitted;
+            });
+          }
+          
+          setAds(filteredAds);
+          setTotalCount(filteredAds.length);
           
           const counts: Record<string, number> = {};
-          (response.data || []).forEach((ad) => {
+          filteredAds.forEach((ad) => {
             if (ad?.status) {
               counts[ad.status] = (counts[ad.status] || 0) + 1;
             }
@@ -86,9 +98,10 @@ function AdsPage() {
     fetchAds(
       activeTab === "ALL" ? undefined : activeTab,
       currentPage,
-      searchQuery
+      searchQuery,
+      submittedDate,
     );
-  }, [activeTab, currentPage, fetchAds]);
+  }, [activeTab, currentPage, searchQuery, submittedDate, fetchAds]);
 
   const handleTabClick = (tab: AdStatus | "ALL") => {
     setActiveTab(tab);
@@ -98,10 +111,7 @@ function AdsPage() {
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setCurrentPage(1);
-      fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, searchQuery);
-    }
+    setCurrentPage(1);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,14 +119,23 @@ function AdsPage() {
     // Auto-search when cleared
     if (!e.target.value.trim() && searchQuery) {
       setCurrentPage(1);
-      fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, "");
     }
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
     setCurrentPage(1);
-    fetchAds(activeTab === "ALL" ? undefined : activeTab, 1, "");
+  };
+
+  const handleSubmittedDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSubmittedDate(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearFilters = () => {
+    setSubmittedDate("");
+    setSearchQuery("");
+    setCurrentPage(1);
   };
 
   const handleRefresh = () => {
@@ -124,7 +143,8 @@ function AdsPage() {
     fetchAds(
       activeTab === "ALL" ? undefined : activeTab,
       currentPage,
-      searchQuery
+      searchQuery,
+      submittedDate,
     );
   };
 
@@ -219,6 +239,30 @@ function AdsPage() {
                 </button>
               )}
             </div>
+            
+            {/* Date Filter */}
+            <div className={styles.dateFilters}>
+              <div className={styles.dateInputGroup}>
+                <label htmlFor="adsSubmittedDate" className={styles.dateLabel}>Submitted Date:</label>
+                <input
+                  type="date"
+                  id="adsSubmittedDate"
+                  value={submittedDate}
+                  onChange={handleSubmittedDateChange}
+                  className={styles.dateInput}
+                />
+              </div>
+              {submittedDate && (
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className={styles.clearFiltersBtn}
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+            
             <button type="submit" className={styles.searchBtn} disabled={loading}>
               Search
             </button>
@@ -243,36 +287,43 @@ function AdsPage() {
             <h3>Ad Requests</h3>
             <p>Showing {ads.length} of {totalCount} ad requests</p>
           </div>
+          
+          {/* Desktop Table View */}
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
                   <th>Title</th>
+                  <th>Description</th>
                   <th>Requester</th>
                   <th>Contact</th>
                   <th>Duration</th>
                   <th>Price</th>
                   <th>Stations</th>
+                  <th>Date Range</th>
                   <th>Submitted</th>
+                  <th>Reviewed By</th>
+                  <th>Approved By</th>
+                  <th>Paid At</th>
                   <th className={styles.statusColumn}>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={8} className={styles.loadingState}>
+                    <td colSpan={13} className={styles.loadingState}>
                       Loading ad requests...
                     </td>
                   </tr>
                 ) : error ? (
                   <tr>
-                    <td colSpan={8} className={styles.emptyState}>
+                    <td colSpan={13} className={styles.emptyState}>
                       {error}
                     </td>
                   </tr>
                 ) : ads.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className={styles.emptyState}>
+                    <td colSpan={13} className={styles.emptyState}>
                       {searchQuery
                         ? "No ad requests found matching your search"
                         : "No ad requests available"}
@@ -287,9 +338,14 @@ function AdsPage() {
                         </span>
                       </td>
                       <td>
+                        <span className={ad?.description ? styles.description : styles.descriptionEmpty} title={ad?.description || undefined}>
+                          {ad?.description ? (ad.description.length > 50 ? `${ad.description.substring(0, 50)}...` : ad.description) : "No description"}
+                        </span>
+                      </td>
+                      <td>
                         <div className={styles.requesterInfo}>
                           <span className={styles.requesterName}>{ad?.full_name || "Unknown"}</span>
-                          <span className={styles.requesterEmail}>{ad?.user_email || "No email"}</span>
+                          <span className={styles.requesterEmail}>{ad?.user_email || ad?.user_phone || "No contact"}</span>
                         </div>
                       </td>
                       <td>
@@ -311,8 +367,34 @@ function AdsPage() {
                         </span>
                       </td>
                       <td>
+                        {ad?.start_date && ad?.end_date ? (
+                          <div className={styles.dateRange}>
+                            <span className={styles.dateRangeStart}>{adsService.formatDate(ad.start_date)}</span>
+                            <span className={styles.dateRangeSeparator}>→</span>
+                            <span className={styles.dateRangeEnd}>{adsService.formatDate(ad.end_date)}</span>
+                          </div>
+                        ) : (
+                          <span className={styles.dateRangeEmpty}>Not scheduled</span>
+                        )}
+                      </td>
+                      <td>
                         <span className={styles.date}>
                           {ad?.submitted_at ? adsService.formatDate(ad.submitted_at) : "N/A"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={ad?.reviewed_by_name ? styles.adminName : styles.adminNameEmpty}>
+                          {ad?.reviewed_by_name || "—"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={ad?.approved_by_name ? styles.adminName : styles.adminNameEmpty}>
+                          {ad?.approved_by_name || "—"}
+                        </span>
+                      </td>
+                      <td>
+                        <span className={ad?.paid_at ? styles.date : styles.dateEmpty}>
+                          {ad?.paid_at ? adsService.formatDate(ad.paid_at) : "Not paid"}
                         </span>
                       </td>
                       <td className={styles.statusCell}>
@@ -325,6 +407,115 @@ function AdsPage() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card View */}
+          <div className={styles.mobileCards}>
+            {loading ? (
+              <div className={styles.loadingState}>Loading ad requests...</div>
+            ) : error ? (
+              <div className={styles.emptyState}>{error}</div>
+            ) : ads.length === 0 ? (
+              <div className={styles.emptyState}>
+                {searchQuery
+                  ? "No ad requests found matching your search"
+                  : "No ad requests available"}
+              </div>
+            ) : (
+              ads.map((ad) => (
+                <div
+                  key={ad?.id || Math.random()}
+                  className={styles.adCard}
+                  onClick={() => ad?.id && handleViewDetail(ad.id)}
+                >
+                  <div className={styles.adCardHeader}>
+                    <span className={ad?.title ? styles.adCardTitle : styles.adCardTitleEmpty}>
+                      {ad?.title || "Untitled Ad"}
+                    </span>
+                    <span className={`${styles.statusBadge} ${getStatusBadgeClass(ad?.status || "SUBMITTED")}`}>
+                      {getStatusLabel(ad?.status || "SUBMITTED")}
+                    </span>
+                  </div>
+
+                  <div className={styles.adCardBody}>
+                    <div className={styles.adCardRow}>
+                      <span className={styles.adCardLabel}>Requester</span>
+                      <span className={styles.adCardValue}>{ad?.full_name || "Unknown"}</span>
+                    </div>
+                    <div className={styles.adCardRow}>
+                      <span className={styles.adCardLabel}>Contact</span>
+                      <span className={styles.adCardValue}>{ad?.contact_number || "N/A"}</span>
+                    </div>
+                    <div className={styles.adCardRow}>
+                      <span className={styles.adCardLabel}>Duration</span>
+                      <span className={styles.adCardValue}>
+                        {ad?.duration_days ? `${ad.duration_days} days` : "N/A"}
+                      </span>
+                    </div>
+                    <div className={styles.adCardRow}>
+                      <span className={styles.adCardLabel}>Price</span>
+                      <span className={`${styles.adCardValue} ${ad?.admin_price ? styles.price : styles.priceEmpty}`}>
+                        {ad?.admin_price ? adsService.formatAmount(ad.admin_price) : "N/A"}
+                      </span>
+                    </div>
+                    <div className={styles.adCardRow}>
+                      <span className={styles.adCardLabel}>Stations</span>
+                      <span className={styles.adCardValue}>
+                        {ad?.station_count || 0} station{(ad?.station_count || 0) !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    {(ad?.start_date || ad?.end_date) && (
+                      <div className={styles.adCardRow}>
+                        <span className={styles.adCardLabel}>Date Range</span>
+                        <span className={styles.adCardValue}>
+                          {ad?.start_date && ad?.end_date
+                            ? `${adsService.formatDate(ad.start_date)} → ${adsService.formatDate(ad.end_date)}`
+                            : "Not scheduled"}
+                        </span>
+                      </div>
+                    )}
+                    {ad?.reviewed_by_name && (
+                      <div className={styles.adCardRow}>
+                        <span className={styles.adCardLabel}>Reviewed By</span>
+                        <span className={`${styles.adCardValue} ${styles.adminName}`}>
+                          {ad.reviewed_by_name}
+                        </span>
+                      </div>
+                    )}
+                    {ad?.approved_by_name && (
+                      <div className={styles.adCardRow}>
+                        <span className={styles.adCardLabel}>Approved By</span>
+                        <span className={`${styles.adCardValue} ${styles.adminName}`}>
+                          {ad.approved_by_name}
+                        </span>
+                      </div>
+                    )}
+                    {ad?.paid_at && (
+                      <div className={styles.adCardRow}>
+                        <span className={styles.adCardLabel}>Paid At</span>
+                        <span className={styles.adCardValue}>
+                          {adsService.formatDate(ad.paid_at)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {ad?.description && (
+                    <div className={styles.adCardDescription}>
+                      {ad.description.length > 100
+                        ? `${ad.description.substring(0, 100)}...`
+                        : ad.description}
+                    </div>
+                  )}
+
+                  <div className={styles.adCardFooter}>
+                    <span className={styles.adCardLabel}>
+                      Submitted: {ad?.submitted_at ? adsService.formatDate(ad.submitted_at) : "N/A"}
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

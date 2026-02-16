@@ -44,7 +44,6 @@ const ReferralsPage: React.FC = () => {
         setError("Failed to load referrals analytics");
       }
     } catch (err: any) {
-      console.error("Error fetching referrals analytics:", err);
       const errorMessage =
         err.response?.data?.error?.message ||
         "Failed to load referrals analytics. Please try again.";

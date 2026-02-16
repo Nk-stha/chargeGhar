@@ -87,7 +87,6 @@ const StationsPage: React.FC = () => {
         setDeleteError("Failed to delete station");
       }
     } catch (err: any) {
-      console.error("Error deleting station:", err);
       setDeleteError(
         err.response?.data?.message ||
         "Failed to delete station. It may have active rentals."
@@ -153,22 +152,62 @@ const StationsPage: React.FC = () => {
       header: "Station Name",
       accessor: "station_name",
       render: (_: any, row: Station) => (
-        <span className={styles.stationName}>
-          <FiMapPin className={styles.icon} /> {row.station_name}
-        </span>
+        <div className={styles.stationNameCell}>
+          <span className={styles.stationName}>
+            <FiMapPin className={styles.icon} /> {row.station_name}
+          </span>
+          <span className={styles.serialNumber}>{row.serial_number}</span>
+        </div>
       ),
     },
-    { header: "Location", accessor: "address" },
+    {
+      header: "Location",
+      accessor: "address",
+      render: (_: any, row: Station) => (
+        <div className={styles.locationCell}>
+          <span className={styles.address}>{row.address}</span>
+          {row.landmark && <span className={styles.landmark}>{row.landmark}</span>}
+        </div>
+      ),
+    },
     {
       header: "Status",
       accessor: "status",
-      render: (value: string) => (
-        <span className={`${styles.status} ${styles[value.toLowerCase()]}`}>
-          {value}
-        </span>
+      render: (value: string, row: Station) => (
+        <div className={styles.statusCell}>
+          <span className={`${styles.status} ${styles[value.toLowerCase()]}`}>
+            {value}
+          </span>
+          {row.is_maintenance && (
+            <span className={styles.maintenanceBadge}>Maintenance</span>
+          )}
+        </div>
       ),
     },
-    { header: "Chargers", accessor: "total_slots" },
+    {
+      header: "Slots",
+      accessor: "total_slots",
+      render: (_: any, row: Station) => (
+        <div className={styles.slotsCell}>
+          <span className={styles.totalSlots}>{row.total_slots} Total</span>
+          <span className={styles.slotBreakdown}>
+            {row.available_slots} Available / {row.occupied_slots} Occupied
+          </span>
+        </div>
+      ),
+    },
+    {
+      header: "PowerBanks",
+      accessor: "total_powerbanks",
+      render: (_: any, row: Station) => (
+        <div className={styles.powerbanksCell}>
+          <span className={styles.totalPowerbanks}>{row.total_powerbanks} Total</span>
+          <span className={styles.availablePowerbanks}>
+            {row.available_powerbanks} Available
+          </span>
+        </div>
+      ),
+    },
     {
       header: "Utilization",
       accessor: "utilization",
@@ -186,6 +225,33 @@ const StationsPage: React.FC = () => {
           </div>
         );
       },
+    },
+    {
+      header: "Amenities",
+      accessor: "amenities",
+      render: (_: any, row: Station) => (
+        <div className={styles.amenitiesCell}>
+          {row.amenities && row.amenities.length > 0 ? (
+            <span className={styles.amenitiesCount}>{row.amenities.length} amenities</span>
+          ) : (
+            <span className={styles.noAmenities}>None</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Last Heartbeat",
+      accessor: "last_heartbeat",
+      render: (value: string | null) => (
+        <span className={styles.heartbeat}>
+          {value ? new Date(value).toLocaleString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          }) : "Never"}
+        </span>
+      ),
     },
     {
       header: "Actions",

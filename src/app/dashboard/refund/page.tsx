@@ -37,7 +37,6 @@ const RefundsPage: React.FC = () => {
 
             setRefunds(data.data);
         } catch (err: any) {
-            console.error(err);
             setError(err.message || "Something went wrong while fetching refunds");
         } finally {
             setLoading(false);
@@ -75,7 +74,6 @@ const RefundsPage: React.FC = () => {
             setActionType(null);
             setSelectedRefund(null);
         } catch (err: any) {
-            console.error(err);
             setError(err.message || "Something went wrong while processing refund");
         }
     };
