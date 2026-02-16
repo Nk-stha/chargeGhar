@@ -727,6 +727,249 @@
     flex-shrink: 0;
 }
 
+/* Check Station Modal */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modalContent {
+    background-color: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1200px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.modalTitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #47b216;
+    margin: 0;
+}
+
+.modalCloseBtn {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 32px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.modalCloseBtn:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+}
+
+.modalBody {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.checkInfoCard {
+    background-color: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.checkInfoRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #222;
+}
+
+.checkInfoRow:last-child {
+    border-bottom: none;
+}
+
+.checkInfoLabel {
+    font-size: 14px;
+    color: #888;
+    font-weight: 500;
+}
+
+.checkInfoValue {
+    font-size: 14px;
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.checkSlotsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.checkSlotCard {
+    background-color: #1a1a1a;
+    border: 2px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s ease;
+}
+
+.checkSlotCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.checkSlotCard.checkSlotOk {
+    border-color: #47b216;
+    background: rgba(71, 178, 22, 0.05);
+}
+
+.checkSlotCard.checkSlotNone {
+    border-color: #666;
+    background: rgba(102, 102, 102, 0.05);
+}
+
+.checkSlotHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.checkSlotNumber {
+    font-weight: 600;
+    color: #e0e0e0;
+    font-size: 16px;
+}
+
+.checkSlotStatus {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.checkSlotStatus.statusOk {
+    background-color: rgba(71, 178, 22, 0.2);
+    color: #47b216;
+}
+
+.checkSlotStatus.statusNone {
+    background-color: rgba(136, 136, 136, 0.2);
+    color: #888;
+}
+
+.checkSlotBody {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkSlotInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.checkSlotLabel {
+    color: #888;
+    font-weight: 500;
+}
+
+.checkSlotValue {
+    color: #e0e0e0;
+    font-weight: 600;
+}
+
+.checkBatteryBar {
+    height: 8px;
+    background: #0b0b0b;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 4px 0;
+}
+
+.checkBatteryFill {
+    height: 100%;
+    background: linear-gradient(90deg, #47b216, #56d61f);
+    transition: width 0.3s ease;
+    border-radius: 4px;
+}
+
+.checkSlotEmpty {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.checkSlotEmpty p {
+    color: #666;
+    font-style: italic;
+    font-size: 14px;
+    margin: 0;
+}
+
+.modalFooter {
+    padding: 20px 24px;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modalCloseButton {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modalCloseButton:hover {
+    background-color: #47b216;
+    border-color: #47b216;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(71, 178, 22, 0.3);
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 20px;
@@ -772,5 +1015,30 @@
 
     .hardwareBtn {
         width: 100%;
+    }
+
+    .modalContent {
+        max-width: 100%;
+        max-height: 95vh;
+    }
+
+    .modalHeader {
+        padding: 16px;
+    }
+
+    .modalTitle {
+        font-size: 20px;
+    }
+
+    .modalBody {
+        padding: 16px;
+    }
+
+    .checkSlotsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .modalFooter {
+        padding: 16px;
     }
 }

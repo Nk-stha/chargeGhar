@@ -38,6 +38,8 @@ export default function StationDetailsPage() {
   const [wifiConnectModalOpen, setWifiConnectModalOpen] = useState(false);
   const [wifiNetworks, setWifiNetworks] = useState<string[]>([]);
   const [volumeModalOpen, setVolumeModalOpen] = useState(false);
+  const [checkStationData, setCheckStationData] = useState<any>(null);
+  const [checkStationModalOpen, setCheckStationModalOpen] = useState(false);
 
   const fetchStationDetails = useCallback(
     async (isRefresh: boolean = false) => {
@@ -120,6 +122,13 @@ export default function StationDetailsPage() {
 
       if (response.success) {
         toast.success(`${action} command sent successfully!`);
+        
+        // Show slot data in a modal
+        if (response.data?.slots) {
+          setCheckStationData(response.data);
+          setCheckStationModalOpen(true);
+        }
+        
         // Refresh station details after action
         fetchStationDetails(true);
       } else {
@@ -990,6 +999,117 @@ export default function StationDetailsPage() {
         stationId={station.id}
         onSetVolume={handleSetVolume}
       />
+
+      {/* Check Station Modal */}
+      {checkStationModalOpen && checkStationData && (
+        <div className={styles.modalOverlay} onClick={() => setCheckStationModalOpen(false)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Station Check Results</h2>
+              <button 
+                className={styles.modalCloseBtn}
+                onClick={() => setCheckStationModalOpen(false)}
+                title="Close"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              {/* Station Info */}
+              <div className={styles.checkInfoCard}>
+                <div className={styles.checkInfoRow}>
+                  <span className={styles.checkInfoLabel}>Station IMEI:</span>
+                  <span className={styles.checkInfoValue}>{checkStationData.station_imei}</span>
+                </div>
+                <div className={styles.checkInfoRow}>
+                  <span className={styles.checkInfoLabel}>Action Type:</span>
+                  <span className={styles.checkInfoValue}>{checkStationData.action_type}</span>
+                </div>
+                <div className={styles.checkInfoRow}>
+                  <span className={styles.checkInfoLabel}>Message:</span>
+                  <span className={styles.checkInfoValue}>{checkStationData.message}</span>
+                </div>
+              </div>
+
+              {/* Slots Grid */}
+              <div className={styles.checkSlotsGrid}>
+                {checkStationData.slots?.map((slot: any) => (
+                  <div 
+                    key={slot.index} 
+                    className={`${styles.checkSlotCard} ${
+                      slot.status === 1 ? styles.checkSlotOk : styles.checkSlotNone
+                    }`}
+                  >
+                    <div className={styles.checkSlotHeader}>
+                      <span className={styles.checkSlotNumber}>Slot {slot.index}</span>
+                      <span className={`${styles.checkSlotStatus} ${
+                        slot.status === 1 ? styles.statusOk : styles.statusNone
+                      }`}>
+                        {slot.message}
+                      </span>
+                    </div>
+
+                    <div className={styles.checkSlotBody}>
+                      {slot.status === 1 ? (
+                        <>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Serial Number:</span>
+                            <span className={styles.checkSlotValue}>{slot.sn_as_string}</span>
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Power:</span>
+                            <span className={styles.checkSlotValue}>{slot.power}%</span>
+                          </div>
+                          <div className={styles.checkBatteryBar}>
+                            <div 
+                              className={styles.checkBatteryFill}
+                              style={{ width: `${slot.power}%` }}
+                            />
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Temperature:</span>
+                            <span className={styles.checkSlotValue}>{slot.temp}°C</span>
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Voltage:</span>
+                            <span className={styles.checkSlotValue}>{slot.voltage}V</span>
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Current:</span>
+                            <span className={styles.checkSlotValue}>{slot.current}A</span>
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Locked:</span>
+                            <span className={styles.checkSlotValue}>{slot.locked ? 'Yes' : 'No'}</span>
+                          </div>
+                          <div className={styles.checkSlotInfo}>
+                            <span className={styles.checkSlotLabel}>Micro Switch:</span>
+                            <span className={styles.checkSlotValue}>{slot.micro_switch}</span>
+                          </div>
+                        </>
+                      ) : (
+                        <div className={styles.checkSlotEmpty}>
+                          <p>No powerbank detected</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button 
+                className={styles.modalCloseButton}
+                onClick={() => setCheckStationModalOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

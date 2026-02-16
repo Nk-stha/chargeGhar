@@ -18,6 +18,7 @@ import {
   RentalAnalyticsData,
   AnalyticsPeriod,
 } from "../../types/analytics.types";
+import { FiCalendar, FiFilter } from "react-icons/fi";
 
 const RentalOverTime: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>("daily");
@@ -25,6 +26,9 @@ const RentalOverTime: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   // Detect screen size for responsive labels
   useEffect(() => {
@@ -43,11 +47,17 @@ const RentalOverTime: React.FC = () => {
       setError(null);
 
       const dateRange = analyticsService.getDefaultDateRange(selectedPeriod);
-      const response = await analyticsService.getRentalsOverTime({
+      const params: any = {
         period: selectedPeriod,
-        start_date: dateRange.start_date,
-        end_date: dateRange.end_date,
-      });
+        start_date: startDate || dateRange.start_date,
+        end_date: endDate || dateRange.end_date,
+      };
+
+      if (status) {
+        params.status = status;
+      }
+
+      const response = await analyticsService.getRentalsOverTime(params);
 
       if (response.success) {
         setData(response.data);
@@ -55,7 +65,6 @@ const RentalOverTime: React.FC = () => {
         setError("Failed to fetch rentals data");
       }
     } catch (err) {
-      console.error("Error fetching rentals data:", err);
       setError("Error loading rentals data. Please try again.");
     } finally {
       setLoading(false);
@@ -64,7 +73,7 @@ const RentalOverTime: React.FC = () => {
 
   useEffect(() => {
     fetchRentalsData(period);
-  }, [period]);
+  }, [period, status, startDate, endDate]);
 
   const handlePeriodChange = (newPeriod: AnalyticsPeriod) => {
     setPeriod(newPeriod);
@@ -173,6 +182,68 @@ const RentalOverTime: React.FC = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className={styles.filtersSection}>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiFilter className={styles.filterIcon} />
+            Status
+          </label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="PENDING">Pending</option>
+            <option value="CANCELLED">Cancelled</option>
+            <option value="OVERDUE">Overdue</option>
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiCalendar className={styles.filterIcon} />
+            Start Date
+          </label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className={styles.filterInput}
+          />
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiCalendar className={styles.filterIcon} />
+            End Date
+          </label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className={styles.filterInput}
+          />
+        </div>
+
+        {(status || startDate || endDate) && (
+          <button
+            onClick={() => {
+              setStatus("");
+              setStartDate("");
+              setEndDate("");
+            }}
+            className={styles.clearFiltersBtn}
+            title="Clear all filters"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <div className={styles.chartContainer}>

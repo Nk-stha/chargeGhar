@@ -13,14 +13,27 @@ import {
   CartesianGrid,
   Legend,
 } from "recharts";
-import { useRevenueData } from "../hooks/useRevenueData";
+import { analyticsService } from "../lib/api/analytics.service";
 import { AnalyticsPeriod, ChartDataPoint } from "../types/dashboard.types";
+import { FiCalendar, FiFilter } from "react-icons/fi";
+
+interface RevenueData {
+  total_revenue: number;
+  currency: string;
+  chart_data: ChartDataPoint[];
+  start_date: string;
+  end_date: string;
+}
 
 const RevenueChart: React.FC = () => {
   const [period, setPeriod] = useState<AnalyticsPeriod>("daily");
   const [isMobile, setIsMobile] = useState<boolean>(false);
-  
-  const { data, loading, error, refetch } = useRevenueData(period);
+  const [data, setData] = useState<RevenueData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [transactionType, setTransactionType] = useState<string>("");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
 
   // Detect screen size for responsive labels
   useEffect(() => {
@@ -32,6 +45,40 @@ const RevenueChart: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const dateRange = analyticsService.getDefaultDateRange(period);
+      const params: any = {
+        period,
+        start_date: startDate || dateRange.start_date,
+        end_date: endDate || dateRange.end_date,
+      };
+
+      if (transactionType) {
+        params.transaction_type = transactionType;
+      }
+
+      const response = await analyticsService.getRevenueOverTime(params);
+
+      if (response.success) {
+        setData(response.data as unknown as RevenueData);
+      } else {
+        setError("Failed to fetch revenue data");
+      }
+    } catch (err) {
+      setError("Error loading revenue data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [period, transactionType, startDate, endDate]);
 
   const handlePeriodChange = (newPeriod: AnalyticsPeriod) => {
     setPeriod(newPeriod);
@@ -107,7 +154,7 @@ const RevenueChart: React.FC = () => {
       <div className={styles.card}>
         <div className={styles.errorContainer}>
           <p className={styles.errorText}>{error}</p>
-          <button onClick={refetch} className={styles.retryButton}>
+          <button onClick={fetchData} className={styles.retryButton}>
             Retry
           </button>
         </div>
@@ -148,6 +195,68 @@ const RevenueChart: React.FC = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className={styles.filtersSection}>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiFilter className={styles.filterIcon} />
+            Transaction Type
+          </label>
+          <select
+            value={transactionType}
+            onChange={(e) => setTransactionType(e.target.value)}
+            className={styles.filterSelect}
+          >
+            <option value="">All Types</option>
+            <option value="RENTAL">Rental</option>
+            <option value="RENTAL_DUE">Rental Due</option>
+            <option value="TOPUP">Top-up</option>
+            <option value="FINE">Fine</option>
+            <option value="REFUND">Refund</option>
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiCalendar className={styles.filterIcon} />
+            Start Date
+          </label>
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className={styles.filterInput}
+          />
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>
+            <FiCalendar className={styles.filterIcon} />
+            End Date
+          </label>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className={styles.filterInput}
+          />
+        </div>
+
+        {(transactionType || startDate || endDate) && (
+          <button
+            onClick={() => {
+              setTransactionType("");
+              setStartDate("");
+              setEndDate("");
+            }}
+            className={styles.clearFiltersBtn}
+            title="Clear all filters"
+          >
+            Clear
+          </button>
+        )}
       </div>
 
       <div className={styles.chartContainer}>

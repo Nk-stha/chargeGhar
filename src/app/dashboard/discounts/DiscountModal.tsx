@@ -51,7 +51,7 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
 
   const [formData, setFormData] = useState({
     station_id: discount?.station_id || "",
-    package_id: discount?.package_id || "",
+    package_ids: discount?.package_id ? [discount.package_id] : [] as string[],
     discount_percent: discount?.discount_percent?.toString() || "",
     max_total_uses: discount?.max_total_uses?.toString() || "",
     max_uses_per_user: discount?.max_uses_per_user?.toString() || "",
@@ -138,6 +138,18 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePackageToggle = (packageId: string) => {
+    setFormData((prev) => {
+      const isSelected = prev.package_ids.includes(packageId);
+      return {
+        ...prev,
+        package_ids: isSelected
+          ? prev.package_ids.filter((id) => id !== packageId)
+          : [...prev.package_ids, packageId],
+      };
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -149,8 +161,8 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         return;
       }
 
-      if (!formData.package_id) {
-        setError("Please select a package");
+      if (formData.package_ids.length === 0) {
+        setError("Please select at least one package");
         return;
       }
     }
@@ -178,10 +190,9 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
       const token = localStorage.getItem("accessToken");
       const csrfToken = getCsrfToken();
 
-      const payload = new FormData();
-
       if (isEdit) {
         // For PATCH, only send fields that are being updated
+        const payload = new FormData();
         if (formData.discount_percent) {
           payload.append("discount_percent", formData.discount_percent);
         }
@@ -210,24 +221,30 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
         });
         onSuccess("Discount updated successfully");
       } else {
-        // For POST, send all required fields
-        payload.append("station_id", formData.station_id);
-        payload.append("package_id", formData.package_id);
-        payload.append("discount_percent", formData.discount_percent);
-        payload.append("max_total_uses", formData.max_total_uses);
-        payload.append("max_uses_per_user", formData.max_uses_per_user);
-        payload.append("valid_from", new Date(formData.valid_from).toISOString());
-        payload.append("valid_until", new Date(formData.valid_until).toISOString());
-        payload.append("status", formData.status);
+        // For POST, create a discount for each selected package
+        const promises = formData.package_ids.map(async (packageId) => {
+          const payload = new FormData();
+          payload.append("station_id", formData.station_id);
+          payload.append("package_id", packageId);
+          payload.append("discount_percent", formData.discount_percent);
+          payload.append("max_total_uses", formData.max_total_uses);
+          payload.append("max_uses_per_user", formData.max_uses_per_user);
+          payload.append("valid_from", new Date(formData.valid_from).toISOString());
+          payload.append("valid_until", new Date(formData.valid_until).toISOString());
+          payload.append("status", formData.status);
 
-        await axiosInstance.post("/api/discounts", payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "X-CSRFTOKEN": csrfToken || "",
-            "Content-Type": "multipart/form-data",
-          },
+          return axiosInstance.post("/api/discounts", payload, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "X-CSRFTOKEN": csrfToken || "",
+              "Content-Type": "multipart/form-data",
+            },
+          });
         });
-        onSuccess("Discount created successfully");
+
+        await Promise.all(promises);
+        const count = formData.package_ids.length;
+        onSuccess(`${count} discount${count > 1 ? 's' : ''} created successfully`);
       }
     } catch (err: any) {
       const errorMsg = err.response?.data?.message || `Failed to ${isEdit ? "update" : "create"} discount`;
@@ -303,28 +320,53 @@ const DiscountModal: React.FC<DiscountModalProps> = ({
 
                 <div className={styles.formGroup}>
                   <label htmlFor="package_id" className={styles.label}>
-                    Package <span className={styles.required}>*</span>
+                    Packages <span className={styles.required}>*</span>
                   </label>
-                  <select
-                    id="package_id"
-                    name="package_id"
-                    value={formData.package_id}
-                    onChange={handleChange}
-                    className={styles.select}
-                    disabled={loading || isEdit}
-                    required={!isEdit}
-                  >
-                    <option value="">Select Package</option>
-                    {packages.map((pkg) => (
-                      <option key={pkg.id} value={pkg.id}>
-                        {pkg.name} - {pkg.duration_display} (₹{pkg.price})
-                      </option>
-                    ))}
-                  </select>
-                  {isEdit && (
-                    <p className={styles.helpText}>
-                      Package cannot be changed after creation
-                    </p>
+                  {isEdit ? (
+                    <>
+                      <div className={styles.packageDisplay}>
+                        {discount?.package_name || "N/A"}
+                      </div>
+                      <p className={styles.helpText}>
+                        Package cannot be changed after creation
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <div className={styles.packageGrid}>
+                        {packages.length === 0 ? (
+                          <p className={styles.noPackages}>No packages available</p>
+                        ) : (
+                          packages.map((pkg) => (
+                            <label
+                              key={pkg.id}
+                              className={`${styles.packageCard} ${
+                                formData.package_ids.includes(pkg.id)
+                                  ? styles.packageCardSelected
+                                  : ""
+                              }`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={formData.package_ids.includes(pkg.id)}
+                                onChange={() => handlePackageToggle(pkg.id)}
+                                className={styles.packageCheckbox}
+                                disabled={loading}
+                              />
+                              <div className={styles.packageInfo}>
+                                <span className={styles.packageName}>{pkg.name}</span>
+                                <span className={styles.packageDetails}>
+                                  {pkg.duration_display} • ₹{pkg.price}
+                                </span>
+                              </div>
+                            </label>
+                          ))
+                        )}
+                      </div>
+                      <p className={styles.helpText}>
+                        Select one or more packages to apply this discount
+                      </p>
+                    </>
                   )}
                 </div>
               </div>
