@@ -231,7 +231,7 @@
 .locationInfo {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
 }
 
 .stationName {
@@ -243,6 +243,58 @@
 .slotInfo {
   color: #888;
   font-size: 0.85rem;
+}
+
+/* Lifecycle */
+.subTitle {
+  color: #82ea80;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 1.5rem 0 1rem 0;
+  padding-top: 1rem;
+  border-top: 1px solid #2a2a2a;
+}
+
+.cycleLogsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.cycleLogItem {
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cycleLogRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Recent History */
+.historyDate {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.historyDescription {
+  color: #aaa;
+  font-size: 0.85rem;
+  margin: 0.5rem 0 0 0;
+}
+
+.historyDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #2a2a2a;
 }
 
 /* Rental Details */

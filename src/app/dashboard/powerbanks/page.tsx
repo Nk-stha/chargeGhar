@@ -16,6 +16,7 @@ import {
   FiActivity,
   FiDollarSign,
   FiTrendingUp,
+  FiFilter,
 } from "react-icons/fi";
 import { powerBankService } from "../../../lib/api/powerbank.service";
 import {
@@ -37,6 +38,10 @@ export default function PowerBanksPage() {
   const [statusFilter, setStatusFilter] = useState<PowerBankStatus | "ALL">("ALL");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [cycleFilter, setCycleFilter] = useState<"all" | "high" | "medium" | "low" | "custom">("all");
+  const [minCycles, setMinCycles] = useState<string>("");
+  const [maxCycles, setMaxCycles] = useState<string>("");
+  const [showCustomRange, setShowCustomRange] = useState(false);
 
   // Fetch powerbanks
   const fetchPowerBanks = async (page: number = 1, status?: PowerBankStatus | "ALL") => {
@@ -81,18 +86,43 @@ export default function PowerBanksPage() {
     fetchAnalytics();
   }, [currentPage, statusFilter]);
 
-  // Filter by search
+  // Filter by search and cycle range
   const filteredPowerBanks = useMemo(() => {
-    if (!search.trim()) return powerbanks;
-    const query = search.toLowerCase();
-    return powerbanks.filter(
-      (pb) =>
-        pb.serial_number.toLowerCase().includes(query) ||
-        pb.model.toLowerCase().includes(query) ||
-        pb.current_station?.name.toLowerCase().includes(query) ||
-        pb.current_rental?.username.toLowerCase().includes(query)
-    );
-  }, [powerbanks, search]);
+    let filtered = [...powerbanks];
+    
+    // Apply search filter
+    if (search.trim()) {
+      const query = search.toLowerCase();
+      filtered = filtered.filter(
+        (pb) =>
+          pb.serial_number.toLowerCase().includes(query) ||
+          pb.model.toLowerCase().includes(query) ||
+          pb.current_station?.name.toLowerCase().includes(query) ||
+          pb.current_rental?.username.toLowerCase().includes(query)
+      );
+    }
+    
+    // Apply cycle filter
+    if (cycleFilter === "high") {
+      filtered = filtered.filter(pb => parseFloat(pb.total_cycles || "0") >= 100);
+    } else if (cycleFilter === "medium") {
+      filtered = filtered.filter(pb => {
+        const cycles = parseFloat(pb.total_cycles || "0");
+        return cycles >= 50 && cycles < 100;
+      });
+    } else if (cycleFilter === "low") {
+      filtered = filtered.filter(pb => parseFloat(pb.total_cycles || "0") < 50);
+    } else if (cycleFilter === "custom") {
+      const min = minCycles ? parseFloat(minCycles) : 0;
+      const max = maxCycles ? parseFloat(maxCycles) : Infinity;
+      filtered = filtered.filter(pb => {
+        const cycles = parseFloat(pb.total_cycles || "0");
+        return cycles >= min && cycles <= max;
+      });
+    }
+    
+    return filtered;
+  }, [powerbanks, search, cycleFilter, minCycles, maxCycles]);
 
   const handleStatusFilterChange = (status: PowerBankStatus | "ALL") => {
     setStatusFilter(status);
@@ -110,6 +140,17 @@ export default function PowerBanksPage() {
   const handleRefresh = () => {
     fetchPowerBanks(currentPage, statusFilter === "ALL" ? undefined : statusFilter);
     fetchAnalytics();
+  };
+
+  const handleCustomCycleFilter = () => {
+    setCycleFilter("custom");
+  };
+
+  const handleResetCustomCycle = () => {
+    setMinCycles("");
+    setMaxCycles("");
+    setCycleFilter("all");
+    setShowCustomRange(false);
   };
 
   // Loading state
@@ -173,6 +214,82 @@ export default function PowerBanksPage() {
         </div>
       </div>
 
+      {/* Statistics Cards */}
+      {activeTab === "list" && (
+        <div className={styles.statsGrid}>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(130, 234, 128, 0.1)", color: "#82ea80" }}>
+              <FiActivity />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Utilization Rate</span>
+              <span className={styles.statValue}>
+                {analytics?.utilization?.utilization_rate || 0}%
+              </span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(59, 130, 246, 0.1)", color: "#3b82f6" }}>
+              <FiActivity />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Total Rental Count</span>
+              <span className={styles.statValue}>
+                {powerbanks.reduce((sum, pb) => sum + (pb.rental_count || 0), 0)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(168, 85, 247, 0.1)", color: "#a855f7" }}>
+              <FiTrendingUp />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Total Cycles</span>
+              <span className={styles.statValue}>
+                {powerbanks.reduce((sum, pb) => sum + parseFloat(pb.total_cycles || "0"), 0).toFixed(2)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
+              <FiDollarSign />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Total Rentals</span>
+              <span className={styles.statValue}>
+                {powerbanks.reduce((sum, pb) => sum + (pb.total_rentals || 0), 0)}
+              </span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(34, 197, 94, 0.1)", color: "#22c55e" }}>
+              <FiDollarSign />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Total Revenue</span>
+              <span className={styles.statValue}>
+                {analytics?.utilization?.total_revenue 
+                  ? powerBankService.formatCurrency(analytics.utilization.total_revenue)
+                  : "Rs. 0.00"}
+              </span>
+            </div>
+          </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{ backgroundColor: "rgba(130, 234, 128, 0.1)", color: "#82ea80" }}>
+              <FiBattery />
+            </div>
+            <div className={styles.statInfo}>
+              <span className={styles.statLabel}>Avg Battery Level</span>
+              <span className={styles.statValue}>
+                {powerbanks.length > 0 
+                  ? (powerbanks.reduce((sum, pb) => sum + (pb.battery_level || 0), 0) / powerbanks.length).toFixed(0)
+                  : 0}%
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* List View */}
       {activeTab === "list" && (
         <>
@@ -228,6 +345,103 @@ export default function PowerBanksPage() {
             </div>
           </div>
 
+          {/* Cycle Filter */}
+          <div className={styles.cycleFilterSection}>
+            <div className={styles.cycleFilterLabel}>
+              <FiActivity />
+              <span>Filter by Cycle Count:</span>
+            </div>
+            <div className={styles.cycleFilterButtons}>
+              <button
+                className={`${styles.cycleFilterBtn} ${cycleFilter === "all" ? styles.cycleFilterActive : ""}`}
+                onClick={() => {
+                  setCycleFilter("all");
+                  setShowCustomRange(false);
+                }}
+              >
+                All
+              </button>
+              <button
+                className={`${styles.cycleFilterBtn} ${cycleFilter === "high" ? styles.cycleFilterActive : ""}`}
+                onClick={() => {
+                  setCycleFilter("high");
+                  setShowCustomRange(false);
+                }}
+              >
+                High (≥100)
+              </button>
+              <button
+                className={`${styles.cycleFilterBtn} ${cycleFilter === "medium" ? styles.cycleFilterActive : ""}`}
+                onClick={() => {
+                  setCycleFilter("medium");
+                  setShowCustomRange(false);
+                }}
+              >
+                Medium (50-99)
+              </button>
+              <button
+                className={`${styles.cycleFilterBtn} ${cycleFilter === "low" ? styles.cycleFilterActive : ""}`}
+                onClick={() => {
+                  setCycleFilter("low");
+                  setShowCustomRange(false);
+                }}
+              >
+                Low (&lt;50)
+              </button>
+              <button
+                className={`${styles.cycleFilterBtn} ${showCustomRange ? styles.cycleFilterActive : ""}`}
+                onClick={() => setShowCustomRange(!showCustomRange)}
+              >
+                <FiFilter /> Custom
+              </button>
+            </div>
+            
+            {showCustomRange && (
+              <div className={styles.customRangePanel}>
+                <div className={styles.rangeInputsWrapper}>
+                  <div className={styles.rangeInputGroup}>
+                    <label>Min Cycles</label>
+                    <input
+                      type="number"
+                      placeholder="0"
+                      value={minCycles}
+                      onChange={(e) => setMinCycles(e.target.value)}
+                      className={styles.rangeInput}
+                      min="0"
+                    />
+                  </div>
+                  <span className={styles.rangeSeparator}>to</span>
+                  <div className={styles.rangeInputGroup}>
+                    <label>Max Cycles</label>
+                    <input
+                      type="number"
+                      placeholder="∞"
+                      value={maxCycles}
+                      onChange={(e) => setMaxCycles(e.target.value)}
+                      className={styles.rangeInput}
+                      min="0"
+                    />
+                  </div>
+                </div>
+                <div className={styles.rangeButtonsWrapper}>
+                  <button
+                    className={styles.applyRangeBtn}
+                    onClick={handleCustomCycleFilter}
+                    disabled={!minCycles && !maxCycles}
+                  >
+                    Apply
+                  </button>
+                  <button
+                    className={styles.resetRangeBtn}
+                    onClick={handleResetCustomCycle}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* PowerBank List */}
           <div className={styles.card}>
             {filteredPowerBanks.length === 0 ? (
@@ -248,6 +462,10 @@ export default function PowerBanksPage() {
                         <th>Status</th>
                         <th>Battery</th>
                         <th>Station</th>
+                        <th>Slot</th>
+                        <th>Rental Count</th>
+                        <th>Total Cycles</th>
+                        <th>Total Rentals</th>
                         <th>Rental Info</th>
                         <th>Last Updated</th>
                       </tr>
@@ -316,6 +534,24 @@ export default function PowerBanksPage() {
                             ) : (
                               <span className={styles.noData}>—</span>
                             )}
+                          </td>
+                          <td>
+                            {pb.current_slot ? (
+                              <span className={styles.slotNumber}>
+                                Slot {pb.current_slot.slot_number}
+                              </span>
+                            ) : (
+                              <span className={styles.noData}>—</span>
+                            )}
+                          </td>
+                          <td>
+                            <span className={styles.statValue}>{pb.rental_count}</span>
+                          </td>
+                          <td>
+                            <span className={styles.statValue}>{parseFloat(pb.total_cycles).toFixed(2)}</span>
+                          </td>
+                          <td>
+                            <span className={styles.statValue}>{pb.total_rentals}</span>
                           </td>
                           <td>
                             {pb.current_rental ? (
@@ -405,6 +641,24 @@ export default function PowerBanksPage() {
                             <span>{pb.current_station.name}</span>
                           </div>
                         )}
+                        {pb.current_slot && (
+                          <div className={styles.mobileCardRow}>
+                            <span className={styles.mobileLabel}>Slot:</span>
+                            <span>Slot {pb.current_slot.slot_number}</span>
+                          </div>
+                        )}
+                        <div className={styles.mobileCardRow}>
+                          <span className={styles.mobileLabel}>Rental Count:</span>
+                          <span>{pb.rental_count}</span>
+                        </div>
+                        <div className={styles.mobileCardRow}>
+                          <span className={styles.mobileLabel}>Total Cycles:</span>
+                          <span>{parseFloat(pb.total_cycles).toFixed(2)}</span>
+                        </div>
+                        <div className={styles.mobileCardRow}>
+                          <span className={styles.mobileLabel}>Total Rentals:</span>
+                          <span>{pb.total_rentals}</span>
+                        </div>
                         {pb.current_rental && (
                           <>
                             <div className={styles.mobileCardRow}>

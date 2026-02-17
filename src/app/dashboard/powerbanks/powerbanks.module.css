@@ -263,6 +263,160 @@
   color: #82ea80;
 }
 
+/* Cycle Filter Section */
+.cycleFilterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+
+.cycleFilterLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #82ea80;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.cycleFilterButtons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cycleFilterBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cycleFilterBtn:hover {
+  border-color: #82ea80;
+  color: #82ea80;
+}
+
+.cycleFilterActive {
+  background-color: rgba(130, 234, 128, 0.1);
+  border-color: #82ea80;
+  color: #82ea80;
+}
+
+/* Custom Range Panel */
+.customRangePanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+}
+
+.rangeInputsWrapper {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.rangeInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 120px;
+}
+
+.rangeInputGroup label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.rangeInput {
+  padding: 0.625rem 0.875rem;
+  background-color: #0b0b0b;
+  border: 1px solid #2a2a2a;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.rangeInput:focus {
+  outline: none;
+  border-color: #82ea80;
+  box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
+}
+
+.rangeInput::placeholder {
+  color: #555;
+}
+
+.rangeSeparator {
+  color: #666;
+  font-size: 0.9rem;
+  padding-bottom: 0.625rem;
+  font-weight: 500;
+}
+
+.rangeButtonsWrapper {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.applyRangeBtn,
+.resetRangeBtn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.applyRangeBtn {
+  background-color: #82ea80;
+  color: #000;
+  border: none;
+}
+
+.applyRangeBtn:hover:not(:disabled) {
+  background-color: #46e246;
+}
+
+.applyRangeBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetRangeBtn {
+  background-color: transparent;
+  color: #888;
+  border: 1px solid #2a2a2a;
+}
+
+.resetRangeBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
 /* Card */
 .card {
   background-color: #121212;
@@ -338,12 +492,13 @@
   font-family: monospace;
   font-size: 0.9rem;
   color: #82ea80;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .model {
   color: #ccc;
   font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .statusBadge {
@@ -413,8 +568,21 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #aaa;
-  font-size: 0.85rem;
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.slotNumber {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.statValue {
+  color: #ccc;
+  font-size: 0.9rem;
+  font-weight: 400;
 }
 
 .noData {
@@ -575,8 +743,9 @@
 /* Stats Grid */
 .statsGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .statCard {
@@ -587,6 +756,12 @@
   border: 1px solid #2a2a2a;
   border-radius: 12px;
   padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  border-color: #82ea80;
+  transform: translateY(-2px);
 }
 
 .statIcon {
@@ -597,22 +772,33 @@
   height: 48px;
   border-radius: 12px;
   font-size: 1.5rem;
+  flex-shrink: 0;
 }
 
 .statInfo {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0;
 }
 
 .statLabel {
   color: #888;
   font-size: 0.8rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .statValue {
   color: #fff;
   font-size: 1.5rem;
   font-weight: 600;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Analytics Row */
@@ -879,6 +1065,49 @@
     flex-shrink: 0;
   }
 
+  .cycleFilterSection {
+    padding: 0.875rem;
+  }
+
+  .cycleFilterButtons {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap;
+  }
+
+  .cycleFilterButtons::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cycleFilterBtn {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .rangeInputsWrapper {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rangeInputGroup {
+    min-width: 100%;
+  }
+
+  .rangeSeparator {
+    padding: 0;
+    text-align: center;
+  }
+
+  .rangeButtonsWrapper {
+    flex-direction: column;
+  }
+
+  .applyRangeBtn,
+  .resetRangeBtn {
+    width: 100%;
+  }
+
   .tableWrapper {
     display: none;
   }
@@ -894,8 +1123,6 @@
 
   .statCard {
     padding: 1rem;
-    flex-direction: column;
-    text-align: center;
     gap: 0.75rem;
   }
 
@@ -903,6 +1130,10 @@
     width: 40px;
     height: 40px;
     font-size: 1.25rem;
+  }
+
+  .statLabel {
+    font-size: 0.75rem;
   }
 
   .statValue {
@@ -965,6 +1196,24 @@
 
   .statsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .statCard {
+    padding: 0.875rem;
+  }
+
+  .statIcon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+
+  .statLabel {
+    font-size: 0.7rem;
+  }
+
+  .statValue {
+    font-size: 1.1rem;
   }
 
   .revenueAmount {

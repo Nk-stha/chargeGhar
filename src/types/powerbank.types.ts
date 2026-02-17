@@ -39,12 +39,14 @@ export interface StationInfo {
     id: string;
     name: string;
     serial_number: string;
+    address?: string;
 }
 
 // Slot Info
 export interface SlotInfo {
     id: string;
     slot_number: number;
+    status?: string;
 }
 
 // PowerBank List Item
@@ -56,6 +58,8 @@ export interface PowerBankListItem {
     status: PowerBankStatus;
     battery_level: number;
     rental_count: number;
+    total_cycles: string;
+    total_rentals: number;
     current_station: StationInfo | null;
     current_slot: SlotInfo | null;
     current_rental: CurrentRentalInfo | null;
@@ -108,6 +112,14 @@ export interface CurrentRentalDetail {
 export interface HardwareInfo {
     version: string;
     manufacturer: string;
+    current?: number;
+    voltage?: number;
+    temperature?: number;
+    area_code?: string;
+    micro_switch?: string;
+    solenoid_valve?: string;
+    soft_version?: string;
+    hard_version?: string;
 }
 
 // PowerBank Statistics
@@ -115,6 +127,19 @@ export interface PowerBankStatistics {
     total_rentals: number;
     completed_rentals: number;
     total_revenue: string;
+}
+
+// Lifecycle Info
+export interface LifecycleInfo {
+    total_cycles: string;
+    total_rentals: number;
+    avg_cycles_per_rental: string;
+    avg_discharge_per_rental: string;
+    recent_cycle_logs?: Array<{
+        cycles: number;
+        discharge: number;
+        timestamp: string;
+    }>;
 }
 
 // Recent History Item
@@ -142,6 +167,7 @@ export interface PowerBankDetail {
     current_slot: SlotInfo | null;
     current_rental: CurrentRentalDetail | null;
     statistics: PowerBankStatistics;
+    lifecycle?: LifecycleInfo;
     recent_history: RecentHistoryItem[];
     last_updated: string;
     created_at: string;
@@ -243,6 +269,7 @@ export interface TopPerformer {
     model: string;
     status: PowerBankStatus;
     rental_count: number;
+    total_cycles: string;
     revenue: string;
 }
 

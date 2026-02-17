@@ -1,0 +1,249 @@
+.analyticsContainer {
+    padding: 2rem;
+    background-color: #0b0b0b;
+    min-height: 100vh;
+    color: #fff;
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.headerTitle h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #e0e0e0;
+    margin: 0 0 0.5rem 0;
+}
+
+.headerTitle p {
+    font-size: 0.95rem;
+    color: #888;
+    margin: 0;
+}
+
+.headerRight {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Filter Section */
+.filterSection {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.filterWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.filterIcon {
+    color: #82ea80;
+    font-size: 1.25rem;
+}
+
+.dropdown {
+    position: relative;
+}
+
+.dropdownButton {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background-color: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+    justify-content: space-between;
+}
+
+.dropdownButton:hover {
+    border-color: #47b216;
+    background-color: #1a1a1a;
+}
+
+.dropdownIcon {
+    font-size: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.dropdownIconOpen {
+    transform: rotate(180deg);
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background-color: #141414;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownMenu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dropdownMenu::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+.dropdownMenu::-webkit-scrollbar-thumb {
+    background: #47b216;
+    border-radius: 3px;
+}
+
+.dropdownItem {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: #aaa;
+    font-size: 0.875rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.dropdownItem:last-child {
+    border-bottom: none;
+}
+
+.dropdownItem:hover {
+    background-color: rgba(71, 178, 22, 0.1);
+    color: #82ea80;
+}
+
+.dropdownItemActive {
+    background-color: rgba(71, 178, 22, 0.15);
+    color: #82ea80;
+    font-weight: 600;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.5rem;
+}
+
+.col6 {
+    grid-column: span 6;
+}
+
+.col12 {
+    grid-column: span 12;
+}
+
+.hFull {
+    height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .analyticsContainer {
+        padding: 1.5rem;
+    }
+
+    .col6 {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 768px) {
+    .analyticsContainer {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .headerTitle h1 {
+        font-size: 1.5rem;
+    }
+
+    .headerTitle p {
+        font-size: 0.875rem;
+    }
+
+    .headerRight {
+        width: 100%;
+    }
+
+    .filterSection {
+        width: 100%;
+    }
+
+    .filterWrapper {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dropdown {
+        width: 100%;
+    }
+
+    .dropdownButton {
+        width: 100%;
+    }
+
+    .grid {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .analyticsContainer {
+        padding: 0.75rem;
+    }
+
+    .headerTitle h1 {
+        font-size: 1.25rem;
+    }
+
+    .dropdownButton {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .dropdownItem {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+}

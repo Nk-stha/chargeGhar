@@ -206,6 +206,11 @@
   color: #aaa;
 }
 
+.performerCycles {
+  font-size: 0.8rem;
+  color: #a855f7;
+}
+
 .performerRevenue {
   font-size: 0.9rem;
   font-weight: 600;
@@ -265,6 +270,318 @@
 @media (max-width: 1024px) {
   .metricsGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Table Header */
+.tableHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Filter Container */
+.filterContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Cycle Filters */
+.cycleFilters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cycleFilterBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #252525;
+  border-radius: 6px;
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cycleFilterBtn:hover {
+  border-color: #82ea80;
+  color: #82ea80;
+}
+
+.cycleFilterBtn.active {
+  background-color: rgba(130, 234, 128, 0.1);
+  border-color: #82ea80;
+  color: #82ea80;
+}
+
+/* Custom Range Container */
+.customRangeContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border: 1px solid #252525;
+  border-radius: 8px;
+}
+
+.rangeInputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 120px;
+}
+
+.inputGroup label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.rangeInput {
+  padding: 0.625rem 0.875rem;
+  background-color: #0b0b0b;
+  border: 1px solid #252525;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.rangeInput:focus {
+  outline: none;
+  border-color: #82ea80;
+  box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
+}
+
+.rangeInput::placeholder {
+  color: #555;
+}
+
+.rangeSeparator {
+  color: #666;
+  font-size: 0.9rem;
+  padding-bottom: 0.625rem;
+  font-weight: 500;
+}
+
+.rangeActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.applyBtn,
+.resetBtn {
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.applyBtn {
+  background-color: #82ea80;
+  color: #000;
+  border: none;
+}
+
+.applyBtn:hover:not(:disabled) {
+  background-color: #46e246;
+}
+
+.applyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.resetBtn {
+  background-color: transparent;
+  color: #888;
+  border: 1px solid #252525;
+}
+
+.resetBtn:hover {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Table Wrapper */
+.tableWrapper {
+  overflow-x: auto;
+  border: 1px solid #252525;
+  border-radius: 8px;
+}
+
+/* Cycle Table */
+.cycleTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cycleTable thead {
+  background-color: #1a1a1a;
+}
+
+.cycleTable th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #252525;
+}
+
+.cycleTable tbody tr {
+  border-bottom: 1px solid #1a1a1a;
+  transition: background-color 0.2s ease;
+}
+
+.cycleTable tbody tr:hover {
+  background-color: #1a1a1a;
+}
+
+.cycleTable tbody tr:last-child {
+  border-bottom: none;
+}
+
+.cycleTable td {
+  padding: 0.875rem 1rem;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.rankCell {
+  color: #82ea80;
+  font-weight: 600;
+}
+
+.serialCell {
+  font-family: monospace;
+  color: #fff;
+  font-weight: 500;
+}
+
+.modelCell {
+  color: #aaa;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cycleCell {
+  font-weight: 600;
+}
+
+.cycleValue {
+  color: #a855f7;
+  font-weight: 700;
+}
+
+.rentalCell {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.batteryDisplay {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.batteryBar {
+  width: 60px;
+  height: 8px;
+  background-color: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.batteryFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.batteryText {
+  font-size: 0.75rem;
+  color: #888;
+  min-width: 35px;
+}
+
+.emptyCell {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Table Footer */
+.tableFooter {
+  padding: 0.75rem 1rem;
+  background-color: #1a1a1a;
+  border-top: 1px solid #252525;
+  text-align: center;
+}
+
+.footerText {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .rangeInputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .inputGroup {
+    min-width: 100%;
+  }
+  
+  .rangeSeparator {
+    padding: 0;
+    text-align: center;
+  }
+  
+  .rangeActions {
+    flex-direction: column;
+  }
+  
+  .applyBtn,
+  .resetBtn {
+    width: 100%;
   }
 }
 

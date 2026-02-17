@@ -161,14 +161,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     {
       title: "Analytics & Finance",
       items: [
-        {
-          icon: <FiBarChart2 />,
-          label: "Analytics",
-          subItems: [
-            { icon: <FiActivity />, label: "Admin Logs", href: "/dashboard/admin-logs" },
-            { icon: <FiFileText />, label: "System Logs", href: "/dashboard/system-logs" },
-          ],
-        },
+        { icon: <FiMonitor />, label: "Monitor", href: "/dashboard/monitor" },
         {
           icon: <FiDollarSign />,
           label: "Transactions",

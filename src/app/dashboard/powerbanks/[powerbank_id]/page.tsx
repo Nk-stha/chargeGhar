@@ -212,9 +212,17 @@ export default function PowerBankDetailPage({
           {/* Status Card */}
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>
-              <FiInfo /> Details
+              <FiInfo /> Basic Information
             </h3>
             <div className={styles.detailsGrid}>
+              <div className={styles.detailItem}>
+                <span className={styles.detailLabel}>Serial Number</span>
+                <span className={styles.detailValue}>{powerbank.serial_number}</span>
+              </div>
+              <div className={styles.detailItem}>
+                <span className={styles.detailLabel}>Model</span>
+                <span className={styles.detailValue}>{powerbank.model}</span>
+              </div>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Status</span>
                 <span
@@ -244,30 +252,65 @@ export default function PowerBankDetailPage({
               </div>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Capacity</span>
-                <span className={styles.detailValue}>{powerbank.capacity_mah.toLocaleString()} mAh</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.detailLabel}>Hardware Version</span>
-                <span className={styles.detailValue}>{powerbank.hardware_info.version}</span>
-              </div>
-              <div className={styles.detailItem}>
-                <span className={styles.detailLabel}>Manufacturer</span>
-                <span className={styles.detailValue}>{powerbank.hardware_info.manufacturer}</span>
+                <span className={styles.detailValue}>{powerbank.capacity_mah?.toLocaleString() || 'N/A'} mAh</span>
               </div>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Created</span>
                 <span className={styles.detailValue}>
-                  {powerBankService.formatDate(powerbank.created_at)}
+                  {new Date(powerbank.created_at).toLocaleString()}
                 </span>
               </div>
               <div className={styles.detailItem}>
                 <span className={styles.detailLabel}>Last Updated</span>
                 <span className={styles.detailValue}>
-                  {powerBankService.getTimeAgo(powerbank.last_updated)}
+                  {new Date(powerbank.last_updated).toLocaleString()}
                 </span>
               </div>
             </div>
           </div>
+
+          {/* Hardware Information */}
+          {powerbank.hardware_info && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>
+                <FiInfo /> Hardware Information
+              </h3>
+              <div className={styles.detailsGrid}>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Current</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.current ?? 'N/A'} A</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Voltage</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.voltage ?? 'N/A'} V</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Temperature</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.temperature ?? 'N/A'}°C</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Area Code</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.area_code ?? 'N/A'}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Micro Switch</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.micro_switch ?? 'N/A'}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Solenoid Valve</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.solenoid_valve ?? 'N/A'}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Software Version</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.soft_version ?? 'N/A'}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Hardware Version</span>
+                  <span className={styles.detailValue}>{powerbank.hardware_info.hard_version ?? 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Current Location */}
           {powerbank.current_station && (
@@ -276,9 +319,34 @@ export default function PowerBankDetailPage({
                 <FiMapPin /> Current Location
               </h3>
               <div className={styles.locationInfo}>
-                <span className={styles.stationName}>{powerbank.current_station.name}</span>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Station</span>
+                  <span className={styles.detailValue}>{powerbank.current_station.name}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Serial Number</span>
+                  <span className={styles.detailValue}>{powerbank.current_station.serial_number}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Address</span>
+                  <span className={styles.detailValue}>{powerbank.current_station.address}</span>
+                </div>
                 {powerbank.current_slot && (
-                  <span className={styles.slotInfo}>Slot {powerbank.current_slot.slot_number}</span>
+                  <>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Slot Number</span>
+                      <span className={styles.detailValue}>{powerbank.current_slot.slot_number}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span className={styles.detailLabel}>Slot Status</span>
+                      <span className={styles.statusBadge} style={{
+                        backgroundColor: powerbank.current_slot.status === 'AVAILABLE' ? 'rgba(71, 178, 22, 0.2)' : 'rgba(255, 193, 7, 0.2)',
+                        color: powerbank.current_slot.status === 'AVAILABLE' ? '#47b216' : '#ffc107'
+                      }}>
+                        {powerbank.current_slot.status}
+                      </span>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -341,7 +409,7 @@ export default function PowerBankDetailPage({
                 <FiClock />
               </div>
               <div className={styles.statInfo}>
-                <span className={styles.statValue}>{powerbank.statistics.total_rentals}</span>
+                <span className={styles.statValue}>{powerbank.statistics?.total_rentals ?? 0}</span>
                 <span className={styles.statLabel}>Total Rentals</span>
               </div>
             </div>
@@ -350,7 +418,7 @@ export default function PowerBankDetailPage({
                 <FiCheck />
               </div>
               <div className={styles.statInfo}>
-                <span className={styles.statValue}>{powerbank.statistics.completed_rentals}</span>
+                <span className={styles.statValue}>{powerbank.statistics?.completed_rentals ?? 0}</span>
                 <span className={styles.statLabel}>Completed</span>
               </div>
             </div>
@@ -360,12 +428,102 @@ export default function PowerBankDetailPage({
               </div>
               <div className={styles.statInfo}>
                 <span className={styles.statValue}>
-                  {powerBankService.formatCurrency(powerbank.statistics.total_revenue)}
+                  ₹{powerbank.statistics?.total_revenue ?? '0'}
                 </span>
                 <span className={styles.statLabel}>Revenue</span>
               </div>
             </div>
           </div>
+
+          {/* Lifecycle Information */}
+          {powerbank.lifecycle && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>
+                <FiBattery /> Lifecycle Information
+              </h3>
+              <div className={styles.detailsGrid}>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Total Cycles</span>
+                  <span className={styles.detailValue}>{parseFloat(powerbank.lifecycle.total_cycles || '0').toFixed(2)}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Total Rentals</span>
+                  <span className={styles.detailValue}>{powerbank.lifecycle.total_rentals ?? 0}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Avg Cycles/Rental</span>
+                  <span className={styles.detailValue}>{powerbank.lifecycle.avg_cycles_per_rental ?? '0'}</span>
+                </div>
+                <div className={styles.detailItem}>
+                  <span className={styles.detailLabel}>Avg Discharge/Rental</span>
+                  <span className={styles.detailValue}>{powerbank.lifecycle.avg_discharge_per_rental ?? '0'}%</span>
+                </div>
+              </div>
+
+              {/* Recent Cycle Logs */}
+              {powerbank.lifecycle.recent_cycle_logs && powerbank.lifecycle.recent_cycle_logs.length > 0 && (
+                <>
+                  <h4 className={styles.subTitle}>Recent Cycle Logs</h4>
+                  <div className={styles.cycleLogsList}>
+                    {powerbank.lifecycle.recent_cycle_logs.map((log: any, index: number) => (
+                      <div key={index} className={styles.cycleLogItem}>
+                        <div className={styles.cycleLogRow}>
+                          <span className={styles.detailLabel}>Cycles</span>
+                          <span className={styles.detailValue}>{log.cycles ?? 'N/A'}</span>
+                        </div>
+                        <div className={styles.cycleLogRow}>
+                          <span className={styles.detailLabel}>Discharge</span>
+                          <span className={styles.detailValue}>{log.discharge ?? 'N/A'}%</span>
+                        </div>
+                        <div className={styles.cycleLogRow}>
+                          <span className={styles.detailLabel}>Date</span>
+                          <span className={styles.detailValue}>
+                            {log.timestamp ? new Date(log.timestamp).toLocaleString() : 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Recent History */}
+          {powerbank.recent_history && powerbank.recent_history.length > 0 && (
+            <div className={styles.card}>
+              <h3 className={styles.cardTitle}>
+                <FiClock /> Recent Activity
+              </h3>
+              <div className={styles.historyList}>
+                {powerbank.recent_history.map((item: any, index: number) => (
+                  <div key={index} className={styles.historyItem}>
+                    <div className={styles.historyHeader}>
+                      <span className={styles.historyCode}>{item.event_type ?? 'Event'}</span>
+                      <span className={styles.historyDate}>
+                        {item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A'}
+                      </span>
+                    </div>
+                    {item.description && (
+                      <div className={styles.historyBody}>
+                        <p className={styles.historyDescription}>{item.description}</p>
+                      </div>
+                    )}
+                    {item.details && (
+                      <div className={styles.historyDetails}>
+                        {Object.entries(item.details).map(([key, value]) => (
+                          <div key={key} className={styles.historyRow}>
+                            <span className={styles.detailLabel}>{key}</span>
+                            <span className={styles.detailValue}>{String(value)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Rental History */}
           <div className={styles.card}>

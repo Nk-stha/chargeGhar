@@ -604,10 +604,12 @@ export default function StationDetailsPage() {
               </div>
             )}
             <div className={styles.row}>
-              <label>Operating Hours:</label>
-              <span>
-                {station.opening_time} - {station.closing_time}
-              </span>
+              <label>Opening Time:</label>
+              <span>{station.opening_time !== null ? station.opening_time : "null"}</span>
+            </div>
+            <div className={styles.row}>
+              <label>Closing Time:</label>
+              <span>{station.closing_time !== null ? station.closing_time : "null"}</span>
             </div>
             <div className={styles.row}>
               <label>Serial Number:</label>
