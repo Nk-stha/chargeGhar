@@ -24,6 +24,7 @@ import DataTable from "../../../components/DataTable/dataTable";
 
 const StationsPage: React.FC = () => {
   const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "ONLINE" | "OFFLINE" | "MAINTENANCE">("ALL");
   const {
     stations,
     pagination,
@@ -47,6 +48,17 @@ const StationsPage: React.FC = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Filter stations by status
+  const filteredStations = React.useMemo(() => {
+    if (statusFilter === "ALL") return stations;
+    return stations.filter(station => {
+      if (statusFilter === "MAINTENANCE") {
+        return station.is_maintenance || station.status === "MAINTENANCE";
+      }
+      return station.status === statusFilter;
+    });
+  }, [stations, statusFilter]);
 
   // Server-side search is handled by the hook, no client-side filtering needed
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -275,7 +287,7 @@ const StationsPage: React.FC = () => {
     },
   ];
 
-  const tableData = stations.map((station, index) => ({
+  const tableData = filteredStations.map((station, index) => ({
     ...station,
     index: (currentPage - 1) * 10 + index + 1,
   }));
@@ -335,6 +347,44 @@ const StationsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Status Filter Tabs */}
+        <div className={styles.statusTabs}>
+          <button
+            className={`${styles.statusTab} ${statusFilter === "ALL" ? styles.statusTabActive : ""}`}
+            onClick={() => setStatusFilter("ALL")}
+          >
+            All Stations
+            <span className={styles.statusTabBadge}>{stations.length}</span>
+          </button>
+          <button
+            className={`${styles.statusTab} ${statusFilter === "ONLINE" ? styles.statusTabActive : ""}`}
+            onClick={() => setStatusFilter("ONLINE")}
+          >
+            Online
+            <span className={styles.statusTabBadge}>
+              {stations.filter(s => s.status === "ONLINE").length}
+            </span>
+          </button>
+          <button
+            className={`${styles.statusTab} ${statusFilter === "OFFLINE" ? styles.statusTabActive : ""}`}
+            onClick={() => setStatusFilter("OFFLINE")}
+          >
+            Offline
+            <span className={styles.statusTabBadge}>
+              {stations.filter(s => s.status === "OFFLINE").length}
+            </span>
+          </button>
+          <button
+            className={`${styles.statusTab} ${statusFilter === "MAINTENANCE" ? styles.statusTabActive : ""}`}
+            onClick={() => setStatusFilter("MAINTENANCE")}
+          >
+            Maintenance
+            <span className={styles.statusTabBadge}>
+              {stations.filter(s => s.is_maintenance || s.status === "MAINTENANCE").length}
+            </span>
+          </button>
+        </div>
+
         <DataTable
           title="Station List"
           subtitle={`Showing ${tableData.length} of ${totalCount} stations`}
@@ -346,25 +396,35 @@ const StationsPage: React.FC = () => {
         />
 
         {/* Pagination */}
-        {totalPages > 1 && !loading && stations.length > 0 && (
+        {!loading && stations.length > 0 && (
           <div className={styles.pagination}>
-            <button
-              onClick={handlePreviousPage}
-              disabled={currentPage === 1 || loading}
-              className={styles.paginationBtn}
-            >
-              <FiChevronLeft /> Previous
-            </button>
-            <span className={styles.pageInfo}>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages || loading}
-              className={styles.paginationBtn}
-            >
-              Next <FiChevronRight />
-            </button>
+            <div className={styles.paginationInfo}>
+              <span>
+                Showing {filteredStations.length} of {totalCount} stations
+                {statusFilter !== "ALL" && ` (filtered by ${statusFilter})`}
+              </span>
+            </div>
+            {totalPages > 1 && (
+              <div className={styles.paginationControls}>
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1 || loading}
+                  className={styles.paginationBtn}
+                >
+                  <FiChevronLeft /> Previous
+                </button>
+                <span className={styles.pageInfo}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages || loading}
+                  className={styles.paginationBtn}
+                >
+                  Next <FiChevronRight />
+                </button>
+              </div>
+            )}
           </div>
         )}
 

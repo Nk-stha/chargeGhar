@@ -589,14 +589,28 @@
 /* ---------- Pagination ---------- */
 .pagination {
     display: flex;
+    flex-direction: column;
+    gap: 1rem;
     align-items: center;
     justify-content: center;
-    gap: 1rem;
     margin-top: 1.5rem;
-    padding: 1rem;
+    padding: 1.5rem;
     background: #141414;
     border-radius: 8px;
     border: 1px solid #2a2a2a;
+}
+
+.paginationInfo {
+    color: #888;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.paginationControls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
 }
 
 .paginationBtn {
@@ -753,4 +767,83 @@
 .heartbeat {
     font-size: 0.85rem;
     color: #888;
+}
+
+/* Status Tabs */
+.statusTabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  background-color: #121212;
+  border: 1px solid #2a2a2a;
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+
+.statusTab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: #8c8c8c;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex: 1;
+  justify-content: center;
+}
+
+.statusTab:hover {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+.statusTabActive {
+  background-color: #82ea80;
+  color: #000;
+}
+
+.statusTabActive:hover {
+  background-color: #82ea80;
+  color: #000;
+}
+
+.statusTabBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.statusTabActive .statusTabBadge {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Status Tabs */
+@media (max-width: 768px) {
+  .statusTabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .statusTabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .statusTab {
+    flex: 0 0 auto;
+    min-width: 120px;
+  }
 }

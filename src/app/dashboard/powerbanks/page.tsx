@@ -684,25 +684,35 @@ export default function PowerBanksPage() {
                 </div>
 
                 {/* Pagination */}
-                {pagination && pagination.total_pages > 1 && (
+                {pagination && filteredPowerBanks.length > 0 && (
                   <div className={styles.pagination}>
-                    <button
-                      className={styles.pageBtn}
-                      disabled={!pagination.has_previous}
-                      onClick={() => handlePageChange(currentPage - 1)}
-                    >
-                      <FiChevronLeft />
-                    </button>
-                    <span className={styles.pageInfo}>
-                      Page {pagination.current_page} of {pagination.total_pages}
-                    </span>
-                    <button
-                      className={styles.pageBtn}
-                      disabled={!pagination.has_next}
-                      onClick={() => handlePageChange(currentPage + 1)}
-                    >
-                      <FiChevronRight />
-                    </button>
+                    <div className={styles.paginationInfo}>
+                      <span>
+                        Showing {filteredPowerBanks.length} of {pagination.total_count} powerbanks
+                        {cycleFilter !== "all" && ` (filtered by cycle range)`}
+                      </span>
+                    </div>
+                    {pagination.total_pages > 1 && (
+                      <div className={styles.paginationControls}>
+                        <button
+                          className={styles.pageBtn}
+                          disabled={!pagination.has_previous}
+                          onClick={() => handlePageChange(currentPage - 1)}
+                        >
+                          <FiChevronLeft /> Previous
+                        </button>
+                        <span className={styles.pageInfo}>
+                          Page {pagination.current_page} of {pagination.total_pages}
+                        </span>
+                        <button
+                          className={styles.pageBtn}
+                          disabled={!pagination.has_next}
+                          onClick={() => handlePageChange(currentPage + 1)}
+                        >
+                          Next <FiChevronRight />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </>
