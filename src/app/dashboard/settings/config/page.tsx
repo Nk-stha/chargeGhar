@@ -47,12 +47,13 @@ export default function ConfigManagementPage() {
   );
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
-  // Form state (using is_active internally, maps to is_public in API)
+  // Form state with separate is_active and is_public fields
   const [formData, setFormData] = useState({
     key: "",
     value: "",
     description: "",
-    is_active: true, // This maps to is_public in the API
+    is_active: true,
+    is_public: true,
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -113,7 +114,8 @@ export default function ConfigManagementPage() {
         key: config?.key ?? "",
         value: displayValue,
         description: config?.description ?? "",
-        is_active: config?.is_public ?? true,
+        is_active: config?.is_public ?? true, // Temporarily using is_public until we get is_active from API
+        is_public: config?.is_public ?? true,
       });
     } else {
       setIsEditMode(false);
@@ -123,6 +125,7 @@ export default function ConfigManagementPage() {
         value: "",
         description: "",
         is_active: true,
+        is_public: true,
       });
     }
     setFormErrors({});
@@ -158,7 +161,8 @@ export default function ConfigManagementPage() {
       errors.key = "A configuration with this key already exists";
     }
 
-    if (!formData.value.trim()) {
+    const valueStr = String(formData.value || "").trim();
+    if (!valueStr) {
       errors.value = "Value is required";
     }
 
@@ -178,18 +182,20 @@ export default function ConfigManagementPage() {
 
       const payload = {
         key: formData.key.trim(),
-        value: JSON.stringify(formData.value.trim()), // JSON encode the value
+        value: JSON.stringify(String(formData.value || "").trim()), // Convert to string and JSON encode
         description: formData.description.trim() || undefined,
-        is_active: formData.is_active, // Keep is_active for the interface
-        is_public: formData.is_active, // Map is_active to is_public for API
+        is_active: formData.is_active,
+        is_public: formData.is_public,
       };
 
       if (isEditMode && selectedConfig) {
+        // For update, send all fields including key to identify which config to update
         const response = await configService.updateConfig({
           key: selectedConfig.key,
           value: payload.value,
           description: payload.description,
-          is_public: payload.is_public, // Use is_public for API
+          is_active: payload.is_active,
+          is_public: payload.is_public,
         });
         if (response.success) {
           toast.success("Configuration updated successfully");
@@ -619,6 +625,19 @@ export default function ConfigManagementPage() {
                     checked={formData.is_active}
                     onChange={(e) =>
                       setFormData({ ...formData, is_active: e.target.checked })
+                    }
+                  />
+                  <span>Active (Configuration is enabled)</span>
+                </label>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={formData.is_public}
+                    onChange={(e) =>
+                      setFormData({ ...formData, is_public: e.target.checked })
                     }
                   />
                   <span>Public (Visible to non-admin users)</span>

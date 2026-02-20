@@ -95,6 +95,13 @@ class ConfigService {
       formData.append("key", data.key);
       formData.append("value", data.value);
       formData.append("is_active", data.is_active ? "True" : "False");
+      
+      // Add is_public if provided, otherwise default to is_active value
+      if (data.is_public !== undefined) {
+        formData.append("is_public", data.is_public ? "True" : "False");
+      } else {
+        formData.append("is_public", data.is_active ? "True" : "False");
+      }
 
       if (data.description) {
         formData.append("description", data.description);
@@ -141,8 +148,13 @@ class ConfigService {
         formData.append("description", data.description);
       }
 
+      // Send both is_active and is_public as separate fields
       if (data.is_active !== undefined) {
         formData.append("is_active", data.is_active ? "True" : "False");
+      }
+      
+      if (data.is_public !== undefined) {
+        formData.append("is_public", data.is_public ? "True" : "False");
       }
 
       const response = await instance.put<ConfigDetailResponse>(
