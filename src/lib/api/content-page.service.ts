@@ -50,10 +50,7 @@ class ContentPageService {
     formData.append("page_type", data.page_type);
     formData.append("title", data.title);
     formData.append("content", data.content);
-    
-    if (data.is_active !== undefined) {
-      formData.append("is_active", data.is_active ? "True" : "False");
-    }
+    formData.append("is_active", data.is_active ? "True" : "False");
 
     const response = await instance.put<ContentPageDetailResponse>(
       `${this.baseUrl}/${pageType}`,

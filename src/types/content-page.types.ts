@@ -41,5 +41,5 @@ export interface UpdateContentPageRequest {
   page_type: PageType;
   title: string;
   content: string;
-  is_active?: boolean;
+  is_active: boolean;
 }
