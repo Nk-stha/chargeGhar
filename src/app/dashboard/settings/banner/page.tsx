@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { toast } from "sonner";
 import styles from "./banner.module.css";
 import {
@@ -397,11 +398,20 @@ export default function ContentManagementPage() {
                     </td>
                     <td>
                       <div className={styles.bannerPreview}>
-                        <img
-                          src={banner?.image_url ?? ""}
-                          alt={banner?.title ?? "Banner"}
-                          className={styles.previewImage}
-                        />
+                        {banner?.image_url ? (
+                          <Image
+                            src={banner.image_url}
+                            alt={banner?.title ?? "Banner"}
+                            width={80}
+                            height={45}
+                            className={styles.previewImage}
+                            unoptimized
+                          />
+                        ) : (
+                          <div className={styles.noImage}>
+                            <FiImage />
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td>
@@ -513,11 +523,16 @@ export default function ContentManagementPage() {
                 </div>
 
                 {banner?.image_url && (
-                  <img
-                    src={banner.image_url}
-                    alt={banner?.title ?? "Banner"}
-                    className={styles.mobileCardImage}
-                  />
+                  <div className={styles.mobileCardImageWrapper}>
+                    <Image
+                      src={banner.image_url}
+                      alt={banner?.title ?? "Banner"}
+                      width={400}
+                      height={200}
+                      className={styles.mobileCardImage}
+                      unoptimized
+                    />
+                  </div>
                 )}
 
                 <div className={styles.mobileCardBody}>
@@ -707,7 +722,14 @@ export default function ContentManagementPage() {
                 )}
                 {formData.image_url && !formErrors.image_url && (
                   <div className={styles.imagePreview}>
-                    <img src={formData.image_url} alt="Preview" />
+                    <Image
+                      src={formData.image_url}
+                      alt="Preview"
+                      width={400}
+                      height={200}
+                      className={styles.previewImage}
+                      unoptimized
+                    />
                   </div>
                 )}
               </div>

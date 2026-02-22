@@ -2,7 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import dynamic from "next/dynamic";
-import { FiImage, FiPhone, FiHelpCircle } from "react-icons/fi";
+import { FiImage, FiFileText, FiHelpCircle } from "react-icons/fi";
 import styles from "./content-management.module.css";
 
 // Dynamic imports for tab content
@@ -16,11 +16,11 @@ const BannerContent = dynamic(() => import("../banner/page"), {
   ssr: false,
 });
 
-const ContactContent = dynamic(() => import("../contact/page"), {
+const PagesContent = dynamic(() => import("../pages/page"), {
   loading: () => (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
-      <p>Loading Contact Management...</p>
+      <p>Loading Pages Management...</p>
     </div>
   ),
   ssr: false,
@@ -36,7 +36,7 @@ const FAQsContent = dynamic(() => import("../faqs/page"), {
   ssr: false,
 });
 
-type TabType = "banner" | "contact" | "faqs";
+type TabType = "banner" | "pages" | "faqs";
 
 export default function ContentManagementPage() {
   const [activeTab, setActiveTab] = useState<TabType>("banner");
@@ -49,10 +49,10 @@ export default function ContentManagementPage() {
       description: "Manage website banners and promotional images",
     },
     {
-      id: "contact" as TabType,
-      label: "Contact",
-      icon: <FiPhone />,
-      description: "Manage contact information",
+      id: "pages" as TabType,
+      label: "Pages",
+      icon: <FiFileText />,
+      description: "Manage static content pages",
     },
     {
       id: "faqs" as TabType,
@@ -103,7 +103,7 @@ export default function ContentManagementPage() {
           }
         >
           {activeTab === "banner" && <BannerContent />}
-          {activeTab === "contact" && <ContactContent />}
+          {activeTab === "pages" && <PagesContent />}
           {activeTab === "faqs" && <FAQsContent />}
         </Suspense>
       </div>

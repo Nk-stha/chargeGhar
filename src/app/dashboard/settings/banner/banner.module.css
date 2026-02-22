@@ -456,12 +456,24 @@
     border-radius: 6px;
     overflow: hidden;
     border: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a1a;
 }
 
 .previewImage {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+.noImage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    font-size: 1.5rem;
 }
 
 .bannerInfo {
@@ -1328,12 +1340,19 @@
         word-break: break-word;
     }
 
-    .mobileCardImage {
+    .mobileCardImageWrapper {
         width: 100%;
         height: 150px;
-        object-fit: cover;
         border-radius: 8px;
         margin-bottom: 0.75rem;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .mobileCardImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .detailGrid {
