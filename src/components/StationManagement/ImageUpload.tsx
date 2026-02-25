@@ -23,7 +23,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   maxSizeMB = 10,
   label = "Station Media",
   description = "Upload images or videos of the charging station",
-  accept = "image/jpeg,image/png,image/webp,video/mp4,video/webm"
+  accept = "image/*,video/*"
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -56,14 +56,14 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   };
 
   const validateFile = (file: File): { valid: boolean; error?: string } => {
-    // Check file type
-    const validImageTypes = ["image/jpeg", "image/png", "image/webp"];
-    const validVideoTypes = ["video/mp4", "video/webm"];
+    // Check file type - accept all image and video formats
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
     
-    if (!validImageTypes.includes(file.type) && !validVideoTypes.includes(file.type)) {
+    if (!isImage && !isVideo) {
       return {
         valid: false,
-        error: "Invalid file type. Please upload JPEG, PNG, WebP images or MP4, WebM videos.",
+        error: "Invalid file type. Please upload an image or video file.",
       };
     }
 
@@ -187,7 +187,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               Click to upload or drag and drop
             </p>
             <p className={styles.supportText}>
-              Images or Video (max {maxSizeMB}MB)
+              All image and video formats (max {maxSizeMB}MB)
             </p>
           </div>
         )}
