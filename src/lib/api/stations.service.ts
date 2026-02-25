@@ -135,28 +135,21 @@ class StationsService {
     if (data.status !== undefined) formData.append("status", data.status);
     if (data.is_maintenance !== undefined)
       formData.append("is_maintenance", data.is_maintenance.toString());
-    if (data.hardware_info !== undefined)
+    
+    // Send hardware_info as JSON string
+    if (data.hardware_info !== undefined) {
       formData.append("hardware_info", JSON.stringify(data.hardware_info));
-
-    // Append array items individually for proper FormData handling
-    if (data.amenity_ids !== undefined) {
-      if (data.amenity_ids.length > 0) {
-        data.amenity_ids.forEach((id) => {
-          formData.append("amenity_ids", id);
-        });
-      } else {
-        // Send empty array as JSON string to clear amenities
-        formData.append("amenity_ids", "[]");
-      }
     }
 
-    if (data.media_uploads !== undefined) {
-      if (data.media_uploads.length > 0) {
-        formData.append("media_uploads", JSON.stringify(data.media_uploads));
-      } else {
-        // Send empty array as JSON string to clear media
-        formData.append("media_uploads", "[]");
-      }
+    // Append array items individually for proper FormData handling
+    if (data.amenity_ids !== undefined && data.amenity_ids.length > 0) {
+      data.amenity_ids.forEach((id) => {
+        formData.append("amenity_ids", id);
+      });
+    }
+
+    if (data.media_uploads !== undefined && data.media_uploads.length > 0) {
+      formData.append("media_uploads", JSON.stringify(data.media_uploads));
     }
 
     if (data.description !== undefined)
@@ -166,15 +159,11 @@ class StationsService {
     if (data.closing_time !== undefined)
       formData.append("closing_time", data.closing_time);
 
-    if (data.powerbank_assignments !== undefined) {
-      if (data.powerbank_assignments.length > 0) {
-        formData.append(
-          "powerbank_assignments",
-          JSON.stringify(data.powerbank_assignments)
-        );
-      } else {
-        formData.append("powerbank_assignments", "[]");
-      }
+    if (data.powerbank_assignments !== undefined && data.powerbank_assignments.length > 0) {
+      formData.append(
+        "powerbank_assignments",
+        JSON.stringify(data.powerbank_assignments)
+      );
     }
 
     const response = await instance.patch<ApiResponse<Station>>(

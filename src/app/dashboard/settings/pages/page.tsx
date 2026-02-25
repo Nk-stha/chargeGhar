@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import styles from "./pages.module.css";
 import {
@@ -16,6 +17,18 @@ import {
 } from "react-icons/fi";
 import { contentPageService } from "../../../../lib/api/content-page.service";
 import { ContentPage, PageType } from "../../../../types/content-page.types";
+
+const RichTextEditor = dynamic(
+  () => import("../../../../components/RichTextEditor/RichTextEditor"),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ padding: "2rem", background: "#1a1a1a", borderRadius: "8px", color: "#999", textAlign: "center" }}>
+        Loading editor...
+      </div>
+    ),
+  },
+);
 
 export default function ContentPagesManagementPage() {
   const [pages, setPages] = useState<ContentPage[]>([]);
@@ -83,6 +96,10 @@ export default function ContentPagesManagementPage() {
     setFormErrors({});
   };
 
+  const stripHtmlTags = (html: string): string => {
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
+
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
@@ -90,7 +107,7 @@ export default function ContentPagesManagementPage() {
       errors.title = "Title is required";
     }
 
-    if (!formData.content.trim()) {
+    if (!stripHtmlTags(formData.content)) {
       errors.content = "Content is required";
     }
 
@@ -342,26 +359,17 @@ export default function ContentPagesManagementPage() {
                 <label className={styles.label}>
                   Content <span className={styles.required}>*</span>
                 </label>
-                <textarea
-                  className={`${styles.textarea} ${formErrors.content ? styles.inputError : ""}`}
-                  placeholder="Enter page content (Markdown supported)"
-                  rows={18}
-                  value={formData.content}
-                  onChange={(e) =>
-                    setFormData({ ...formData, content: e.target.value })
+                <RichTextEditor
+                  content={formData.content}
+                  onChange={(html) =>
+                    setFormData({ ...formData, content: html })
                   }
+                  placeholder="Write your page content here..."
+                  error={!!formErrors.content}
                 />
                 {formErrors.content && (
                   <span className={styles.errorMessage}>{formErrors.content}</span>
                 )}
-                <div className={styles.contentInfo}>
-                  <span className={styles.helpText}>
-                    Markdown formatting is supported
-                  </span>
-                  <span className={styles.charCount}>
-                    {formData.content.length} characters
-                  </span>
-                </div>
               </div>
 
               <div className={styles.formGroup}>
