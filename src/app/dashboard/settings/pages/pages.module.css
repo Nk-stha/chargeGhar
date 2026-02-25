@@ -130,9 +130,112 @@
     color: #fff;
 }
 
-/* Pages Grid */
+/* Table View (Desktop) */
+.tableWrapper {
+    display: block;
+    overflow-x: auto;
+    background: #141414;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead {
+    background: #1a1a1a;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #ddd;
+    white-space: nowrap;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #2a2a2a;
+    transition: background 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: #1a1a1a;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table td {
+    padding: 1rem;
+    color: #ccc;
+    font-size: 0.9rem;
+    vertical-align: middle;
+}
+
+.pageTypeCell {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.pageIconTable {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.pageTypeText {
+    color: #ddd;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.pageTitleTable {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.contentPreviewTable {
+    color: #999;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    display: block;
+    max-width: 300px;
+}
+
+.dateText {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.editBtnTable {
+    padding: 0.5rem;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    color: #82ea80;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.editBtnTable:hover {
+    background: #202020;
+    border-color: #82ea80;
+    transform: scale(1.05);
+}
+
+/* Pages Grid (Mobile/Tablet) */
 .pagesGrid {
-    display: grid;
+    display: none;
     grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
     gap: 1.5rem;
 }
@@ -338,228 +441,17 @@
     background: #56d61f;
 }
 
-/* Modal */
-.modalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 1rem;
-    backdrop-filter: blur(4px);
-}
-
-.modalContent {
-    background: #141414;
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    width: 100%;
-    max-width: 900px;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
-
-.modalHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid #2a2a2a;
-    position: sticky;
-    top: 0;
-    background: #141414;
-    z-index: 10;
-}
-
-.modalTitleSection {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.modalIcon {
-    font-size: 1.8rem;
-}
-
-.modalHeader h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: #fff;
-    margin: 0;
-}
-
-.closeBtn {
-    background: transparent;
-    border: none;
-    color: #999;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0.25rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    border-radius: 6px;
-}
-
-.closeBtn:hover {
-    color: #fff;
-    background: #1a1a1a;
-}
-
-.modalBody {
-    padding: 2rem;
-}
-
-.formGroup {
-    margin-bottom: 1.5rem;
-}
-
-.label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #ddd;
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-.required {
-    color: #ff6b6b;
-}
-
-.input,
-.inputDisabled,
-.textarea {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    background: #1a1a1a;
-    border: 1px solid #2a2a2a;
-    border-radius: 8px;
-    color: #fff;
-    font-size: 0.95rem;
-    font-family: inherit;
-    transition: all 0.2s ease;
-}
-
-.input:focus,
-.textarea:focus {
-    outline: none;
-    border-color: #82ea80;
-    box-shadow: 0 0 0 3px rgba(130, 234, 128, 0.1);
-}
-
-.inputDisabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.textarea {
-    resize: vertical;
-    min-height: 120px;
-    line-height: 1.6;
-    font-family: 'Courier New', monospace;
-}
-
-.inputError {
-    border-color: #ff6b6b;
-}
-
-.errorMessage {
-    display: block;
-    margin-top: 0.5rem;
-    color: #ff6b6b;
-    font-size: 0.85rem;
-}
-
-.helpText {
-    display: block;
-    margin-top: 0.5rem;
-    color: #999;
-    font-size: 0.85rem;
-}
-
-.contentInfo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.5rem;
-}
-
-.charCount {
-    color: #666;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.checkboxLabel {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    cursor: pointer;
-    color: #ddd;
-    font-size: 0.95rem;
-}
-
-.checkboxLabel input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #47b216;
-}
-
-.modalActions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #2a2a2a;
-}
-
-.cancelBtn,
-.submitBtn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: none;
-}
-
-.cancelBtn {
-    background: #1a1a1a;
-    color: #ddd;
-    border: 1px solid #2a2a2a;
-}
-
-.cancelBtn:hover {
-    background: #202020;
-}
-
-.submitBtn {
-    background: #47b216;
-    color: #fff;
-}
-
-.submitBtn:hover {
-    background: #56d61f;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(71, 178, 22, 0.3);
-}
-
-.submitBtn:disabled,
-.cancelBtn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
 /* Responsive */
+@media (max-width: 1024px) {
+    .tableWrapper {
+        display: none;
+    }
+
+    .pagesGrid {
+        display: grid;
+    }
+}
+
 @media (max-width: 768px) {
     .container {
         padding: 1rem;
@@ -592,24 +484,5 @@
     .pageActions {
         width: 100%;
         justify-content: space-between;
-    }
-
-    .modalContent {
-        max-width: 100%;
-        border-radius: 12px;
-    }
-
-    .modalHeader,
-    .modalBody {
-        padding: 1.25rem;
-    }
-
-    .modalActions {
-        flex-direction: column-reverse;
-    }
-
-    .cancelBtn,
-    .submitBtn {
-        width: 100%;
     }
 }

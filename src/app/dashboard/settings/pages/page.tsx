@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import styles from "./pages.module.css";
 import {
@@ -18,35 +18,12 @@ import {
 import { contentPageService } from "../../../../lib/api/content-page.service";
 import { ContentPage, PageType } from "../../../../types/content-page.types";
 
-const RichTextEditor = dynamic(
-  () => import("../../../../components/RichTextEditor/RichTextEditor"),
-  {
-    ssr: false,
-    loading: () => (
-      <div style={{ padding: "2rem", background: "#1a1a1a", borderRadius: "8px", color: "#999", textAlign: "center" }}>
-        Loading editor...
-      </div>
-    ),
-  },
-);
-
 export default function ContentPagesManagementPage() {
+  const router = useRouter();
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [modalLoading, setModalLoading] = useState<boolean>(false);
-  const [selectedPage, setSelectedPage] = useState<ContentPage | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-
-  const [formData, setFormData] = useState({
-    page_type: "" as PageType,
-    title: "",
-    content: "",
-    is_active: true,
-  });
-
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const fetchPages = useCallback(async () => {
     try {
@@ -78,76 +55,8 @@ export default function ContentPagesManagementPage() {
     fetchPages();
   };
 
-  const handleOpenModal = (page: ContentPage) => {
-    setSelectedPage(page);
-    setFormData({
-      page_type: page.page_type,
-      title: page.title ?? "",
-      content: page.content ?? "",
-      is_active: page.is_active ?? true,
-    });
-    setFormErrors({});
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedPage(null);
-    setFormErrors({});
-  };
-
-  const stripHtmlTags = (html: string): string => {
-    return html.replace(/<[^>]*>/g, "").trim();
-  };
-
-  const validateForm = (): boolean => {
-    const errors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      errors.title = "Title is required";
-    }
-
-    if (!stripHtmlTags(formData.content)) {
-      errors.content = "Content is required";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      setModalLoading(true);
-
-      const payload = {
-        page_type: formData.page_type,
-        title: formData.title.trim(),
-        content: formData.content.trim(),
-        is_active: formData.is_active,
-      };
-
-      const response = await contentPageService.updateContentPage(
-        formData.page_type,
-        payload,
-      );
-
-      if (response.success) {
-        toast.success("Content page updated successfully");
-        handleCloseModal();
-        fetchPages();
-      }
-    } catch (err: any) {
-      const errorMsg = err?.response?.data?.message || "Failed to update content page";
-      toast.error(errorMsg);
-    } finally {
-      setModalLoading(false);
-    }
+  const handleEdit = (pageType: PageType) => {
+    router.push(`/dashboard/settings/pages/${pageType}`);
   };
 
   const filteredPages = pages.filter((page) => {
@@ -224,7 +133,90 @@ export default function ContentPagesManagementPage() {
           <p>{searchTerm ? "No pages match your search" : "No pages found"}</p>
         </div>
       ) : (
-        <div className={styles.pagesGrid}>
+        <>
+          {/* Desktop Table View */}
+          <div className={styles.tableWrapper}>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Title</th>
+                  <th>Content Preview</th>
+                  <th>Status</th>
+                  <th>Last Updated</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPages.map((page) => (
+                  <tr key={page?.id ?? Math.random()}>
+                    <td>
+                      <div className={styles.pageTypeCell}>
+                        <span className={styles.pageIconTable}>
+                          {contentPageService.getPageTypeIcon(page.page_type)}
+                        </span>
+                        <span className={styles.pageTypeText}>
+                          {contentPageService.getPageTypeLabel(page.page_type)}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className={styles.pageTitleTable}>{page?.title ?? "N/A"}</span>
+                    </td>
+                    <td>
+                      <span className={styles.contentPreviewTable}>
+                        {page?.content
+                          ? page.content.substring(0, 100).replace(/[#*_`]/g, "") + "..."
+                          : "No content"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`${styles.statusBadge} ${
+                          page?.is_active
+                            ? styles.statusActive
+                            : styles.statusInactive
+                        }`}
+                      >
+                        {page?.is_active ? (
+                          <>
+                            <FiEye size={12} /> Active
+                          </>
+                        ) : (
+                          <>
+                            <FiEyeOff size={12} /> Inactive
+                          </>
+                        )}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={styles.dateText}>
+                        {page?.updated_at
+                          ? new Date(page.updated_at).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })
+                          : "N/A"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => handleEdit(page.page_type)}
+                        className={styles.editBtnTable}
+                        title="Edit page"
+                      >
+                        <FiEdit size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile/Tablet Card View */}
+          <div className={styles.pagesGrid}>
           {filteredPages.map((page) => (
             <div key={page?.id ?? Math.random()} className={styles.pageCard}>
               <div className={styles.pageCardHeader}>
@@ -258,7 +250,7 @@ export default function ContentPagesManagementPage() {
                     )}
                   </span>
                   <button
-                    onClick={() => handleOpenModal(page)}
+                    onClick={() => handleEdit(page.page_type)}
                     className={styles.editButton}
                     title="Edit page"
                   >
@@ -295,116 +287,8 @@ export default function ContentPagesManagementPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Edit Modal */}
-      {isModalOpen && selectedPage && (
-        <div className={styles.modalOverlay} onClick={handleCloseModal}>
-          <div
-            className={styles.modalContent}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className={styles.modalHeader}>
-              <div className={styles.modalTitleSection}>
-                <span className={styles.modalIcon}>
-                  {contentPageService.getPageTypeIcon(selectedPage.page_type)}
-                </span>
-                <h2>
-                  Edit {contentPageService.getPageTypeLabel(selectedPage.page_type)}
-                </h2>
-              </div>
-              <button
-                onClick={handleCloseModal}
-                className={styles.closeBtn}
-                aria-label="Close"
-              >
-                <FiX />
-              </button>
-            </div>
-
-            <form onSubmit={handleSubmit} className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Page Type <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  className={styles.inputDisabled}
-                  value={contentPageService.getPageTypeLabel(formData.page_type)}
-                  disabled
-                />
-                <span className={styles.helpText}>Page type cannot be changed</span>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Title <span className={styles.required}>*</span>
-                </label>
-                <input
-                  type="text"
-                  className={`${styles.input} ${formErrors.title ? styles.inputError : ""}`}
-                  placeholder="Enter page title"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                />
-                {formErrors.title && (
-                  <span className={styles.errorMessage}>{formErrors.title}</span>
-                )}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.label}>
-                  Content <span className={styles.required}>*</span>
-                </label>
-                <RichTextEditor
-                  content={formData.content}
-                  onChange={(html) =>
-                    setFormData({ ...formData, content: html })
-                  }
-                  placeholder="Write your page content here..."
-                  error={!!formErrors.content}
-                />
-                {formErrors.content && (
-                  <span className={styles.errorMessage}>{formErrors.content}</span>
-                )}
-              </div>
-
-              <div className={styles.formGroup}>
-                <label className={styles.checkboxLabel}>
-                  <input
-                    type="checkbox"
-                    checked={formData.is_active}
-                    onChange={(e) =>
-                      setFormData({ ...formData, is_active: e.target.checked })
-                    }
-                  />
-                  <span>Active (Display this page to users)</span>
-                </label>
-              </div>
-
-              <div className={styles.modalActions}>
-                <button
-                  type="button"
-                  onClick={handleCloseModal}
-                  className={styles.cancelBtn}
-                  disabled={modalLoading}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={styles.submitBtn}
-                  disabled={modalLoading}
-                >
-                  {modalLoading ? "Updating..." : "Update Page"}
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
