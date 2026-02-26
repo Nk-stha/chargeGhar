@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+.next
+out
+build
+
+# Version control
+.git
+.gitignore
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# CI/CD
+.github
+
+# Documentation
+docs
+*.md
+!README.md
+
+# Environment files (injected at runtime)
+.env*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+.orchids
+alloy-config.alloy
+tsconfig.tsbuildinfo
+coverage
