@@ -27,6 +27,7 @@ interface Coupon {
   name: string;
   points_value: number;
   max_uses_per_user: number;
+  is_public: boolean;
   valid_from: string;
   valid_until: string;
   status: string;
@@ -61,12 +62,16 @@ interface Pagination {
 
 const CouponsPage: React.FC = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [filteredCoupons, setFilteredCoupons] = useState<Coupon[]>([]);
   const [pagination, setPagination] = useState<Pagination | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [isPublicFilter, setIsPublicFilter] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [pageSize, setPageSize] = useState(20);
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
@@ -82,42 +87,54 @@ const CouponsPage: React.FC = () => {
     name: "",
     points_value: "",
     max_uses_per_user: "",
+    is_public: false,
     valid_from: "",
     valid_until: "",
   });
   const [newStatus, setNewStatus] = useState("");
+  const [newIsPublic, setNewIsPublic] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     fetchCoupons();
   }, []);
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = coupons.filter(
-        (coupon) =>
-          (coupon?.code && coupon.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (coupon?.name && coupon.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (coupon?.status && coupon.status.toLowerCase().includes(searchTerm.toLowerCase())),
-      );
-      setFilteredCoupons(filtered);
-    } else {
-      setFilteredCoupons(coupons);
+  const buildQueryParams = (page: number) => {
+    const params = new URLSearchParams();
+    params.set("page", String(page));
+    params.set("page_size", String(pageSize));
+    if (searchTerm.trim()) params.set("search", searchTerm.trim());
+    if (statusFilter) params.set("status", statusFilter);
+    if (isPublicFilter) params.set("is_public", isPublicFilter);
+    
+    if (startDate) {
+      try {
+        params.set("start_date", new Date(startDate).toISOString());
+      } catch (e) {
+        params.set("start_date", startDate);
+      }
     }
-  }, [searchTerm, coupons]);
+    
+    if (endDate) {
+      try {
+        params.set("end_date", new Date(endDate).toISOString());
+      } catch (e) {
+        params.set("end_date", endDate);
+      }
+    }
+    
+    return params.toString();
+  };
 
   const fetchCoupons = async (page = 1) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axiosInstance.get(
-        `/api/admin/coupons?page=${page}&page_size=20`,
-      );
+      const response = await axiosInstance.get(`/api/admin/coupons?${buildQueryParams(page)}`);
 
       if (response.data.success) {
         const results = response.data.data.results || [];
         setCoupons(results);
-        setFilteredCoupons(results);
         setPagination(response.data.data.pagination);
       }
     } catch (err: any) {
@@ -173,7 +190,7 @@ const CouponsPage: React.FC = () => {
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        formDataToSend.append(key, value);
+        formDataToSend.append(key, String(value));
       });
 
       const response = await axiosInstance.post(
@@ -192,6 +209,7 @@ const CouponsPage: React.FC = () => {
           name: "",
           points_value: "",
           max_uses_per_user: "",
+          is_public: false,
           valid_from: "",
           valid_until: "",
         });
@@ -205,7 +223,7 @@ const CouponsPage: React.FC = () => {
     }
   };
 
-  const handleUpdateStatus = async () => {
+  const handleUpdateCoupon = async () => {
     if (!selectedCoupon || !newStatus) return;
 
     setActionLoading(true);
@@ -214,6 +232,7 @@ const CouponsPage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("status", newStatus);
+      formData.append("is_public", String(newIsPublic));
 
       const response = await axiosInstance.patch(
         `/api/admin/coupons/${selectedCoupon.code}`,
@@ -222,14 +241,15 @@ const CouponsPage: React.FC = () => {
       );
 
       if (response.data.success) {
-        toast.success("Coupon status updated successfully");
+        toast.success("Coupon updated successfully");
         setShowStatusModal(false);
         setNewStatus("");
+        setNewIsPublic(false);
         setSelectedCoupon(null);
         fetchCoupons();
       }
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || "Failed to update status";
+      const errorMessage = err.response?.data?.message || "Failed to update coupon";
       toast.error(errorMessage);
     } finally {
       setActionLoading(false);
@@ -255,9 +275,33 @@ const CouponsPage: React.FC = () => {
     }
   };
 
+  const handleApplyFilters = () => {
+    fetchCoupons(1);
+  };
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setIsPublicFilter("");
+    setStartDate("");
+    setEndDate("");
+    setPageSize(20);
+    fetchCoupons(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    fetchCoupons(page);
+  };
+
+  const handlePageSizeChange = (value: number) => {
+    setPageSize(value);
+    fetchCoupons(1);
+  };
+
   const openStatusModal = (coupon: Coupon) => {
     setSelectedCoupon(coupon);
     setNewStatus(coupon.status);
+    setNewIsPublic(coupon.is_public);
     setShowStatusModal(true);
   };
 
@@ -268,6 +312,7 @@ const CouponsPage: React.FC = () => {
     setShowUsageModal(false);
     setSelectedCoupon(null);
     setNewStatus("");
+    setNewIsPublic(false);
     setCouponUsages([]);
   };
 
@@ -290,7 +335,7 @@ const CouponsPage: React.FC = () => {
 
   // Calculate statistics
   const stats = {
-    total: coupons.length,
+    total: pagination?.total_count ?? coupons.length,
     active: coupons.filter((c) => c.status.toUpperCase() === "ACTIVE").length,
     inactive: coupons.filter((c) => c.status.toUpperCase() === "INACTIVE")
       .length,
@@ -387,6 +432,9 @@ const CouponsPage: React.FC = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleApplyFilters();
+            }}
           />
           {searchTerm && (
             <button
@@ -398,16 +446,82 @@ const CouponsPage: React.FC = () => {
             </button>
           )}
         </div>
-        <button className={styles.refreshButton} onClick={() => fetchCoupons()}>
+        <button className={styles.refreshButton} onClick={() => fetchCoupons(pagination?.current_page ?? 1)}>
           <FiRefreshCw /> Refresh
         </button>
       </div>
 
+      <div className={styles.filterRow}>
+        <div className={styles.filterGroup}>
+          <label>Status</label>
+          <select
+            className={styles.select}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+            <option value="expired">Expired</option>
+          </select>
+        </div>
+        <div className={styles.filterGroup}>
+          <label>Visibility</label>
+          <select
+            className={styles.select}
+            value={isPublicFilter}
+            onChange={(e) => setIsPublicFilter(e.target.value)}
+          >
+            <option value="">All</option>
+            <option value="true">Public</option>
+            <option value="false">Private</option>
+          </select>
+        </div>
+        <div className={styles.filterGroup}>
+          <label>Start Date</label>
+          <input
+            type="datetime-local"
+            className={styles.input}
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className={styles.filterGroup}>
+          <label>End Date</label>
+          <input
+            type="datetime-local"
+            className={styles.input}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </div>
+        <div className={styles.filterGroup}>
+          <label>Page Size</label>
+          <select
+            className={styles.select}
+            value={pageSize}
+            onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+            <option value={100}>100</option>
+          </select>
+        </div>
+        <div className={styles.filterActions}>
+          <button className={styles.applyButton} onClick={handleApplyFilters}>
+            Apply
+          </button>
+          <button className={styles.clearFiltersButton} onClick={handleClearFilters}>
+            Clear
+          </button>
+        </div>
+      </div>
 
       {/* Table */}
       <DataTable
         title="All Coupons"
-        subtitle={`${filteredCoupons.length} ${filteredCoupons.length === 1 ? "coupon" : "coupons"}`}
+        subtitle={`${pagination?.total_count ?? coupons.length} ${((pagination?.total_count ?? coupons.length) === 1) ? "coupon" : "coupons"}`}
         columns={[
           {
             header: "Code",
@@ -437,6 +551,22 @@ const CouponsPage: React.FC = () => {
             header: "Total Uses",
             accessor: "total_uses",
             render: (value: number) => value ?? 0,
+          },
+          {
+            header: "Visibility",
+            accessor: "is_public",
+            render: (value: boolean) => (
+              <span
+                className={styles.statusBadge}
+                style={{
+                  backgroundColor: value ? "rgba(30, 142, 62, 0.1)" : "rgba(95, 99, 104, 0.1)",
+                  color: value ? "#1e8e3e" : "#5f6368",
+                  borderColor: value ? "#1e8e3e" : "#5f6368",
+                }}
+              >
+                {value ? "Public" : "Private"}
+              </span>
+            ),
           },
           {
             header: "Status",
@@ -496,7 +626,7 @@ const CouponsPage: React.FC = () => {
             ),
           },
         ]}
-        data={filteredCoupons}
+        data={coupons}
         loading={loading}
         emptyMessage="No coupons found"
         mobileCardRender={(row: Coupon) => (
@@ -518,6 +648,7 @@ const CouponsPage: React.FC = () => {
             <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "#aaa" }}>
               <span className={styles.pointsCell}>{row?.points_value ?? 0} pts</span>
               <span>Uses: {row?.total_uses ?? 0}/{row?.max_uses_per_user ?? 0}</span>
+              <span>{row?.is_public ? "Public" : "Private"}</span>
             </div>
             <p style={{ margin: 0, fontSize: "0.85rem", color: "#999" }}>
               Valid until: {row?.valid_until ? new Date(row.valid_until).toLocaleDateString() : "N/A"}
@@ -551,6 +682,28 @@ const CouponsPage: React.FC = () => {
           </div>
         )}
       />
+
+      {pagination && (
+        <div className={styles.pagination}>
+          <button
+            className={styles.paginationButton}
+            disabled={!pagination.has_previous || loading}
+            onClick={() => handlePageChange(pagination.current_page - 1)}
+          >
+            Previous
+          </button>
+          <span className={styles.paginationInfo}>
+            Page {pagination.current_page} of {pagination.total_pages}
+          </span>
+          <button
+            className={styles.paginationButton}
+            disabled={!pagination.has_next || loading}
+            onClick={() => handlePageChange(pagination.current_page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* Add Coupon Modal */}
       {showAddModal && (
@@ -659,6 +812,22 @@ const CouponsPage: React.FC = () => {
                     className={styles.input}
                   />
                 </div>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={formData.is_public}
+                    onChange={(e) =>
+                      setFormData({ ...formData, is_public: e.target.checked })
+                    }
+                  />
+                  <span>Public (Visible to all users)</span>
+                </label>
+                <p className={styles.helpText}>
+                  Public coupons are visible to all users. Private coupons are only accessible via direct code entry.
+                </p>
               </div>
 
               <div className={styles.modalFooter}>
@@ -815,7 +984,7 @@ const CouponsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Status Update Modal */}
+      {/* Edit Coupon Modal */}
       {showStatusModal && selectedCoupon && (
         <div className={styles.modalOverlay} onClick={closeAllModals}>
           <div
@@ -823,7 +992,7 @@ const CouponsPage: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className={styles.modalHeader}>
-              <h2>Update Status</h2>
+              <h2>Edit Coupon</h2>
               <button className={styles.closeButton} onClick={closeAllModals}>
                 <FiX />
               </button>
@@ -831,7 +1000,7 @@ const CouponsPage: React.FC = () => {
 
             <div className={styles.modalBody}>
               <p className={styles.modalText}>
-                Update status for coupon: <strong>{selectedCoupon?.code || "N/A"}</strong>
+                Editing coupon: <strong>{selectedCoupon?.code || "N/A"}</strong>
               </p>
 
               <div className={styles.formGroup}>
@@ -842,10 +1011,25 @@ const CouponsPage: React.FC = () => {
                   className={styles.select}
                   required
                 >
-                  <option value="ACTIVE">ACTIVE</option>
-                  <option value="INACTIVE">INACTIVE</option>
-                  <option value="EXPIRED">EXPIRED</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="expired">Expired</option>
                 </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Visibility</label>
+                <div className={styles.toggleRow}>
+                  <span>{newIsPublic ? "Public" : "Private"}</span>
+                  <label className={styles.toggle}>
+                    <input
+                      type="checkbox"
+                      checked={newIsPublic}
+                      onChange={(e) => setNewIsPublic(e.target.checked)}
+                    />
+                    <span className={styles.toggleSlider} />
+                  </label>
+                </div>
               </div>
 
               <div className={styles.modalFooter}>
@@ -857,10 +1041,10 @@ const CouponsPage: React.FC = () => {
                 </button>
                 <button
                   className={styles.submitButton}
-                  onClick={handleUpdateStatus}
+                  onClick={handleUpdateCoupon}
                   disabled={actionLoading}
                 >
-                  {actionLoading ? "Updating..." : "Update Status"}
+                  {actionLoading ? "Updating..." : "Update Coupon"}
                 </button>
               </div>
             </div>
