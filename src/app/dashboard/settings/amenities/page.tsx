@@ -105,14 +105,9 @@ export default function AmenitiesPage() {
       if (response.success) {
         toast.success(`Amenity "${name}" deleted successfully`);
         fetchAmenities();
-      } else {
-        const errorMsg = "Failed to delete amenity";
-        setError(errorMsg);
-        toast.error(errorMsg);
       }
     } catch (err: any) {
-      const errorMsg = err?.message || "Failed to delete amenity";
-      setError(errorMsg);
+      const errorMsg = err?.response?.data?.error?.message || err?.response?.data?.message || err?.message || "Failed to delete amenity";
       toast.error(errorMsg);
     } finally {
       setDeleteLoading(null);
